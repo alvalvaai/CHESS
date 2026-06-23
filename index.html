@@ -385,7 +385,7 @@
                     return { maxT, maxW, minL };
                 };
 
-                const buildTableHTML = (rows, isChesspions) => {
+             const buildTableHTML = (rows, isChesspions) => {
                     let html = '';
                     const limits = getLimits(rows);
 
@@ -395,7 +395,7 @@
                         if(r.w === limits.maxW && r.w > 0) badge += ' ⚔️';
                         if(r.l === limits.minL) badge += ' 🛡️';
 
-                        // Clases de tamaño para el Top 3 y bordes de color para ascensos/descensos
+                        // Clases estéticas por defecto de tamaño para el Top 3
                         let rowStyle = "";
                         let textStyle = "text-stone-800 font-medium";
                         
@@ -403,17 +403,29 @@
                         else if(index === 1) { rowStyle = "bg-stone-100/80 text-sm font-bold"; }
                         else if(index === 2) { rowStyle = "bg-orange-50/60 text-sm font-bold"; }
 
-                        // Aplicar bordes de zonas dinámicas según división
-                        let zoneClass = "";
-                        if(isChesspions) {
-                            if(index >= rows.length - 2) zoneClass = "zone-downgrade"; // Descenso directo
-                            else if(index === rows.length - 3) zoneClass = "zone-playoff"; // Promoción
+                        // --- NUEVA LÓGICA DE COLORES DE LIGA PERSONALIZADOS ---
+                        let estiloFila = '';
+                        const posicion = r.pos; // Usamos la posición real de la tabla
+
+                        if (isChesspions) {
+                            if (posicion >= 1 && posicion <= 4) {
+                                estiloFila = 'background-color: rgba(46, 204, 113, 0.15) !important; border-left: 5px solid #2ecc71;'; // Verde Playoff
+                            } else if (posicion >= 7 && posicion <= 11) {
+                                estiloFila = 'background-color: rgba(241, 196, 15, 0.15) !important; border-left: 5px solid #f1c40f;'; // Amarillo Promoción
+                            } else if (posicion >= 12 && posicion <= 14) {
+                                estiloFila = 'background-color: rgba(231, 76, 60, 0.15) !important; border-left: 5px solid #e74c3c;'; // Rojo Descenso
+                            }
                         } else {
-                            if(index === 0) zoneClass = "zone-upgrade"; // Ascenso directo
-                            else if(index === 1 || index === 2) zoneClass = "zone-playoff"; // Promoción
+                            // Si es Chesscond Division
+                            if (posicion >= 1 && posicion <= 3) {
+                                estiloFila = 'background-color: rgba(46, 204, 113, 0.15) !important; border-left: 5px solid #2ecc71;'; // Verde Ascenso
+                            } else if (posicion >= 4 && posicion <= 8) {
+                                estiloFila = 'background-color: rgba(241, 196, 15, 0.15) !important; border-left: 5px solid #f1c40f;'; // Amarillo Promoción
+                            }
                         }
 
-                        html += `<tr class="border-b border-stone-300 cursor-pointer transition ${rowStyle} ${textStyle} ${zoneClass}" onclick="openPlayerModal('${r.name.replace(/'/g, "\'")}', '${r.div}')">
+                        // Añadimos el style="${estiloFila}" dinámico a la fila tr
+                        html += `<tr style="${estiloFila}" class="border-b border-stone-300 cursor-pointer transition ${rowStyle} ${textStyle}" onclick="openPlayerModal('${r.name.replace(/'/g, "\\'")}', '${r.div}')">
                             <td class="py-3 px-3 font-black text-center text-stone-600">${r.pos}</td>
                             <td class="py-3 px-3 font-bold text-stone-900">${r.name}${badge}</td>
                             <td class="py-3 px-4 text-center bg-amber-50 font-black text-stone-950 text-base border-l border-r border-stone-300">${r.pts}</td>
@@ -428,7 +440,6 @@
                     });
                     return html;
                 };
-
                 document.querySelector('#table-chesspions tbody').innerHTML = buildTableHTML(chesspionsRows, true);
                 document.querySelector('#table-chesscond tbody').innerHTML = buildTableHTML(chesscondRows, false);
 
