@@ -44,33 +44,100 @@
 
     <!-- PESTAÑA REGLAMENTO -->
     <div id="content-reglamento" class="hidden max-w-5xl mx-auto p-4 md:p-6 space-y-6">
-        <div class="bg-lichess-card p-6 md:p-8 rounded-2xl shadow-md border border-stone-300">
-            <h2 class="text-2xl font-black mb-6 border-b-2 border-stone-400 pb-2 text-stone-800 flex items-center gap-2">
-                <i data-lucide="book-open" class="text-amber-800"></i> Reglamento Oficial del Torneo
-            </h2>
-            <div class="prose max-w-none text-stone-800 space-y-4 font-medium leading-relaxed">
-                <p class="font-bold text-lg text-amber-900">📌 Formato de Competición y Puntuación General</p>
-                <ul class="list-disc pl-5 space-y-2">
-                    <li>Cada enfrentamiento global consta de un bloque de partidas individuales acordadas por los jugadores.</li>
-                    <li><b>Sistema de Puntos en la General:</b> 
-                        <ul class="list-circle pl-5 mt-1">
-                            <li><b>Victoria en Enfrentamiento:</b> 3 Puntos en la clasificación general.</li>
-                            <li><b>Empate en Enfrentamiento:</b> 1 Punto en la clasificación general.</li>
-                            <li><b>Derrota en Enfrentamiento:</b> 0 Puntos en la clasificación general.</li>
+    <div class="bg-lichess-card p-6 md:p-8 rounded-2xl shadow-md border border-stone-300">
+        <h2 class="text-2xl font-black mb-6 border-b-2 border-stone-400 pb-2 text-stone-800 flex items-center gap-2">
+            <i data-lucide="book-open" class="text-amber-800"></i> XIX Torneo - Reglamento Oficial
+        </h2>
+        
+        <div class="prose max-w-none text-stone-800 space-y-6 font-medium leading-relaxed">
+            <p class="text-base italic text-stone-600 font-semibold border-l-4 border-amber-600 pl-3 bg-stone-50 py-2 rounded-r">
+                ¡Bienvenidos al "XIX Torneo"! En nombre de la organización, queremos agradecer a todos los participantes su disposición y sus ganas para esta XIX edición. ♟️🔥
+            </p>
+
+            <div>
+                <p class="font-bold text-lg text-amber-900 flex items-center gap-1">📌 Formato de Jornada y Puntuación</p>
+                <ul class="list-disc pl-5 space-y-2 mt-2">
+                    <li>Cada enfrentamiento consta de un bloque de <b>4 partidas individuales</b> por jornada.</li>
+                    <li><b>Ritmos de juego:</b> 2 partidas a ritmo <b>10'+0</b> y 2 partidas a ritmo <b>3'+2"</b>.</li>
+                    <li><b>Sistema de puntuación:</b> Cada partida individual otorga <b>1 punto</b> por victoria y <b>0.5 puntos</b> por tablas (empate).</li>
+                </ul>
+            </div>
+
+            <div class="bg-stone-50 p-4 rounded-xl border border-stone-200">
+                <p class="font-bold text-base text-stone-900 flex items-center gap-1">⚖️ Criterios de Desempate en la Clasificación</p>
+                <div class="mt-2 space-y-3 text-sm">
+                    <div>
+                        <span class="font-bold text-amber-800">Empate entre 2 jugadores:</span>
+                        <ol class="list-decimal pl-5 mt-1 space-y-1">
+                            <li>Enfrentamiento particular directo entre ambos.</li>
+                            <li>En caso de haber quedado 2-2, se mirará quién ha ganado <b>más jornadas globales</b>.</li>
+                            <li>Si persiste el empate, se clasificará quien tenga <b>más partidas individuales ganadas</b>.</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <span class="font-bold text-amber-800">Empate entre más de 2 jugadores (Triple empate o más):</span>
+                        <ol class="list-decimal pl-5 mt-1 space-y-1">
+                            <li>Se clasificará quien haya ganado <b>más jornadas globales</b>.</li>
+                            <li>Si persiste el empate, se mirará quien tenga <b>más partidas individuales ganadas</b>.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="font-bold text-lg text-emerald-900 flex items-center gap-1">🔄 Estructura, Ascensos y Descensos</p>
+                <p class="mt-1">El torneo se compone de dos divisiones equilibradas de <b>14 jugadores en Primera</b> y <b>14 jugadores en Segunda</b>. Al finalizar la liga regular se aplican los siguientes cambios de categoría:</p>
+                
+                <ul class="list-disc pl-5 space-y-3 mt-2">
+                    <li><span class="inline-flex bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Primera División</span> Los <b>3 últimos clasificados</b> descienden de forma directa a Segunda.</li>
+                    <li><span class="inline-flex bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Segunda División</span> Los <b>3 primeros clasificados</b> obtienen el ascenso directo a Primera.</li>
+                    <li><span class="inline-flex bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Promoción Híbrida</span> Del <b>7º al 11º de Primera</b> disputarán una promoción de duelo directo contra los clasificados del <b>4º al 8º de Segunda</b> (5 duelos en total).
+                        <ul class="list-circle pl-5 mt-1 text-stone-700">
+                            <li>El ganador de cada duelo obtendrá/mantendrá la plaza en Primera.</li>
+                            <li>El formato del match es idéntico al de la liga regular (4 partidas).</li>
+                            <li>En caso de empate en el duelo, se jugará un desempate reduciendo tiempos sin incremento hasta que alguien gane dos partidas seguidas: primero a <b>5’</b>, luego <b>3’</b> y finalmente <b>1’</b>.</li>
                         </ul>
                     </li>
-                    <li><b>Aclaración sobre el Cómputo de Partidas (Fallas de decimales):</b> Los resultados acumulados de partidas ganadas, perdidas o tablas reflejan exclusivamente números enteros de partidas individuales completas (1, 2, 3...). Las puntuaciones del encuentro individual como por ejemplo 1.5 - 2.5 representan el puntaje del match total, no partidas fraccionadas.</li>
                 </ul>
+            </div>
 
-                <p class="font-bold text-lg text-emerald-900 mt-6">🔄 Sistema de Ascensos, Descensos y Promoción Híbrida</p>
-                <ul class="list-disc pl-5 space-y-2">
-                    <li><b>Chesspions League (Primera División):</b> Los últimos clasificados descienden de categoría directamente o disputan la promoción según las plazas establecidas al finalizar la temporada regular.</li>
-                    <li><b>Chesscond Division (Segunda División):</b> Los primeros clasificados obtienen plaza de ascenso directo a la Chesspions League. Las posiciones inmediatamente posteriores entran en el cuadro de Playoffs de Promoción.</li>
-                    <li><b>Desempates:</b> En caso de igualdad de puntos en la clasificación general, se aplicarán los criterios de desempate en orden: enfrentamiento directo, balance total de partidas individuales ganadas, y finalmente partidas de desempate Blitz si fuera necesario.</li>
+            <div class="border-l-4 border-emerald-600 bg-emerald-50/50 p-4 rounded-r-xl">
+                <p class="font-bold text-lg text-emerald-950 flex items-center gap-1">🏆 Final Four (Título de Primera)</p>
+                <ul class="list-disc pl-5 space-y-1 mt-2 text-sm text-emerald-900">
+                    <li>Los <b>4 primeros clasificados de Primera</b> jugarán una Final Four (Semifinales y Final) de donde saldrá el Campeón absoluto.</li>
+                    <li>El formato de juego será igual que en la liga regular.</li>
+                    <li>En caso de empate en la ronda, avanzará o ganará el jugador que haya obtenido la <b>mejor posición en la liga regular</b>.</li>
+                </ul>
+            </div>
+
+            <div>
+                <p class="font-bold text-lg text-indigo-950 flex items-center gap-1">💬 Normas de Convivencia y Comunicación</p>
+                <p class="mt-1 text-sm">Contamos con dos chats específicos en WhatsApp. Los administradores <span class="font-bold text-indigo-900">FranHerrera</span> y <span class="font-bold text-indigo-900">Gordeza</span> velarán estrictamente por el cumplimiento de estas normas: 🧐</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                    <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
+                        <span class="font-bold text-indigo-900 block mb-1">💬 Chat TERTULIA</span>
+                        <p class="text-xs text-stone-600">Exclusivo para debatir sobre las partidas, comentar jugadas o pactar enfrentamientos amistosos.</p>
+                    </div>
+                    <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-200">
+                        <span class="font-bold text-indigo-900 block mb-1">📢 Chat TOURNAMENT</span>
+                        <p class="text-xs text-stone-600"><span class="font-bold uppercase text-red-700">SÓLO</span> sirve para anunciar los horarios acordados y publicar los resultados definitivos.</p>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl mt-4 text-xs space-y-2">
+                    <p><b>✍️ Formato para anunciar enfrentamientos:</b> <code class="bg-amber-100 px-1 py-0.5 rounded font-mono text-amber-900">FranHerrera vs Alberzas a las 18'30</code></p>
+                    <p><b>✍️ Formato para anunciar resultados:</b> <code class="bg-amber-100 px-1 py-0.5 rounded font-mono text-amber-900">J1 Gordeza 0 - 4 Guindiana 🍩</code></p>
+                </div>
+
+                <ul class="list-disc pl-5 space-y-2 mt-4">
+                    <li><b>📆 Calendario y Plazos:</b> El plazo de juego de cada jornada es <b>IRREVOCABLE de martes a lunes</b>. Los martes, nuestro corresponsal <span class="font-bold text-stone-950">Guindiana</span> actualizará los cuadros y clasificaciones oficiales de la app.</li>
+                    <li><b>📱 Contacto:</b> Para agendar la partida con tu rival se debe hacer siempre por <b>mensaje privado</b>. Una vez fijada la hora, se anuncia en el Chat Tertulia.</li>
                 </ul>
             </div>
         </div>
     </div>
+</div>
 
     <!-- PESTAÑA PRINCIPAL: LIGA -->
     <div id="content-liga" class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
