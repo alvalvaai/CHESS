@@ -291,17 +291,22 @@
                 const infoText = await infoRes.text();
                 const infoRows = JSON.parse(infoText.substring(47).slice(0, -2)).table.rows;
                 
-                infoRows.forEach((r) => {
-                    if(!r.c || !r.c[1]) return;
-                    infoData.push({ 
-    name: r.c[1].v || '', 
-    lichess: r.c[3]?.v || '', 
-    telefono: r.c[5]?.v || '' 
-});
-                    if(r.c[7] && r.c[8] && r.c[9]) {
-                        datesMap[r.c[7].v] = { start: r.c[8].f || r.c[8].v, end: r.c[9].f || r.c[9].v };
-                    }
-                });
+               infoRows.forEach((r) => {
+        if (!r.c || !r.c[1]) return;
+        
+        infoData.push({
+            name: r.c[1]?.v || '',
+            lichess: r.c[3]?.v || '',
+            telefono: r.c[5]?.v || ''
+        });
+
+        if (r.c[7] && r.c[8] && r.c[9]) {
+            datesMap[r.c[7].v] = { 
+                start: r.c[8].f || r.c[8].v, 
+                end: r.c[9].f || r.c[9].v 
+            };
+        }
+    });
 
                 // 2. OBTENER RESULTADOS COMPLETOS PARA CORRECCIÓN Y CONTROL DE EMPATES EN PARTIDAS INDIVIDUALES
                 const resRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESULTADOS`);
@@ -588,6 +593,21 @@
             } else {
                 lichessBtn.style.display = 'none';
             }
+
+            // --- LÓGICA BOTÓN DE WHATSAPP ---
+    const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
+    if (playerInfo && playerInfo.telefono) {
+        const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
+        if (numLimpio !== "") {
+            const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
+            btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
+            btnWhatsapp.style.display = 'flex';
+        } else {
+            btnWhatsapp.style.display = 'none';
+        }
+    } else {
+        btnWhatsapp.style.display = 'none';
+    }
 
             const historyContainer = document.getElementById('modal-history');
             historyContainer.innerHTML = '';
