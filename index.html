@@ -3,151 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liga de Ajedrez - Chesspions & Chesscond</title>
-    <!-- Tailwind CSS para un diseño espectacular -->
+    <title>Torneo de Ajedrez CO - Portal Oficial</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons para los iconos de las medallas -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .dark-mode { background-color: #121212; color: #e0e0e0; }
-        .dark-card { background-color: #1e1e1e; border-color: #333; }
-        .bracket-line { position: absolute; background: #cbd5e1; z-index: 0; }
-        .dark .bracket-line { background: #4b5563; }
+        body { background-color: #f1f5f9; }
+        .dark-mode { background-color: #0f172a; color: #f8fafc; }
+        .dark-card { background-color: #1e293b; border-color: #334155; }
+        .dark-table-row:hover { background-color: #334155 !important; }
+        tr:hover { background-color: #f8fafc; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans transition-colors duration-300 min-h-screen">
+<body class="text-gray-900 font-sans transition-colors duration-300 min-h-screen">
 
-    <!-- BARRA DE NAVEGACIÓN -->
-    <nav class="bg-white dark-card shadow-sm border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-xl font-bold tracking-wider flex items-center gap-2">
-            👑 Torneo de Ajedrez CO
-        </h1>
-        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+    <!-- CABECERA PRINCIPAL -->
+    <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">👑</span>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">Torneo de Ajedrez CO</h1>
+                <p class="text-xs text-slate-400 font-medium">Chesspions League & Chesscond Division</p>
+            </div>
+        </div>
+        <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 transition">
+            <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-amber-400"></i>
             <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-400"></i>
         </button>
-    </nav>
+    </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- CUERPO DE LA APLICACIÓN -->
     <main class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- COLUMNA IZQUIERDA Y CENTRAL: CLASIFICACIÓN Y CALENDARIO -->
+        <!-- SECCIÓN IZQUIERDA Y CENTRAL: LIGA -->
         <div class="lg:col-span-2 space-y-8">
             
-            <!-- EL MATCH O MATCHES DE LA JORNADA -->
-            <div id="match-of-the-week" class="hidden bg-gradient-to-r from-amber-500 to-yellow-600 rounded-2xl p-0.5 shadow-xl text-white">
-                <div class="bg-amber-950/40 rounded-[14px] p-5 backdrop-blur-sm">
-                    <span class="bg-amber-400 text-amber-950 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-widest">⭐ Partido de la Jornada</span>
-                    <div id="motw-details" class="mt-4 flex justify-around items-center text-center">
-                        <!-- JS inyectará el partidazo aquí -->
+            <!-- TARJETA DESTACADA: PARTIDO DE LA JORNADA -->
+            <div id="match-of-the-week" class="hidden bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 rounded-2xl p-0.5 shadow-lg text-white">
+                <div class="bg-slate-950/40 rounded-[14px] p-5 backdrop-blur-xs">
+                    <span class="bg-amber-400 text-slate-950 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">⭐ Partido de la Jornada</span>
+                    <div id="motw-details" class="mt-4 flex justify-around items-center text-center font-bold">
+                        <!-- JS inyectará el partido de alta tensión aquí -->
                     </div>
                 </div>
             </div>
 
-            <!-- SECCIÓN CALENDARIO INTERACTIVO -->
-            <section class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
+            <!-- CALENDARIO INTERACTIVO -->
+            <section class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-slate-200/60">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
                     <div>
-                        <h2 class="text-lg font-bold" id="calendar-title">Calendario</h2>
-                        <p class="text-xs text-gray-500" id="calendar-dates">Cargando fechas...</p>
+                        <h2 class="text-lg font-bold flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                            <i data-lucide="calendar" class="w-5 h-5 text-blue-500"></i> Calendario de Enfrentamientos
+                        </h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="calendar-dates">Cargando fechas de juego...</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button id="prev-round" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
-                        <select id="round-select" class="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm font-medium dark:bg-gray-800 dark:border-gray-700"></select>
-                        <button id="next-round" class="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                        <button id="prev-round" class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <select id="round-select" class="bg-slate-50 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-200 focus:outline-none"></select>
+                        <button id="next-round" class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
                     </div>
                 </div>
                 <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
-            <!-- TABLAS DE CLASIFICACIÓN -->
-            <section class="space-y-6">
+            <!-- CLASIFICACIONES DE AMBAS DIVISIONES -->
+            <section class="space-y-8">
                 <!-- Chesspions League -->
-                <div class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h2 class="text-lg font-bold text-amber-600 mb-4 flex items-center gap-2">🏆 Chesspions League</h2>
-                    <div class="overflow-x-auto"><table class="w-full text-left border-collapse text-sm" id="table-chesspions"><thead><tr class="border-b border-gray-100 text-gray-400 font-medium"><th class="py-3 px-2 text-center">#</th><th class="py-3 px-2">Jugador</th><th class="py-3 px-2 text-center">J</th><th class="py-3 px-2 text-center text-emerald-600">G</th><th class="py-3 px-2 text-center text-red-500">P</th><th class="py-3 px-2 text-center text-amber-500">T</th></tr></thead><tbody class="divide-y divide-gray-50"></tbody></table></div>
+                <div class="bg-white dark-card rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+                    <div class="p-5 bg-gradient-to-r from-amber-50 to-orange-50/30 dark:from-slate-800 dark:to-slate-800/50 border-b border-slate-100 dark:border-slate-700">
+                        <h2 class="text-base font-bold text-amber-700 dark:text-amber-400 flex items-center gap-2">🏆 Chesspions League (Primera División)</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm" id="table-chesspions">
+                            <thead>
+                                <tr class="border-b border-slate-200 bg-slate-50/70 text-slate-500 font-semibold dark:bg-slate-800/40 dark:text-slate-400">
+                                    <th class="py-3 px-3 text-center w-12">#</th>
+                                    <th class="py-3 px-3">Jugador</th>
+                                    <th class="py-3 px-2 text-center">J</th>
+                                    <th class="py-3 px-2 text-center text-emerald-600">G</th>
+                                    <th class="py-3 px-2 text-center text-red-500">P</th>
+                                    <th class="py-3 px-2 text-center text-amber-600">T</th>
+                                    <th class="py-3 px-4 text-center bg-amber-50 dark:bg-slate-800 text-amber-900 dark:text-amber-300 font-bold w-20">PTS</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Chesscond Division -->
-                <div class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h2 class="text-lg font-bold text-blue-600 mb-4 flex items-center gap-2">🥈 Chesscond Division</h2>
-                    <div class="overflow-x-auto"><table class="w-full text-left border-collapse text-sm" id="table-chesscond"><thead><tr class="border-b border-gray-100 text-gray-400 font-medium"><th class="py-3 px-2 text-center">#</th><th class="py-3 px-2">Jugador</th><th class="py-3 px-2 text-center">J</th><th class="py-3 px-2 text-center text-emerald-600">G</th><th class="py-3 px-2 text-center text-red-500">P</th><th class="py-3 px-2 text-center text-amber-500">T</th></tr></thead><tbody class="divide-y divide-gray-50"></tbody></table></div>
+                <div class="bg-white dark-card rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+                    <div class="p-5 bg-gradient-to-r from-blue-50 to-indigo-50/30 dark:from-slate-800 dark:to-slate-800/50 border-b border-slate-100 dark:border-slate-700">
+                        <h2 class="text-base font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">🥈 Chesscond Division (Segunda División)</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm" id="table-chesscond">
+                            <thead>
+                                <tr class="border-b border-slate-200 bg-slate-50/70 text-slate-500 font-semibold dark:bg-slate-800/40 dark:text-slate-400">
+                                    <th class="py-3 px-3 text-center w-12">#</th>
+                                    <th class="py-3 px-3">Jugador</th>
+                                    <th class="py-3 px-2 text-center">J</th>
+                                    <th class="py-3 px-2 text-center text-emerald-600">G</th>
+                                    <th class="py-3 px-2 text-center text-red-500">P</th>
+                                    <th class="py-3 px-2 text-center text-amber-600">T</th>
+                                    <th class="py-3 px-4 text-center bg-blue-50 dark:bg-slate-800 text-blue-900 dark:text-blue-300 font-bold w-20">PTS</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50"></tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <!-- LEYENDA DE LOGROS -->
-                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl flex flex-wrap gap-4 justify-center text-xs">
+                <!-- LEYENDA -->
+                <div class="p-4 bg-slate-200/60 dark:bg-slate-800 rounded-xl flex flex-wrap gap-4 justify-center text-xs font-medium text-slate-600 dark:text-slate-300">
                     <span class="flex items-center gap-1">🤝 <b>Rey de las Tablas</b> (Más empates)</span>
                     <span class="flex items-center gap-1">⚔️ <b>El Triturador</b> (Más victorias)</span>
                     <span class="flex items-center gap-1">🛡️ <b>El Muro</b> (Menos derrotas)</span>
                 </div>
             </section>
 
-            <!-- SECCIÓN PLAYOFFS Y PROMOCIÓN -->
-            <section class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-gray-100">
-                <h2 class="text-lg font-bold mb-6 flex items-center gap-2">🔥 Fase Final y Promociones</h2>
-                <div id="playoffs-container" class="space-y-6">
-                    <!-- JS rellenará dinámicamente cuadros de semis, final o promociones híbridas -->
-                </div>
+            <!-- ELIMINATORIAS Y PROMOCIÓN -->
+            <section class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-slate-200/60">
+                <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800 dark:text-slate-100">
+                    <i data-lucide="swords" class="w-5 h-5 text-red-500"></i> Fases Finales y Promociones Híbridas
+                </h2>
+                <div id="playoffs-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </section>
         </div>
 
-        <!-- COLUMNA DERECHA: PUZLE DIARIO DE LICHESS -->
+        <!-- SECCIÓN DERECHA: PUZLE LICHESS -->
         <div class="space-y-6">
-            <section class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-purple-600">🧩 El Reto Diario</h2>
+            <section class="bg-white dark-card p-6 rounded-2xl shadow-sm border border-slate-200/60 sticky top-24">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                    <i data-lucide="puzzle" class="w-5 h-5"></i> El Reto Diario
+                </h2>
                 <div id="lichess-puzzle-container" class="space-y-4">
-                    <p class="text-sm text-gray-500" id="puzzle-side">Cargando el problema del día...</p>
-                    <div class="aspect-square w-full rounded-xl overflow-hidden shadow-inner border border-gray-200">
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 p-2 rounded-lg" id="puzzle-side">Cargando...</p>
+                    <div class="aspect-square w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
                         <iframe id="puzzle-frame" class="w-full h-full border-0" allowtransparency="true"></iframe>
                     </div>
-                    <a id="puzzle-link" target="_blank" class="w-full block text-center bg-purple-600 text-white rounded-xl py-3 font-semibold text-sm hover:bg-purple-700 transition">
-                        Resolver Interactivos en Lichess
+                    <a id="puzzle-link" target="_blank" class="w-full block text-center bg-purple-600 text-white rounded-xl py-3 font-bold text-sm hover:bg-purple-700 transition shadow-sm">
+                        Resolver en Lichess ♟️
                     </a>
                 </div>
             </section>
         </div>
     </main>
 
-    <!-- MODAL / FICHA DE JUGADOR -->
-    <div id="player-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark-card max-w-lg w-full rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-all p-6 relative">
-            <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
-            <div class="flex items-center gap-4 mb-4">
-                <div class="w-14 h-14 bg-gradient-to-tr from-gray-700 to-gray-900 text-white rounded-full flex items-center justify-center text-2xl font-bold" id="modal-avatar">⚔️</div>
+    <!-- VENTANA MODAL: FICHA INTERACTIVA DE JUGADOR -->
+    <div id="player-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark-card max-w-md w-full rounded-2xl shadow-2xl overflow-hidden p-6 relative border border-slate-100">
+            <button id="close-modal" class="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x" class="w-5 h-5"></i></button>
+            
+            <div class="flex items-center gap-4 mb-5 border-b border-slate-100 dark:border-slate-700 pb-4">
+                <div class="w-12 h-12 bg-slate-800 text-white rounded-full flex items-center justify-center text-xl font-bold">♟️</div>
                 <div>
-                    <h3 class="text-xl font-bold" id="modal-name">Nombre Jugador</h3>
-                    <p class="text-xs text-amber-600 font-medium uppercase tracking-wider" id="modal-division">División</p>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100" id="modal-name">-</h3>
+                    <p class="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider" id="modal-division">-</p>
                 </div>
             </div>
             
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl text-center"><p class="text-xs text-gray-400 uppercase">Racha Actual</p><p class="text-base font-bold text-orange-500 mt-1" id="modal-streak">-</p></div>
-                <a id="modal-lichess-btn" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl flex flex-col items-center justify-center font-bold text-sm transition"><span class="text-[10px] uppercase font-normal opacity-80">Retar en</span> Lichess 🚀</a>
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Racha de Forma</p>
+                    <p class="text-sm font-black text-orange-600 mt-1" id="modal-streak">-</p>
+                </div>
+                <a id="modal-lichess-btn" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex flex-col items-center justify-center font-bold text-xs transition shadow-xs">
+                    <span class="text-[9px] font-normal tracking-wider opacity-70 uppercase">Lanzar Batalla</span> RETAR EN LICHESS 🚀
+                </a>
             </div>
 
-            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Historial por Jornadas</h4>
-            <div id="modal-history" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2.5">Historial Completo</h4>
+            <div id="modal-history" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </div>
     </div>
 
-    <!-- SCRIPT DE LÓGICA CORE -->
+    <!-- CÓDIGO DE LÓGICA DE DATOS -->
     <script>
         const SHEET_ID = '1NYFChLvLEI6Xcbsdmbm70ksv1jmX_qB6wMWXEetxkGk';
-        let currentRound = 1;
+        let currentRound = 9; // Fuerza la jornada 9 al iniciar
         let allMatches = [];
         let infoData = [];
         let datesMap = {};
-        let statsGlobal = { tables: {}, wins: {}, losses: {} };
 
-        // Inicialización de la Aplicación
         window.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
             initTheme();
             await fetchPuzzle();
-            await loadSheetData();
+            await loadSheetCore();
         });
 
-        // 🌗 Tema Oscuro/Claro
         function initTheme() {
             const toggle = document.getElementById('theme-toggle');
             if(localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -161,131 +207,148 @@
             });
         }
 
-        // 🧩 API Puzzle Lichess
         async function fetchPuzzle() {
             try {
                 const res = await fetch('https://lichess.org/api/puzzle/daily');
                 const data = await res.json();
-                document.getElementById('puzzle-side').innerHTML = `<b>Juegan las:</b> ${data.puzzle.color === 'white' ? 'Blancas ⚪' : 'Negras ⚫'}`;
+                document.getElementById('puzzle-side').innerHTML = `🎯 <b>Le toca mover a:</b> ${data.puzzle.color === 'white' ? 'Blancas ⚪' : 'Negras ⚫'}`;
                 document.getElementById('puzzle-frame').src = `https://lichess.org/training/frame?id=${data.puzzle.id}&theme=brown&bg=dark`;
                 document.getElementById('puzzle-link').href = `https://lichess.org/training/${data.puzzle.id}`;
             } catch (e) {
-                document.getElementById('puzzle-side').innerText = "No se pudo cargar el puzle de hoy.";
+                document.getElementById('puzzle-side').innerText = "No se pudo sincronizar el puzle de hoy.";
             }
         }
 
-        // 📊 Carga y Proceso de Datos de Google Sheets (usando CSV para evitar API Keys)
-        async function loadSheetData() {
+        async function loadSheetCore() {
             try {
-                // 1. Leer INFO (para links de lichess y la tabla de fechas)
+                // 1. CARGAR PESTAÑA INFO
                 const infoRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INFO`);
-                const infoJson = await infoRes.text();
-                const infoRows = JSON.parse(infoJson.substr(47).slice(0,-2)).table.rows;
+                const infoText = await infoRes.text();
+                const infoRows = JSON.parse(infoText.substring(47).slice(0, -2)).table.rows;
                 
-                infoRows.forEach((r, idx) => {
-                    if(idx === 0 || !r.c[0]) return;
-                    infoData.push({
-                        name: r.c[1]?.v || '',
-                        lichess: r.c[2]?.v || ''
-                    });
-                    // Leer tabla de fechas real de la captura (Columnas H, I, J)
-if(r.c[7] && r.c[8] && r.c[9]) {
-    datesMap[r.c[7].v] = { start: r.c[8].f || r.c[8].v, end: r.c[9].f || r.c[9].v };
-}
+                infoRows.forEach((r) => {
+                    if(!r.c || !r.c[1]) return;
+                    infoData.push({ name: r.c[1].v || '', lichess: r.c[3]?.v || '' });
+                    // Mapeo preciso de columnas H, I, J de tu imagen image_4271fc.png
+                    if(r.c[7] && r.c[8] && r.c[9]) {
+                        datesMap[r.c[7].v] = { start: r.c[8].f || r.c[8].v, end: r.c[9].f || r.c[9].v };
+                    }
                 });
 
-                // 2. Leer CLASIFICACIÓN
+                // 2. CARGAR CLASIFICACIÓN (ARREGLO DEL SALTO DE FILAS)
                 const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
-                const clasJson = await clasRes.text();
-                const clasRows = JSON.parse(clasJson.substr(47).slice(0,-2)).table.rows;
-                
+                const clasText = await clasRes.text();
+                const clasRows = JSON.parse(clasText.substring(47).slice(0, -2)).table.rows;
+
                 let chesspionsHTML = '', chesscondHTML = '';
-                
-                // Procesar insignias primero mapeando el máximo absoluto
-                let maxTables = -1, maxWins = -1, minLosses = 999;
-                clasRows.forEach((r, idx) => {
-                    if(idx < 2 || !r.c[1]) return; // Saltamos cabeceras
-                    let t = r.c[6]?.v || 0; // Tablas
-                    let w = r.c[4]?.v || 0; // Ganadas
-                    let l = r.c[5]?.v || 0; // Perdidas
+                let maxTables = -1, maxWins = -1, minLosses = 99;
+
+                // Primer barrido para insignias buscando máximos válidos
+                clasRows.forEach((r) => {
+                    if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
+                    let t = parseInt(r.c[6]?.v || 0);
+                    let w = parseInt(r.c[4]?.v || 0);
+                    let l = parseInt(r.c[5]?.v || 0);
                     if(t > maxTables) maxTables = t;
                     if(w > maxWins) maxWins = w;
                     if(l < minLosses) minLosses = l;
                 });
 
-                clasRows.forEach((r, idx) => {
-                    if(idx < 2 || !r.c[1]) return;
-                    let pos = r.c[0]?.v || '';
-                    let name = r.c[1]?.v || '';
+                // Segundo barrido para pintar las tablas perfectamente
+                clasRows.forEach((r) => {
+                    // Evitamos cabeceras de texto o filas vacías del Excel
+                    if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
+                    
+                    let pos = r.c[0].v;
+                    let name = r.c[1].v;
                     let div = r.c[2]?.v || '';
                     let j = r.c[3]?.v || 0;
                     let w = r.c[4]?.v || 0;
                     let l = r.c[5]?.v || 0;
                     let t = r.c[6]?.v || 0;
+                    let pts = r.c[10]?.v || 0; // Columna K es PUNTOS totales de la imagen
 
                     let badge = '';
                     if(t === maxTables && t > 0) badge += ' 🤝';
                     if(w === maxWins && w > 0) badge += ' ⚔️';
                     if(l === minLosses) badge += ' 🛡️';
 
-                    let rowHTML = `<tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 cursor-pointer border-b border-gray-50 dark:border-gray-800/50" onclick="openPlayerModal('${name}', '${div}')">
-                        <td class="py-3 px-2 font-bold text-center text-gray-400">${pos}</td>
-                        <td class="py-3 px-2 font-medium">${name}${badge}</td>
-                        <td class="py-3 px-2 text-center">${j}</td>
-                        <td class="py-3 px-2 text-center text-emerald-600 font-semibold">${w}</td>
+                    let rowHTML = `<tr class="dark-table-row border-b border-slate-100 dark:border-slate-700/40 cursor-pointer transition" onclick="openPlayerModal('${name.replace(/'/g, "\\'")}', '${div}')">
+                        <td class="py-3 px-3 font-bold text-center text-slate-400">${pos}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-700 dark:text-slate-200">${name}${badge}</td>
+                        <td class="py-3 px-2 text-center text-slate-500 dark:text-slate-400">${j}</td>
+                        <td class="py-3 px-2 text-center text-emerald-600 font-bold">${w}</td>
                         <td class="py-3 px-2 text-center text-red-500">${l}</td>
-                        <td class="py-3 px-2 text-center text-amber-500">${t}</td>
+                        <td class="py-3 px-2 text-center text-amber-600">${t}</td>
+                        <td class="py-3 px-4 text-center bg-slate-50/50 dark:bg-slate-800 font-black text-slate-900 dark:text-amber-400 text-sm">${pts}</td>
                     </tr>`;
 
-                    if(div.includes("Chesspions")) chesspionsHTML += rowHTML;
-                    else chesscondHTML += rowHTML;
+                    if(div.toLowerCase().includes("chesspions")) {
+                        chesspionsHTML += rowHTML;
+                    } else {
+                        chesscondHTML += rowHTML;
+                    }
                 });
+
                 document.querySelector('#table-chesspions tbody').innerHTML = chesspionsHTML;
                 document.querySelector('#table-chesscond tbody').innerHTML = chesscondHTML;
 
-                // 3. Leer RESULTADOS
+                // 3. CARGAR RESULTADOS Y ARREGLAR CORRECCIÓN DE CELDAS VACÍAS/PUNTOS
                 const resRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESULTADOS`);
-                const resJson = await resRes.text();
-                allMatches = JSON.parse(resJson.substr(47).slice(0,-2)).table.rows.slice(1).map(r => ({
-                    round: parseInt(r.c[0]?.v?.toString().replace(/\D/g,'') || '1'),
-                    div: r.c[1]?.v || '',
-                    p1: r.c[2]?.v || '',
-                    p2: r.c[3]?.v || '',
-                    s1: r.c[4]?.v !== undefined ? r.c[4].v : '',
-                    s2: r.c[5]?.v !== undefined ? r.c[5].v : '',
-                    status: r.c[6]?.v || 'Pendiente'
-                }));
+                const resText = await resRes.text();
+                const resRows = JSON.parse(resText.substring(47).slice(0, -2)).table.rows;
 
-                // Calcular ronda actual dinámicamente según la fecha de hoy (23/06/2026)
+                allMatches = [];
+                resRows.forEach((r, idx) => {
+                    if(idx === 0 || !r.c || !r.c[2]) return;
+                    
+                    let roundNum = parseInt(r.c[0]?.v?.toString().replace(/\D/g,'') || '1');
+                    let division = r.c[1]?.v || '';
+                    let player1 = r.c[2]?.v || '';
+                    let player2 = r.c[3]?.v || '';
+                    
+                    // Asegurar lectura de números con decimales de Google Sheets
+                    let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
+                    let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
+                    
+                    // Si hay notas en las casillas, el partido está jugado automáticamente
+                    let matchStatus = (score1 !== '' || score2 !== '') ? 'Terminado' : 'Pendiente';
+
+                    allMatches.push({
+                        round: roundNum, div: division, p1: player1, p2: player2,
+                        s1: score1, s2: score2, status: matchStatus
+                    });
+                });
+
+                // Detección automática por fecha (si falla, arranca en la J9 forzada arriba)
                 const today = new Date();
-                currentRound = 1; // por defecto si falla
                 for(let key in datesMap) {
-                    let partsS = datesMap[key].start.split('/');
-                    let partsE = datesMap[key].end.split('/');
-                    let start = new Date(`${partsS[2]}-${partsS[1]}-${partsS[0]}`);
-                    let end = new Date(`${partsE[2]}-${partsE[1]}-${partsE[0]}`);
+                    if(!datesMap[key].start) continue;
+                    let pS = datesMap[key].start.split('/');
+                    let pE = datesMap[key].end.split('/');
+                    let start = new Date(`${pS[2]}-${pS[1]}-${pS[0]}`);
+                    let end = new Date(`${pE[2]}-${pE[1]}-${pE[0]}`);
                     if(today >= start && today <= end) {
-                        currentRound = parseInt(key.replace(/\D/g,'') || '1');
+                        currentRound = parseInt(key.replace(/\D/g,'') || '9');
                         break;
                     }
                 }
 
-                initCalendarControls();
-                renderRound(currentRound);
+                initCalendarUI();
+                renderRoundUI(currentRound);
 
-                // 4. Leer PLAYOFFS
+                // 4. CARGAR PLAYOFFS
                 const playRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=PLAYOFFS`);
-                const playJson = await playRes.text();
-                const playRows = JSON.parse(playJson.substr(47).slice(0,-2)).table.rows.slice(1);
-                renderPlayoffs(playRows);
+                const playText = await playRes.text();
+                const playRows = JSON.parse(playText.substring(47).slice(0, -2)).table.rows.slice(1);
+                renderPlayoffsUI(playRows);
 
-            } catch(e) {
-                console.error("Error cargando base de datos", e);
+            } catch (e) {
+                console.error("Fallo crítico leyendo el Google Sheets: ", e);
             }
         }
 
-        // 📅 Control y Renderizado de Rondas del Calendario
-        function initCalendarControls() {
+        function initCalendarUI() {
             const select = document.getElementById('round-select');
             select.innerHTML = '';
             for(let i=1; i<=14; i++) {
@@ -294,45 +357,45 @@ if(r.c[7] && r.c[8] && r.c[9]) {
             select.value = currentRound;
             select.addEventListener('change', (e) => {
                 currentRound = parseInt(e.target.value);
-                renderRound(currentRound);
+                renderRoundUI(currentRound);
             });
-            document.getElementById('prev-round').onclick = () => { if(currentRound > 1) { currentRound--; select.value = currentRound; renderRound(currentRound); } };
-            document.getElementById('next-round').onclick = () => { if(currentRound < 14) { currentRound++; select.value = currentRound; renderRound(currentRound); } };
+            document.getElementById('prev-round').onclick = () => { if(currentRound > 1) { currentRound--; select.value = currentRound; renderRoundUI(currentRound); } };
+            document.getElementById('next-round').onclick = () => { if(currentRound < 14) { currentRound++; select.value = currentRound; renderRoundUI(currentRound); } };
         }
 
-        function renderRound(rNum) {
+        function renderRoundUI(rNum) {
             const container = document.getElementById('matches-grid');
             container.innerHTML = '';
             
             const roundInfo = datesMap[`J${rNum}`];
-            document.getElementById('calendar-title').innerText = `Jornada ${rNum}`;
-            document.getElementById('calendar-dates').innerText = roundInfo ? `Del ${roundInfo.start} al ${roundInfo.end}` : '';
+            document.getElementById('calendar-dates').innerText = roundInfo ? `Rango de juego: Del ${roundInfo.start} al ${roundInfo.end}` : 'Sin rango asignado';
 
             const roundMatches = allMatches.filter(m => m.round === rNum);
             
-            // Buscar Partido de la Jornada (Filtrado rápido: los dos mejores del ranking actual)
-            // Para simplificar, destacamos el primer match completado o de alta tensión en la lista
+            // Destacar Partido de la Jornada (el primer encuentro de la lista)
             if(roundMatches.length > 0) {
                 document.getElementById('match-of-the-week').classList.remove('hidden');
-                let motw = roundMatches[0]; // Tomamos el primer partido como Match destacado por defecto
+                let motw = roundMatches[0];
                 document.getElementById('motw-details').innerHTML = `
-                    <div class="flex-1 font-bold text-lg">${motw.p1}</div>
-                    <div class="px-4 py-2 bg-black/30 rounded-lg font-mono text-xl">${motw.s1 !== '' ? `${motw.s1} - ${motw.s2}` : 'VS'}</div>
-                    <div class="flex-1 font-bold text-lg">${motw.p2}</div>
+                    <div class="flex-1 font-black text-base tracking-tight">${motw.p1}</div>
+                    <div class="px-4 py-1.5 bg-slate-900/40 rounded-xl font-mono text-lg shadow-inner mx-2">${motw.status === 'Terminado' ? `${motw.s1} - ${motw.s2}` : 'VS'}</div>
+                    <div class="flex-1 font-black text-base tracking-tight">${motw.p2}</div>
                 `;
+            } else {
+                document.getElementById('match-of-the-week').classList.add('hidden');
             }
 
             roundMatches.forEach(m => {
-                const isFinished = m.status === 'Terminado';
+                const isFin = m.status === 'Terminado';
                 container.innerHTML += `
-                    <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/50 dark:bg-gray-800/30 dark:border-gray-800 flex justify-between items-center">
-                        <div class="space-y-1">
-                            <p class="text-[10px] uppercase font-bold text-gray-400">${m.div}</p>
-                            <p class="text-sm font-semibold">${m.p1} <span class="text-xs font-normal text-gray-400">vs</span> ${m.p2}</p>
+                    <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 dark:bg-slate-800/40 dark:border-slate-700/60 flex justify-between items-center shadow-xs">
+                        <div class="space-y-0.5">
+                            <span class="text-[9px] uppercase font-bold text-slate-400 block">${m.div}</span>
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">${m.p1} <span class="font-normal text-slate-400">vs</span> ${m.p2}</span>
                         </div>
-                        <div class="text-right">
-                            <span class="font-mono text-sm font-bold block px-2.5 py-1 rounded-md ${isFinished ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-gray-100 text-gray-500 dark:bg-gray-800'}">
-                                ${isFinished ? `${m.s1} - ${m.s2}` : 'Pendiente'}
+                        <div>
+                            <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg border block ${isFin ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900' : 'bg-slate-100 text-slate-400 border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700'}">
+                                ${isFin ? `${m.s1} - ${m.s2}` : 'Pendiente'}
                             </span>
                         </div>
                     </div>
@@ -340,97 +403,93 @@ if(r.c[7] && r.c[8] && r.c[9]) {
             });
         }
 
-        // 🏆 Renderizar Cuadro de Playoffs e Híbridos
-        function renderPlayoffs(rows) {
+        function renderPlayoffsUI(rows) {
             const container = document.getElementById('playoffs-container');
             container.innerHTML = '';
 
             let groups = {};
             rows.forEach(r => {
-                if(!r.c[0]) return;
+                if(!r.c || !r.c[0]) return;
                 let phase = r.c[0].v;
                 if(!groups[phase]) groups[phase] = [];
                 groups[phase].push({
                     div: r.c[1]?.v || '', p1: r.c[2]?.v || 'Por Clasificar', p2: r.c[3]?.v || 'Por Clasificar',
-                    score: r.c[4]?.v || '', blitz: r.c[5]?.v || '', winner: r.c[6]?.v || ''
+                    score: r.c[4] ? (r.c[4].f || r.c[4].v.toString()) : '', blitz: r.c[5]?.v || '', winner: r.c[6]?.v || ''
                 });
             });
 
             for(let phase in groups) {
-                let section = `<div class="space-y-3">
-                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest border-b pb-1 border-gray-100 dark:border-gray-800">${phase}</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                let section = `<div class="p-4 bg-slate-50/80 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/60 rounded-xl space-y-3">
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider border-b pb-1 dark:border-slate-700">${phase}</h3>`;
                 
                 groups[phase].forEach(m => {
                     section += `
-                        <div class="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
-                            <p class="text-[9px] uppercase font-bold tracking-wider text-amber-600 mb-2">${m.div}</p>
-                            <div class="flex justify-between items-center text-sm">
-                                <div class="space-y-1">
-                                    <p class="${m.winner === m.p1 ? 'text-emerald-600 font-bold' : ''}">${m.p1}</p>
-                                    <p class="${m.winner === m.p2 ? 'text-emerald-600 font-bold' : ''}">${m.p2}</p>
+                        <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 text-xs">
+                            <p class="text-[8px] font-black text-slate-400 uppercase mb-1.5">${m.div}</p>
+                            <div class="flex justify-between items-center">
+                                <div class="space-y-1 font-semibold">
+                                    <p class="${m.winner === m.p1 ? 'text-emerald-600 font-black' : 'text-slate-700 dark:text-slate-300'}">${m.p1}</p>
+                                    <p class="${m.winner === m.p2 ? 'text-emerald-600 font-black' : 'text-slate-700 dark:text-slate-300'}">${m.p2}</p>
                                 </div>
-                                <div class="font-mono text-right space-y-1">
-                                    <p class="bg-gray-200/50 dark:bg-gray-700 px-2 py-0.5 rounded font-bold">${m.score || '- -'}</p>
-                                    ${m.blitz ? `<p class="text-[10px] text-purple-600 font-bold">⚡ ${m.blitz}</p>` : ''}
+                                <div class="text-right font-mono font-bold">
+                                    <p class="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-800 dark:text-slate-200">${m.score || '- / -'}</p>
+                                    ${m.blitz ? `<p class="text-[9px] text-purple-600 mt-0.5 font-bold">⚡ ${m.blitz}</p>` : ''}
                                 </div>
                             </div>
                         </div>
                     `;
                 });
-                section += `</div></div>`;
+                section += `</div>`;
                 container.innerHTML += section;
             }
+            lucide.createIcons();
         }
 
-        // ⚔️ Ficha / Modal de Jugador Interactiva
         window.openPlayerModal = function(name, division) {
             document.getElementById('modal-name').innerText = name;
             document.getElementById('modal-division').innerText = division;
             
-            // Configurar botón de reto de Lichess
-            const playerInfo = infoData.find(i => i.name.toLowerCase() === name.toLowerCase());
+            const playerInfo = infoData.find(i => i.name.toLowerCase().trim() === name.toLowerCase().trim());
             const lichessBtn = document.getElementById('modal-lichess-btn');
             if(playerInfo && playerInfo.lichess) {
-                lichessBtn.href = `https://lichess.org/?user=${playerInfo.lichess}#friend`;
+                lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(playerInfo.lichess.trim())}#friend`;
                 lichessBtn.style.display = 'flex';
             } else {
                 lichessBtn.style.display = 'none';
             }
 
-            // Historial de enfrentamientos y racha
             const historyContainer = document.getElementById('modal-history');
             historyContainer.innerHTML = '';
             
-            let playerMatches = allMatches.filter(m => (m.p1 === name || m.p2 === name) && m.status === 'Terminado');
+            let playerMatches = allMatches.filter(m => (m.p1.toLowerCase().trim() === name.toLowerCase().trim() || m.p2.toLowerCase().trim() === name.toLowerCase().trim()) && m.status === 'Terminado');
             playerMatches.sort((a,b) => a.round - b.round);
 
             let streak = [];
             if(playerMatches.length === 0) {
-                historyContainer.innerHTML = `<p class="text-sm text-gray-400 text-center py-4">No ha disputado partidas puntuadas todavía.</p>`;
+                historyContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No ha disputado partidas computadas esta temporada.</p>`;
             } else {
                 playerMatches.forEach(m => {
-                    const isP1 = m.p1 === name;
+                    const isP1 = m.p1.toLowerCase().trim() === name.toLowerCase().trim();
                     const opponent = isP1 ? m.p2 : m.p1;
-                    const myScore = isP1 ? parseFloat(m.s1) : parseFloat(m.s2);
-                    const oppScore = isP1 ? parseFloat(m.s2) : parseFloat(m.s1);
+                    
+                    let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
+                    let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
                     
                     let outcome = '🤝 T';
-                    let badgeColor = 'bg-amber-100 text-amber-700';
-                    if(myScore > oppScore) { outcome = '🔥 V'; badgeColor = 'bg-emerald-100 text-emerald-700'; streak.push('V'); }
-                    else if(myScore < oppScore) { outcome = '💀 D'; badgeColor = 'bg-red-100 text-red-700'; streak.push('D'); }
+                    let badge = 'bg-amber-50 text-amber-700 border-amber-200';
+                    if(myScore > oppScore) { outcome = '🔥 V'; badge = 'bg-emerald-50 text-emerald-700 border-emerald-200'; streak.push('V'); }
+                    else if(myScore < oppScore) { outcome = '💀 D'; badge = 'bg-red-50 text-red-700 border-red-200'; streak.push('D'); }
                     else { streak.push('T'); }
 
                     historyContainer.innerHTML += `
-                        <div class="flex justify-between items-center p-2.5 bg-gray-50 dark:bg-gray-800 rounded-lg text-xs">
-                            <span><b>J${m.round}</b> contra <b>${opponent}</b></span>
-                            <span class="px-2 py-0.5 rounded font-bold ${badgeColor}">${outcome} (${myScore}-${oppScore})</span>
+                        <div class="flex justify-between items-center p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs border border-slate-100 dark:border-slate-700/50">
+                            <span class="text-slate-700 dark:text-slate-300"><b>J${m.round}</b> vs ${opponent}</span>
+                            <span class="px-2 py-0.5 rounded font-bold border ${badge}">${outcome} (${myScore}-${oppScore})</span>
                         </div>
                     `;
                 });
             }
 
-            // Calcular racha actual en texto
             let continuousStreak = 0;
             if(streak.length > 0) {
                 let last = streak[streak.length - 1];
@@ -438,9 +497,9 @@ if(r.c[7] && r.c[8] && r.c[9]) {
                     if(streak[i] === last) continuousStreak++;
                     else break;
                 }
-                document.getElementById('modal-streak').innerText = `${continuousStreak} (${last === 'V' ? 'Victorias' : last === 'D' ? 'Derrotas' : 'Tablas'})`;
+                document.getElementById('modal-streak').innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
             } else {
-                document.getElementById('modal-streak').innerText = 'Ninguna';
+                document.getElementById('modal-streak').innerText = 'Sin racha registrada';
             }
 
             document.getElementById('player-modal').classList.remove('hidden');
