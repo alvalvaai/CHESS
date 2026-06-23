@@ -233,6 +233,11 @@
                 <a id="modal-lichess-btn" target="_blank" class="bg-amber-800 hover:bg-amber-900 text-white rounded-xl flex flex-col items-center justify-center font-bold text-xs transition shadow-sm px-2">
                     <span class="text-[9px] font-normal tracking-wider uppercase opacity-90">Sala de Espera</span> RETAR EN LICHESS 🚀
                 </a>
+
+                <!-- NUEO BOTÓN DE WHATSAPP -->
+                <a id="modal-whatsapp-btn" target="_blank" class="mt-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl flex flex-col items-center justify-center p-3 text-center font-bold" style="display: none;">
+                    <span class="text-[9px] font-normal tracking-wider uppercase opacity-90">Conversación</span> ENVIAR WHATSAPP 💬
+                </a>
             </div>
 
             <h4 class="text-xs font-bold uppercase text-stone-500 tracking-wider mb-2.5">Historial Reciente</h4>
@@ -288,7 +293,11 @@
                 
                 infoRows.forEach((r) => {
                     if(!r.c || !r.c[1]) return;
-                    infoData.push({ name: r.c[1].v || '', lichess: r.c[3]?.v || '' });
+                    infoData.push({ 
+    name: r.c[1].v || '', 
+    lichess: r.c[3]?.v || '', 
+    telefono: r.c[5]?.v || '' 
+});
                     if(r.c[7] && r.c[8] && r.c[9]) {
                         datesMap[r.c[7].v] = { start: r.c[8].f || r.c[8].v, end: r.c[9].f || r.c[9].v };
                     }
