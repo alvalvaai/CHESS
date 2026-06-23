@@ -513,7 +513,7 @@
         let drawIndicator = "";
         if (isFin && m.tablas && parseInt(m.tablas) > 0) {
             const numTablas = parseInt(m.tablas);
-            const textoTablas = numTablas === 1 ? 'Tabla' : 'Tablas';
+            const textoTablas = numTablas === 1 ? 'Tablas' : 'Tablas';
             drawIndicator = `<span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1">🤝 ${numTablas} ${textoTablas}</span>`;
         }
 
@@ -621,7 +621,7 @@
                     let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
                     let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
                     
-                    let outcome = '🤝 T';
+                    let outcome = '⚔️ E';
                     let badge = 'bg-amber-100 text-amber-950 border-amber-300';
                     if(myScore > oppScore) { outcome = '🔥 V'; badge = 'bg-emerald-100 text-emerald-950 border-emerald-300'; streak.push('V'); }
                     else if(myScore < oppScore) { outcome = '💀 D'; badge = 'bg-red-100 text-red-950 border-red-300'; streak.push('D'); }
