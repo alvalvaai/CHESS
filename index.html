@@ -325,22 +325,15 @@
                     let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
                     let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
                     
-                    // Comprobación de si hubo tablas individuales indicadas en columnas aledañas o deducidas
-                    let individualDraws = 0;
-                    if (score1.includes('.5') || score2.includes('.5')) {
-                        individualDraws = 1; // Mínimo de una partida entablada por el decimal
-                    }
-                    if (score1 === '2' && score2 === '2') {
-                        // En tu sistema, 2-2 puede ser con tablas o victorias combinadas. Conservamos formato nativo.
-                        individualDraws = "Verificado";
-                    }
+                    // Captura directa del número de tablas de la columna G (índice 6)
+        let individualDraws = r.c[6]?.v || 0;
 
                     let matchStatus = (score1 !== '' || score2 !== '') ? 'Terminado' : 'Pendiente';
 
                     allMatches.push({
-                        round: roundNum, div: division, p1: player1, p2: player2,
-                        s1: score1, s2: score2, status: matchStatus, draws: individualDraws
-                    });
+            round: roundNum, div: division, p1: player1, p2: player2,
+            s1: score1, s2: score2, status: matchStatus, tablas: individualDraws
+        });
                 });
 
                 // 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
@@ -516,11 +509,13 @@
                 const isChesspions = m.div.toLowerCase().includes('chesspions');
                 const divBadgeClass = isChesspions ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-emerald-100 text-emerald-900 border-emerald-300';
                 
-                // Indicador visual si el match tuvo tablas (si contiene decimales o es empate absoluto)
-                let drawIndicator = "";
-                if(isFin && (m.s1.includes('.5') || m.s2.includes('.5') || m.s1 === m.s2)) {
-                    drawIndicator = `<span class="text-[10px] font-bold bg-stone-200 text-stone-700 px-1.5 py-0.5 rounded border border-stone-300 block text-center mt-1">🤝 Incluye Tablas</span>`;
-                }
+               // Indicador visual con el número exacto de tablas desde la columna G de Sheets
+        let drawIndicator = "";
+        if (isFin && m.tablas && parseInt(m.tablas) > 0) {
+            const numTablas = parseInt(m.tablas);
+            const textoTablas = numTablas === 1 ? 'Tabla' : 'Tablas';
+            drawIndicator = `<span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1">🤝 ${numTablas} ${textoTablas}</span>`;
+        }
 
                 container.innerHTML += `
                     <div class="p-4 rounded-xl bg-white border border-stone-300 flex justify-between items-center shadow-xs">
@@ -631,11 +626,15 @@
                     if(myScore > oppScore) { outcome = '🔥 V'; badge = 'bg-emerald-100 text-emerald-950 border-emerald-300'; streak.push('V'); }
                     else if(myScore < oppScore) { outcome = '💀 D'; badge = 'bg-red-100 text-red-950 border-red-300'; streak.push('D'); }
                     else { streak.push('T'); }
-
+// Lógica para pintar las tablas exactas en el historial del jugador
+        let tablasFichaHTML = '';
+        if (m.tablas && parseInt(m.tablas) > 0) {
+            tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
+        }
                     historyContainer.innerHTML += `
                         <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
                             <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
-                            <span class="px-2 py-0.5 rounded font-black border ${badge}">${outcome} (${myScore}-${oppScore})</span>
+                           <span class="px-2 py-0.5 rounded font-black border ${badge}">${outcome} (${myScore}-${oppScore})</span>${tablasFichaHTML}
                         </div>
                     `;
                 });
