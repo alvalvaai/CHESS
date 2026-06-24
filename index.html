@@ -582,38 +582,49 @@
             }
 
             // Renderizado del Grid del Calendario con distinciones claras de división y tablas
-            roundMatches.forEach(m => {
-                const isFin = m.status === 'Terminado';
-                const isChesspions = m.div.toLowerCase().includes('chesspions');
-                const divBadgeClass = isChesspions ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-emerald-100 text-emerald-900 border-emerald-300';
-                
-               // Indicador visual con el número exacto de tablas desde la columna G de Sheets
+    roundMatches.forEach(m => {
+        const isFin = m.status === 'Terminado';
+        const isChesspions = m.div.toLowerCase().includes('chesspions');
+        const divBadgeClass = isChesspions ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-emerald-100 text-emerald-900 border-emerald-300';
+
+        // --- NUEVO: Buscamos los nicks reales de Lichess en infoData ---
+        const player1Info = infoData.find(p => p.name.toLowerCase().trim() === m.p1.toLowerCase().trim());
+        const player2Info = infoData.find(p => p.name.toLowerCase().trim() === m.p2.toLowerCase().trim());
+        
+        // Si encontramos el nick usamos el de Lichess, si no, dejamos el nombre por defecto como salvavidas
+        const lichessUser1 = player1Info && player1Info.lichess ? player1Info.lichess.trim() : m.p1.trim();
+        const lichessUser2 = player2Info && player2Info.lichess ? player2Info.lichess.trim() : m.p2.trim();
+
+        // Indicador visual con el número exacto de tablas desde la columna G de Sheets
         let drawIndicator = "";
         if (isFin && m.tablas && parseInt(m.tablas) > 0) {
             const numTablas = parseInt(m.tablas);
-            const textoTablas = numTablas === 1 ? 'Tablas' : 'Tablas';
+            const textoTablas = numTablas === 1 ? 'Tabla' : 'Tablas';
             drawIndicator = `<span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1">🤝 ${numTablas} ${textoTablas}</span>`;
         }
 
-                container.innerHTML += `
-                    <div class="p-4 rounded-xl bg-white border border-stone-300 flex justify-between items-center shadow-xs">
-                        <div class="space-y-1">
-                            <span class="text-[9px] uppercase font-black px-2 py-0.5 rounded-md border ${divBadgeClass} inline-block tracking-wider">${m.div}</span>
-                            <span class="text-sm font-bold text-stone-900 block pt-1">
+        container.innerHTML += `
+            <div class="p-4 rounded-xl bg-white border border-stone-300 flex justify-between items-center shadow-xs">
+                <div class="space-y-1">
+                    <span class="text-[9px] uppercase font-black px-2 py-0.5 rounded-md border ${divBadgeClass} inline-block tracking-wider">${m.div}</span>
+                    <span class="text-sm font-bold text-stone-900 block pt-1">
                         <span class="cursor-pointer hover:text-amber-800 hover:underline transition" onclick="openPlayerModal('${m.p1.replace(/'/g, "\\'")}', '${m.div}')">${m.p1}</span> 
                         <span class="font-normal text-stone-500">vs</span> 
                         <span class="cursor-pointer hover:text-amber-800 hover:underline transition" onclick="openPlayerModal('${m.p2.replace(/'/g, "\\'")}', '${m.div}')">${m.p2}</span>
                     </span>
-                        </div>
-                        <div class="text-right">
-                            <span class="font-mono text-xs font-black px-3 py-1.5 rounded-lg border block shadow-xs ${isFin ? 'bg-stone-800 text-white border-stone-900' : 'bg-stone-100 text-stone-500 border-stone-300'}">
-                                ${isFin ? `${m.s1} - ${m.s2}` : 'Pendiente'}
-                            </span>
-                            ${drawIndicator}
-                        </div>
-                    </div>
-                `;
-            });
+                </div>
+                <div class="text-right">
+                    <!-- BOTÓN DINÁMICO: Si terminó busca el duelo. Si está pendiente, va al directo de Lichess -->
+                    <span onclick="window.open('${isFin ? `https://lichess.org/games/search?players=a&player1=${encodeURIComponent(lichessUser1)}&player2=${encodeURIComponent(lichessUser2)}` : `https://lichess.org/@/${encodeURIComponent(lichessUser1)}`}', '_blank'); event.stopPropagation();" 
+                          class="font-mono text-xs font-black px-3 py-1.5 rounded-lg border block shadow-xs transition-all cursor-pointer hover:bg-amber-800 hover:text-white hover:border-amber-900 hover:scale-105 ${isFin ? 'bg-stone-800 text-white border-stone-900' : 'bg-stone-100 text-stone-500 border-stone-300'}"
+                          title="${isFin ? 'Ver partidas del duelo' : 'Ver si están jugando en directo'}">
+                        ${isFin ? `${m.s1} - ${m.s2}` : 'Pendiente 🟢'}
+                    </span>
+                    ${drawIndicator}
+                </div>
+            </div>
+        `;
+    });
         }
 
         function renderPlayoffsUI(rows) {
