@@ -463,25 +463,47 @@
                 };
 
              const buildTableHTML = (rows, isChesspions) => {
-                    let html = '';
-                    const limits = getLimits(rows);
+    let html = '';
+    const limits = getLimits(rows);
 
-                    rows.forEach((r, index) => {
-                        let badge = '';
-                        if(r.t === limits.maxT && r.t > 0) badge += ' 🤝';
-                        if(r.w === limits.maxW && r.w > 0) badge += ' ⚔️';
-                        if(r.l === limits.minL) badge += ' 🛡️';
+    rows.forEach((r, index) => {
+        let badge = '';
+        if(r.t === limits.maxT && r.t > 0) badge += ' 🤝';
+        if(r.w === limits.maxW && r.w > 0) badge += ' 👑'; // Lo cambiamos a corona como la leyenda
+        if(r.l === limits.minL) badge += ' 🛡️';
 
-                        // Clases estéticas por defecto de tamaño para el Top 3
-                        let rowStyle = "";
-                        let textStyle = "text-stone-800 font-medium";
-                        
-                        if(index === 0) { rowStyle = "bg-amber-100/50 scale-[1.01] font-bold text-base"; }
-                        else if(index === 1) { rowStyle = "bg-stone-100/80 text-sm font-bold"; }
-                        else if(index === 2) { rowStyle = "bg-orange-50/60 text-sm font-bold"; }
+        // --- CÁLCULO DINÁMICO DEL REY DEL ROSCO (🍩) ---
+        let numRoscos = 0;
+        if (typeof allMatches !== 'undefined') {
+            allMatches.forEach(m => {
+                if (m.status === 'Terminado') {
+                    // Si juega como Local (Jugador 1) y el resultado fue 4 - 0
+                    if (m.p1.toLowerCase().trim() === r.name.toLowerCase().trim() && parseInt(m.s1) === 4 && parseInt(m.s2) === 0) {
+                        numRoscos++;
+                    }
+                    // Si juega como Visitante (Jugador 2) y el resultado fue 0 - 4
+                    if (m.p2.toLowerCase().trim() === r.name.toLowerCase().trim() && parseInt(m.s1) === 0 && parseInt(m.s2) === 4) {
+                        numRoscos++;
+                    }
+                }
+            });
+        }
+        
+        // Si tiene algún 4-0 limpio en su historial, le clavamos el Donut
+        if (numRoscos > 0) {
+            badge += ' 🍩';
+        }
 
-                        // --- NUEVA LÓGICA DE COLORES DE LIGA PERSONALIZADOS ---
-                        let estiloFila = '';
+        // Clases estéticas por defecto de tamaño para el Top 3
+        let rowStyle = "";
+        let textStyle = "text-stone-800 font-medium";
+
+        if(index === 0) { rowStyle = "bg-amber-100/50 scale-[1.01] font-bold text-base"; }
+        else if(index === 1) { rowStyle = "bg-stone-100/80 text-sm font-bold"; }
+        else if(index === 2) { rowStyle = "bg-orange-50/60 text-sm font-bold"; }
+
+        // // --- NUEVA LÓGICA DE COLORES DE LIGA PERSONALIZADOS ---
+        let estiloFila = '';
                         const posicion = r.pos; // Usamos la posición real de la tabla
 
                         if (isChesspions) {
