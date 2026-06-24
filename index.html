@@ -615,21 +615,21 @@
                 </div>
                 <div class="text-right">
                     <!-- BOTÓN DINÁMICO CORREGIDO: Nicks exactos de la pestaña INFO y /tv para directos -->
-                    <span onclick="
+                   <span onclick="
                         const p1Name = '${m.p1.replace(/'/g, "\\'")}';
                         const p2Name = '${m.p2.replace(/'/g, "\\'")}';
                         
-                        // Buscamos en la lista global respetando los nombres de la clasificación
+                        // Buscamos en infoData en tiempo real
                         const f1 = typeof infoData !== 'undefined' ? infoData.find(p => (p.name || '').toLowerCase().trim() === p1Name.toLowerCase().trim()) : null;
                         const f2 = typeof infoData !== 'undefined' ? infoData.find(p => (p.name || '').toLowerCase().trim() === p2Name.toLowerCase().trim()) : null;
                         
-                        // Extraemos el usuario de lichess TAL CUAL está escrito en el Sheets (manteniendo mayúsculas/minúsculas exactas)
+                        // Sacamos los nicks de Lichess de la columna D del Sheets
                         const nick1 = f1 && f1.lichess ? f1.lichess.trim() : p1Name.trim();
                         const nick2 = f2 && f2.lichess ? f2.lichess.trim() : p2Name.trim();
                         
-                        // Construimos la URL: Si terminó busca el duelo. Si está pendiente, añade /tv al final para el directo
+                        // Formateamos la URL: Si terminó, usa la estructura nueva que nos diste. Si está pendiente, va a /tv
                         const url = '${isFin}' === 'true' 
-                            ? 'https://lichess.org/games/search?players=a&player1=' + encodeURIComponent(nick1) + '&player2=' + encodeURIComponent(nick2)
+                            ? 'https://lichess.org/games/search?players.a=' + encodeURIComponent(nick1) + '&players.b=' + encodeURIComponent(nick2) + '&sort.field=d&sort.order=desc#results'
                             : 'https://lichess.org/@/' + encodeURIComponent(nick1) + '/tv';
                             
                         window.open(url, '_blank'); 
