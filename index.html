@@ -237,18 +237,28 @@
 
                 <!-- LEYENDA DETALLADA Y REFERENCIAS DE ZONAS -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-bold text-stone-700">
-                    <div class="p-4 bg-lichess-card rounded-xl border border-stone-300 space-y-2">
-                        <p class="text-stone-900 uppercase tracking-wider font-black text-[10px]">LEYENDA:</p>
-                        <p><b>EV / ED / EE:</b> Enfrentamientos Victorias, Derrotas y Empates.</p>
-                        <p><b>J / G / P / T:</b> Partidas individuales totales Jugadas, Ganadas, Perdidas y Tablas.</p>
-                    </div>
-                    <div class="p-4 bg-lichess-card rounded-xl border border-stone-300 space-y-1.5">
-                        <p class="text-stone-900 uppercase tracking-wider font-black text-[10px]">Estructura de la Tabla y Leyendas Visuales:</p>
-                        <div class="flex items-center gap-2"><span class="w-3 h-3 bg-green-600 rounded-xs"></span> Zona de Ascenso Directo / Final Four </div>
-                        <div class="flex items-center gap-2"><span class="w-3 h-3 bg-orange-500 rounded-xs"></span> Zona de Promoción</div>
-                        <div class="flex items-center gap-2"><span class="w-3 h-3 bg-red-600 rounded-xs"></span> Zona de Descenso Directo</div>
+                <div class="p-4 bg-lichess-card rounded-xl border border-stone-300 space-y-2">
+                    <p class="text-stone-900 uppercase tracking-wider font-black text-[10px] flex items-center gap-1">
+                        <i data-lucide="award" class="w-3.5 h-3.5 text-amber-600"></i> LEYENDA DE DISTINCIONES Y DATOS:
+                    </p>
+                    <p><b>EV / ED / EE:</b> Enfrentamientos Ganados, Perdidos y Empatados globales.</p>
+                    <p><b>J / G / P / T:</b> Partidas individuales totales Jugadas, Ganadas, Perdidas y Tablas.</p>
+                    
+                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-stone-200 text-[11px] font-medium">
+                        <div class="flex items-center gap-1.5"><span>👑</span> <span class="font-bold text-stone-950">Victorias</span></div>
+                        <div class="flex items-center gap-1.5"><span>🤝</span> <span class="font-bold text-stone-950">Tablas</span></div>
+                        <div class="flex items-center gap-1.5"><span>🛡️</span> <span class="font-bold text-stone-950">Muro (Menos P)</span></div>
+                        <div class="flex items-center gap-1.5"><span>🍩</span> <span class="font-bold text-amber-900">Rey del Rosco (4-0)</span></div>
                     </div>
                 </div>
+
+                <div class="p-4 bg-lichess-card rounded-xl border border-stone-300 space-y-2">
+                    <p class="text-stone-900 uppercase tracking-wider font-black text-[10px]">ESTRUCTURA DE LA TABLA Y COLORES:</p>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 bg-green-600 rounded-xs"></span> Zona de Ascenso Directo</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 bg-orange-500 rounded-xs"></span> Zona de Promoción / Playoffs</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 bg-red-600 rounded-xs"></span> Zona de Descenso Directo</div>
+                </div>
+            </div>
             </section>
 
             <!-- FASES FINALES -->
