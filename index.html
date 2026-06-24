@@ -466,31 +466,42 @@
     let html = '';
     const limits = getLimits(rows);
 
-    rows.forEach((r, index) => {
-        let badge = '';
-        if(r.t === limits.maxT && r.t > 0) badge += ' 🤝';
-        if(r.w === limits.maxW && r.w > 0) badge += ' 👑'; // Lo cambiamos a corona como la leyenda
-        if(r.l === limits.minL) badge += ' 🛡️';
+    // --- NUEVO: PRECALCULAR LOS ROSCOS DE CADA JUGADOR EN ESTA CATEGORÍA ---
+    // Guardamos los roscos de cada uno para saber cuál es el número máximo
+    let roscosPorJugador = {};
+    let maxRoscosEnDivision = 0;
 
-        // --- CÁLCULO DINÁMICO DEL REY DEL ROSCO (🍩) ---
-        let numRoscos = 0;
+    rows.forEach(r => {
+        let count = 0;
         if (typeof allMatches !== 'undefined') {
             allMatches.forEach(m => {
                 if (m.status === 'Terminado') {
-                    // Si juega como Local (Jugador 1) y el resultado fue 4 - 0
+                    // Si ganó 4-0 como local
                     if (m.p1.toLowerCase().trim() === r.name.toLowerCase().trim() && parseInt(m.s1) === 4 && parseInt(m.s2) === 0) {
-                        numRoscos++;
+                        count++;
                     }
-                    // Si juega como Visitante (Jugador 2) y el resultado fue 0 - 4
+                    // Si ganó 0-4 como visitante
                     if (m.p2.toLowerCase().trim() === r.name.toLowerCase().trim() && parseInt(m.s1) === 0 && parseInt(m.s2) === 4) {
-                        numRoscos++;
+                        count++;
                     }
                 }
             });
         }
-        
-        // Si tiene algún 4-0 limpio en su historial, le clavamos el Donut
-        if (numRoscos > 0) {
+        roscosPorJugador[r.name] = count;
+        if (count > maxRoscosEnDivision) {
+            maxRoscosEnDivision = count;
+        }
+    });
+
+    // --- RENDERIZADO DE LAS FILAS CON LAS INSIGNIAS CORREGIDAS ---
+    rows.forEach((r, index) => {
+        let badge = '';
+        if(r.t === limits.maxT && r.t > 0) badge += ' 🤝';
+        if(r.w === limits.maxW && r.w > 0) badge += ' 👑'; // Corona para el máximo de victorias
+        if(r.l === limits.minL) badge += ' 🛡️';
+
+        // El donut se otorga SOLO si el jugador tiene el número máximo de roscos de su división (y al menos tiene 1)
+        if (maxRoscosEnDivision > 0 && roscosPorJugador[r.name] === maxRoscosEnDivision) {
             badge += ' 🍩';
         }
 
