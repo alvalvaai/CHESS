@@ -638,12 +638,23 @@
         const lichessUser1 = player1Info && player1Info.lichess ? player1Info.lichess.trim() : m.p1.trim();
         const lichessUser2 = player2Info && player2Info.lichess ? player2Info.lichess.trim() : m.p2.trim();
 
-        // Indicador visual con el número exacto de tablas desde la columna G de Sheets
-        let drawIndicator = "";
-        if (isFin && m.tablas && parseInt(m.tablas) > 0) {
-            const numTablas = parseInt(m.tablas);
-            const textoTablas = numTablas === 1 ? 'Tabla' : 'Tablas';
-            drawIndicator = `<span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1">🤝 ${numTablas} ${textoTablas}</span>`;
+       // --- INDICADORES VISUALES EXTRA EN EL RESULTADO (TABLAS Y ROSCOS) ---
+        let matchBadgeIndicator = "";
+        
+        if (isFin) {
+            const s1Int = parseInt(m.s1);
+            const s2Int = parseInt(m.s2);
+
+            // 1. Si es un Rosco (4-0 o 0-4)
+            if ((s1Int === 4 && s2Int === 0) || (s1Int === 0 && s2Int === 4)) {
+                matchBadgeIndicator = `<span class="text-[10px] font-black bg-amber-50 text-amber-950 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1 animate-pulse">🍩 ¡Rosco!</span>`;
+            } 
+            // 2. Si hubo tablas (columna G de Sheets)
+            else if (m.tablas && parseInt(m.tablas) > 0) {
+                const numTablas = parseInt(m.tablas);
+                const textoTablas = numTablas === 1 ? 'Tablas' : 'Tablas';
+                matchBadgeIndicator = `<span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1">🤝 ${numTablas} ${textoTablas}</span>`;
+            }
         }
 
         container.innerHTML += `
@@ -682,7 +693,7 @@
                           title="${isFin ? 'Ver partidas del duelo' : 'Ver partida en directo o perfil'}">
                         ${isFin ? `${m.s1} - ${m.s2}` : 'Pendiente 🟢'}
                     </span>
-                    ${drawIndicator}
+                    ${matchBadgeIndicator}
                 </div>
             </div>
         `;
