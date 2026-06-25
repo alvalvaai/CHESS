@@ -685,25 +685,17 @@ rows.forEach((r, index) => {
         const lichessUser1 = player1Info && player1Info.lichess ? player1Info.lichess.trim() : m.p1.trim();
         const lichessUser2 = player2Info && player2Info.lichess ? player2Info.lichess.trim() : m.p2.trim();
 
-      // --- INDICADORES VISUALES EXTRA EN EL RESULTADO (TABLAS Y ROSCOS) ---
+      // --- INDICADORES VISUALES EXTRA EN EL RESULTADO GENERAL (SOLO ROSCO) ---
         let matchBadgeIndicator = "";
         
         if (isFin) {
             const s1Int = parseInt(m.s1);
             const s2Int = parseInt(m.s2);
 
-            // 1. Si es un Rosco (4-0 o 0-4)
+            // Si es un Rosco (4-0 o 0-4), muestra siempre el Donut sin importar quién perdió
             if ((s1Int === 4 && s2Int === 0) || (s1Int === 0 && s2Int === 4)) {
-                // Si el jugador 1 ganó 4-0, es un Rosco clásico a favor del local
-                if (s1Int === 4) {
-                    matchBadgeIndicator = `<span class="text-[10px] font-black bg-amber-50 text-amber-950 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1 animate-pulse">🍩 ¡Rosco!</span>`;
-                } 
-                // Si el jugador 1 perdió 0-4, es un "Honor Samurai" (recibió el rosco)
-                else {
-                    matchBadgeIndicator = `<span class="text-[10px] font-black bg-red-50 text-red-950 px-1.5 py-0.5 rounded border border-red-300 block text-center mt-1 animate-pulse">🇯🇵 ¡Samurái!</span>`;
-                }
+                matchBadgeIndicator = `<span class="text-[10px] font-black bg-amber-50 text-amber-950 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1 animate-pulse">🍩 ¡Rosco!</span>`;
             } 
-            // 2. Si hubo tablas (columna G de Sheets)
             else if (m.tablas && parseInt(m.tablas) > 0) {
                 const numTablas = parseInt(m.tablas);
                 const textoTablas = numTablas === 1 ? 'Tablas' : 'Tablas';
