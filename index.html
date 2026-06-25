@@ -749,11 +749,20 @@
             const playerInfo = infoData.find(i => i.name.toLowerCase().trim() === name.toLowerCase().trim());
             const lichessBtn = document.getElementById('modal-lichess-btn');
             if(playerInfo && playerInfo.lichess) {
-                lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(playerInfo.lichess.trim())}#friend`;
-                lichessBtn.style.display = 'flex';
+            const nickLichess = playerInfo.lichess.trim();
+            
+            // 1. Detectamos si es un dispositivo móvil Apple (iPhone, iPad, iPod)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            // 2. Asignamos la URL según corresponda (PC usa https:// y móvil usa el protocolo directo de la App lichess://)
+            if (isIOS) {
+                lichessBtn.href = `lichess://challenge/${encodeURIComponent(nickLichess)}?clock.limit=600&clock.increment=0&variant=standard`;
             } else {
-                lichessBtn.style.display = 'none';
+                lichessBtn.href = `https://lichess.org/challenge/${encodeURIComponent(nickLichess)}?clock.limit=600&clock.increment=0&variant=standard`;
             }
+            
+            lichessBtn.style.display = 'flex';
+        }
 
             // --- LÓGICA BOTÓN DE WHATSAPP ---
     const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
