@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- 1. Favicon para la pestaña del navegador -->
+    <link rel="icon" type="image/jpeg" href="Logo.jpg">
+
+    <!-- 2. Icono oficial para la pantalla de inicio en iPhone / iPad -->
+    <link rel="apple-touch-icon" href="Logo.jpg">
+    <link rel="apple-touch-icon" sizes="180x180" href="Logo.jpg">
+
+    <!-- 3. Nombre y comportamiento de App en el móvil -->
+    <meta name="apple-mobile-web-app-title" content="Torneo Ajedrez">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XIX Torneo de Ajedrez - Portal Oficial</title>
@@ -29,13 +41,12 @@
     <!-- CABECERA PRINCIPAL -->
     <header class="bg-lichess-dark-header text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-center sticky top-0 z-50 gap-4">
         <div class="flex items-center gap-3">
-            <span class="text-3xl">👑</span>
+            <img src="Logo.jpg" alt="Logo Torneo" class="h-10 w-10 object-cover rounded-lg shadow-sm border border-stone-700">
             <div>
                 <h1 class="text-2xl font-black tracking-tight text-[#eddcc4]">XIX Torneo de Ajedrez</h1>
                 <p class="text-xs text-stone-400 font-bold uppercase tracking-widest">Portal de Competición Oficial</p>
             </div>
         </div>
-        <!-- Navegación por pestañas principal -->
         <div class="flex gap-2 bg-stone-800 p-1 rounded-xl border border-stone-700">
             <button onclick="switchTab('liga')" id="tab-liga" class="tab-btn active px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition">🏆 Competición</button>
             <button onclick="switchTab('reglamento')" id="tab-reglamento" class="tab-btn px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-stone-400 hover:text-white transition">📜 Reglamento</button>
