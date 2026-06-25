@@ -857,9 +857,10 @@ rows.forEach((r, index) => {
                             streak.push('V'); 
                         }
                         else if(myScore < oppScore) { 
+                            // --- 🇯🇵 DETECTAR ROSCO EN CONTRA (0-4) ---
                             if (myScore === 0 && oppScore === 4) {
-                                outcome = '🇯🇵 Samurái'; 
-                                badgeClass = 'bg-red-100 text-red-950 border-red-300 font-black';
+                                outcome = '🇯🇵 ¡Samurai!';
+                                badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
                             } else {
                                 outcome = '💀 D';
                                 badgeClass = 'bg-red-100 text-red-950 border-red-300';
