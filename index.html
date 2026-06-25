@@ -748,13 +748,13 @@
             
             const playerInfo = infoData.find(i => i.name.toLowerCase().trim() === name.toLowerCase().trim());
             const lichessBtn = document.getElementById('modal-lichess-btn');
-            if(playerInfo && playerInfo.lichess) {
+           if(playerInfo && playerInfo.lichess) {
             const nickLichess = playerInfo.lichess.trim();
             
-            // Usamos la URL oficial de retos. Al ser un enlace limpio "https",
-            // el iPhone detectará automáticamente que pertenece a Lichess y abrirá la App directamente
-            // sin dar errores de "dirección no válida".
-            lichessBtn.href = `https://lichess.org/challenge/${encodeURIComponent(nickLichess)}?clock.limit=600&clock.increment=0&variant=standard`;
+            // Esta es la URL oficial que abre el reto directo SIN dar error 404.
+            // Añadimos al final los parámetros de tiempo en segundos (600s = 10 min) 
+            // y configuramos el reloj para que aparezca preseleccionado.
+            lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
             
             lichessBtn.style.display = 'flex';
         }
