@@ -751,15 +751,10 @@
             if(playerInfo && playerInfo.lichess) {
             const nickLichess = playerInfo.lichess.trim();
             
-            // 1. Detectamos si es un dispositivo móvil Apple (iPhone, iPad, iPod)
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            
-            // 2. Asignamos la URL según corresponda (PC usa https:// y móvil usa el protocolo directo de la App lichess://)
-            if (isIOS) {
-                lichessBtn.href = `lichess://challenge/${encodeURIComponent(nickLichess)}?clock.limit=600&clock.increment=0&variant=standard`;
-            } else {
-                lichessBtn.href = `https://lichess.org/challenge/${encodeURIComponent(nickLichess)}?clock.limit=600&clock.increment=0&variant=standard`;
-            }
+            // Usamos la URL oficial de retos. Al ser un enlace limpio "https",
+            // el iPhone detectará automáticamente que pertenece a Lichess y abrirá la App directamente
+            // sin dar errores de "dirección no válida".
+            lichessBtn.href = `https://lichess.org/challenge/${encodeURIComponent(nickLichess)}?clock.limit=600&clock.increment=0&variant=standard`;
             
             lichessBtn.style.display = 'flex';
         }
