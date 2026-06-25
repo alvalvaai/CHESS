@@ -824,66 +824,77 @@ rows.forEach((r, index) => {
             const historyContainer = document.getElementById('modal-history');
             historyContainer.innerHTML = '';
             
-            let playerMatches = allMatches.filter(m => (m.p1.toLowerCase().trim() === name.toLowerCase().trim() || m.p2.toLowerCase().trim() === name.toLowerCase().trim()) && m.status === 'Terminado');
+            let playerMatches = allMatches.filter(m => m.p1.toLowerCase().trim() === name.toLowerCase().trim() || m.p2.toLowerCase().trim() === name.toLowerCase().trim());
             playerMatches.sort((a,b) => a.round - b.round);
 
             let streak = [];
             if(playerMatches.length === 0) {
-                historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas disputadas en esta edición.</p>`;
+                historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
             } else {
                 playerMatches.forEach(m => {
                     const isP1 = m.p1.toLowerCase().trim() === name.toLowerCase().trim();
                     const opponent = isP1 ? m.p2 : m.p1;
                     
-                    let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
-                    let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
-                    
-                    let outcome = '⚔️ E';
-                    let badge = 'bg-amber-100 text-amber-950 border-amber-300';
-                    
-                    if(myScore > oppScore) { 
-                        // --- 🍩 DETECTAR ROSCO A FAVOR (4-0) ---
-                        if (myScore === 4 && oppScore === 0) {
-                            outcome = '🍩 ¡Rosco!';
-                            badge = 'bg-amber-50 text-amber-950 border-amber-300 animate-pulse';
-                        } else {
-                            outcome = '🔥 V';
-                            badge = 'bg-emerald-100 text-emerald-950 border-emerald-300';
-                        }
-                        streak.push('V'); 
-                    }
-                    else if(myScore < oppScore) { 
-                        // --- 🇯🇵 DETECTAR SAMURÁI EN CONTRA (0-4) ---
-                        if (myScore === 0 && oppScore === 4) {
-                            outcome = '🇯🇵 Samurái';
-                            badge = 'bg-red-50 text-red-950 border-red-300 font-black';
-                        } else {
-                            outcome = '💀 D';
-                            badge = 'bg-red-100 text-red-950 border-red-300';
-                        }
-                        streak.push('D'); 
-                    }
-                    else { 
-                        streak.push('T'); 
-                    }
-
-                    // Lógica para pintar las tablas exactas en el historial del jugador
+                    let badgeHTML = "";
                     let tablasFichaHTML = '';
-                    if (m.tablas && parseInt(m.tablas) > 0) {
-                        tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
+
+                    // --- CASO A: PARTIDO YA JUGADO ---
+                    if (m.status === 'Terminado') {
+                        let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
+                        let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
+                        
+                        let outcome = '⚔️ E';
+                        let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
+                        
+                        if(myScore > oppScore) { 
+                            if (myScore === 4 && oppScore === 0) {
+                                outcome = '🍩 ¡Rosco!';
+                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
+                            } else {
+                                outcome = '🔥 V';
+                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+                            }
+                            streak.push('V'); 
+                        }
+                        else if(myScore < oppScore) { 
+                            if (myScore === 0 && oppScore === 4) {
+                                outcome = '🇯🇵 Samurai'; 
+                                badgeClass = 'bg-red-100 text-red-950 border-red-300 font-black';
+                            } else {
+                                outcome = '💀 D';
+                                badgeClass = 'bg-red-100 text-red-950 border-red-300';
+                            }
+                            streak.push('D'); 
+                        }
+                        else { 
+                            streak.push('T'); 
+                        }
+
+                        badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
+
+                        if (m.tablas && parseInt(m.tablas) > 0) {
+                            tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
+                        }
+
+                    } 
+                    // --- CASO B: PARTIDO PENDIENTE POR JUGAR ---
+                    else {
+                        badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
                     }
 
+                    // Inyectamos la fila en el contenedor de la ficha
                     historyContainer.innerHTML += `
                         <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
                             <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
                             <div class="flex items-center gap-1">
-                                <span class="px-2 py-0.5 rounded font-black border ${badge}">${outcome} (${myScore}-${oppScore})</span>
+                                ${badgeHTML}
                                 ${tablasFichaHTML}
                             </div>
                         </div>
                     `;
                 });
-                    }
+            }
+                
             let continuousStreak = 0;
             if(streak.length > 0) {
                 let last = streak[streak.length - 1];
