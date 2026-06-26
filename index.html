@@ -311,6 +311,19 @@
                 <div>
                     <h3 class="text-xl font-black text-stone-900" id="modal-name">-</h3>
                     <p class="text-xs text-amber-900 font-bold uppercase tracking-wider" id="modal-division">-</p>
+                    
+                    <!-- 📦 EL NUEVO CONTENEDOR DE ELOS PEGADO AQUÍ COMIENZA -->
+                    <div id="modal-elo-container" class="mt-2 flex gap-2 hidden">
+                        <div class="bg-sky-100 border border-sky-300 px-2 py-0.5 rounded flex items-center gap-1">
+                            <span class="text-[10px] font-bold text-sky-950">⏱️ Blitz:</span>
+                            <span id="modal-elo-blitz" class="text-[11px] font-black text-sky-950">-</span>
+                        </div>
+                        <div class="bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded flex items-center gap-1">
+                            <span class="text-[10px] font-bold text-emerald-950">🐢 Ráp.:</span>
+                            <span id="modal-elo-rapidas" class="text-[11px] font-black text-emerald-950">-</span>
+                        </div>
+                    </div>
+                    <!-- EL NUEVO CONTENEDOR TERMINA -->
                 </div>
             </div>
             
@@ -323,7 +336,7 @@
                     <span class="text-[9px] font-normal tracking-wider uppercase opacity-90">Sala de Espera</span> RETAR EN LICHESS 🚀
                 </a>
 
-                <!-- NUEO BOTÓN DE WHATSAPP -->
+                <!-- NUEVO BOTÓN DE WHATSAPP -->
                 <a id="modal-whatsapp-btn" target="_blank" class="mt-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl flex flex-col items-center justify-center p-3 text-center font-bold" style="display: none;">
                     <span class="text-[9px] font-normal tracking-wider uppercase opacity-90">Conversación</span> ENVIAR WHATSAPP 💬
                 </a>
@@ -334,12 +347,12 @@
         </div>
     </div>
 
-    <!-- SCRIPT DE LÓGICA CORE -->
     <script>
         const SHEET_ID = '1NYFChLvLEI6Xcbsdmbm70ksv1jmX_qB6wMWXEetxkGk';
         let currentRound = 9;
         let allMatches = [];
         let infoData = [];
+        let eloRankingData = []; // 🚀 NUEVA VARIABLE GLOBAL AÑADIDA
         let datesMap = {};
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -375,13 +388,34 @@
 
         async function loadSheetCore() {
             try {
-                // 1. OBTENER INFORMACIÓN DE JUGADORES
+                // ==========================================================
+                // 📦 NUEVA LOGICA: OBTENER RANKING DE ELOS DE LICHESS
+                // ==========================================================
+                try {
+                    const eloRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=ELO_RANKING`);
+                    const eloText = await eloRes.text();
+                    const eloRows = JSON.parse(eloText.substring(47).slice(0, -2)).table.rows;
+                    
+                    eloRankingData = eloRows.map(r => {
+                        return {
+                            Jugador: r.c[0] ? r.c[0].v : "",
+                            Ranking_Blitz: r.c[1] ? r.c[1].v : "N/A",
+                            Ranking_Rapidas: r.c[2] ? r.c[2].v : "N/A"
+                        };
+                    });
+                    console.log("✅ ELO_RANKING cargado con éxito");
+                } catch (errElo) {
+                    console.error("Error al cargar la pestaña ELO_RANKING:", errElo);
+                }
+                // ==========================================================
+
+                // 1. OBTENER INFORMACIÓN DE JUGADORES (Tu código original sigue aquí debajo)
                 const infoRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INFO`);
                 const infoText = await infoRes.text();
                 const infoRows = JSON.parse(infoText.substring(47).slice(0, -2)).table.rows;
                 
-               infoRows.forEach((r) => {
-        if (!r.c || !r.c[1]) return;
+                infoRows.forEach((r) => {
+                    if (!r.c || !r.c[1]) return;
         
         infoData.push({
             name: r.c[1]?.v || '',
@@ -789,24 +823,41 @@ rows.forEach((r, index) => {
             lucide.createIcons();
         }
 
-        window.openPlayerModal = function(name, division) {
-            document.getElementById('modal-name').innerText = name;
-            document.getElementById('modal-division').innerText = division;
-            
-            const playerInfo = infoData.find(i => i.name.toLowerCase().trim() === name.toLowerCase().trim());
-            const lichessBtn = document.getElementById('modal-lichess-btn');
-           if(playerInfo && playerInfo.lichess) {
-            const nickLichess = playerInfo.lichess.trim();
-            
-            // Esta es la URL oficial que abre el reto directo SIN dar error 404.
-            // Añadimos al final los parámetros de tiempo en segundos (600s = 10 min) 
-            // y configuramos el reloj para que aparezca preseleccionado.
-            lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
-            
-            lichessBtn.style.display = 'flex';
-        }
+       window.openPlayerModal = function(name, division) {
+    document.getElementById('modal-name').innerText = name;
+    document.getElementById('modal-division').innerText = division;
+    
+    // ==========================================
+    // 🔲 NUEVA LÓGICA: MOSTRAR RANKING DE ELO
+    // ==========================================
+    const eloContainer = document.getElementById('modal-elo-container');
+    const eloBlitzTxt = document.getElementById('modal-elo-blitz');
+    const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
+    
+    // Buscamos al jugador en el array cargado de la pestaña ELO_RANKING
+    // (Asegúrate de que 'eloRankingData' sea la variable donde cargas esa pestaña)
+    const eloInfo = typeof eloRankingData !== 'undefined' ? eloRankingData.find(e => e.Jugador.toLowerCase().trim() === name.toLowerCase().trim()) : null;
+    
+    if (eloInfo) {
+        eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
+        eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
+        eloContainer.classList.remove('hidden'); // Mostramos los bloques de Elo
+    } else {
+        eloContainer.classList.add('hidden'); // Si no hay datos, se queda oculto
+    }
+    // ==========================================
+    
+    const playerInfo = infoData.find(i => i.name.toLowerCase().trim() === name.toLowerCase().trim());
+    const lichessBtn = document.getElementById('modal-lichess-btn');
+    if(playerInfo && playerInfo.lichess) {
+        const nickLichess = playerInfo.lichess.trim();
+        lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
+        lichessBtn.style.display = 'flex';
+    } else {
+        lichessBtn.style.display = 'none';
+    }
 
-            // --- LÓGICA BOTÓN DE WHATSAPP ---
+    // --- LÓGICA BOTÓN DE WHATSAPP ---
     const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
     if (playerInfo && playerInfo.telefono) {
         const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
@@ -821,100 +872,91 @@ rows.forEach((r, index) => {
         btnWhatsapp.style.display = 'none';
     }
 
-            const historyContainer = document.getElementById('modal-history');
-            historyContainer.innerHTML = '';
+    const historyContainer = document.getElementById('modal-history');
+    historyContainer.innerHTML = '';
+    
+    let playerMatches = allMatches.filter(m => m.p1.toLowerCase().trim() === name.toLowerCase().trim() || m.p2.toLowerCase().trim() === name.toLowerCase().trim());
+    playerMatches.sort((a,b) => a.round - b.round);
+
+    let streak = [];
+    if(playerMatches.length === 0) {
+        historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
+    } else {
+        playerMatches.forEach(m => {
+            const isP1 = m.p1.toLowerCase().trim() === name.toLowerCase().trim();
+            const opponent = isP1 ? m.p2 : m.p1;
             
-            let playerMatches = allMatches.filter(m => m.p1.toLowerCase().trim() === name.toLowerCase().trim() || m.p2.toLowerCase().trim() === name.toLowerCase().trim());
-            playerMatches.sort((a,b) => a.round - b.round);
+            let badgeHTML = "";
+            let tablasFichaHTML = '';
 
-            let streak = [];
-            if(playerMatches.length === 0) {
-                historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
-            } else {
-                playerMatches.forEach(m => {
-                    const isP1 = m.p1.toLowerCase().trim() === name.toLowerCase().trim();
-                    const opponent = isP1 ? m.p2 : m.p1;
-                    
-                    let badgeHTML = "";
-                    let tablasFichaHTML = '';
-
-                    // --- CASO A: PARTIDO YA JUGADO ---
-                    if (m.status === 'Terminado') {
-                        let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
-                        let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
-                        
-                        let outcome = '⚔️ E';
-                        let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
-                        
-                        if(myScore > oppScore) { 
-                            if (myScore === 4 && oppScore === 0) {
-                                outcome = '🍩 ¡Rosco!';
-                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
-                            } else {
-                                outcome = '🔥 V';
-                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
-                            }
-                            streak.push('V'); 
-                        }
-                        else if(myScore < oppScore) { 
-                            // --- 🇯🇵 DETECTAR ROSCO EN CONTRA (0-4) ---
-                            if (myScore === 0 && oppScore === 4) {
-                                outcome = '🇯🇵 ¡Samurai!';
-                                badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
-                            } else {
-                                outcome = '💀 D';
-                                badgeClass = 'bg-red-100 text-red-950 border-red-300';
-                            }
-                            streak.push('D'); 
-                        }
-                        else { 
-                            streak.push('T'); 
-                        }
-
-                        badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
-
-                        if (m.tablas && parseInt(m.tablas) > 0) {
-                            tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
-                        }
-
-                    } 
-                    // --- CASO B: PARTIDO PENDIENTE POR JUGAR ---
-                    else {
-                        badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
-                    }
-
-                    // Inyectamos la fila en el contenedor de la ficha
-                    historyContainer.innerHTML += `
-                        <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
-                            <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
-                            <div class="flex items-center gap-1">
-                                ${badgeHTML}
-                                ${tablasFichaHTML}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+            if (m.status === 'Terminado') {
+                let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
+                let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
                 
-            let continuousStreak = 0;
-            if(streak.length > 0) {
-                let last = streak[streak.length - 1];
-                for(let i = streak.length - 1; i >= 0; i--) {
-                    if(streak[i] === last) continuousStreak++;
-                    else break;
+                let outcome = '⚔️ E';
+                let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
+                
+                if(myScore > oppScore) { 
+                    if (myScore === 4 && oppScore === 0) {
+                        outcome = '🍩 ¡Rosco!';
+                        badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
+                    } else {
+                        outcome = '🔥 V';
+                        badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+                    }
+                    streak.push('V'); 
                 }
-                document.getElementById('modal-streak').innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
-            } else {
-                document.getElementById('modal-streak').innerText = 'Sin racha registrada';
+                else if(myScore < oppScore) { 
+                    if (myScore === 0 && oppScore === 4) {
+                        outcome = '🇯🇵 ¡Samurai!';
+                        badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
+                    } else {
+                        outcome = '💀 D';
+                        badgeClass = 'bg-red-100 text-red-950 border-red-300';
+                    }
+                    streak.push('D'); 
+                }
+                else { 
+                    streak.push('T'); 
+                }
+
+                badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
+
+                if (m.tablas && parseInt(m.tablas) > 0) {
+                    tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
+                }
+            } 
+            else {
+                badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
             }
 
-            document.getElementById('player-modal').classList.remove('hidden');
-            lucide.createIcons();
-        };
+            historyContainer.innerHTML += `
+                <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
+                    <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
+                    <div class="flex items-center gap-1">
+                        ${badgeHTML}
+                        ${tablasFichaHTML}
+                    </div>
+                </div>
+            `;
+        });
+    }
+        
+    let continuousStreak = 0;
+    if(streak.length > 0) {
+        let last = streak[streak.length - 1];
+        for(let i = streak.length - 1; i >= 0; i--) {
+            if(streak[i] === last) continuousStreak++;
+            else break;
+        }
+        document.getElementById('modal-streak').innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
+    } else {
+        document.getElementById('modal-streak').innerText = 'Sin racha registrada';
+    }
 
-        document.getElementById('close-modal').onclick = () => {
-            document.getElementById('player-modal').classList.add('hidden');
-        };
+    document.getElementById('player-modal').classList.remove('hidden');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+};
     </script>
 </body>
 </html>
