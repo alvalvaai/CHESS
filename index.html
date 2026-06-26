@@ -824,36 +824,47 @@ rows.forEach((r, index) => {
         }
 
        window.openPlayerModal = function(name, division) {
-    document.getElementById('modal-name').innerText = name;
-    document.getElementById('modal-division').innerText = division;
-    
-    // ==========================================
-    // 🔲 NUEVA LÓGICA: MOSTRAR RANKING DE ELO
-    // ==========================================
-    const eloContainer = document.getElementById('modal-elo-container');
-    const eloBlitzTxt = document.getElementById('modal-elo-blitz');
-    const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
-    
-    // Buscamos al jugador en el array cargado de la pestaña ELO_RANKING
-    // (Asegúrate de que 'eloRankingData' sea la variable donde cargas esa pestaña)
-    const eloInfo = typeof eloRankingData !== 'undefined' ? eloRankingData.find(e => e.Jugador.toLowerCase().trim() === name.toLowerCase().trim()) : null;
-    
-    if (eloInfo) {
-        eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
-        eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
-        eloContainer.classList.remove('hidden'); // Mostramos los bloques de Elo
-    } else {
-        eloContainer.classList.add('hidden'); // Si no hay datos, se queda oculto
+    // Ponemos un try/catch global para que, pase lo que pase con el ELO, la ventana NO se quede bloqueada
+    try {
+        document.getElementById('modal-name').innerText = name || "-";
+        document.getElementById('modal-division').innerText = division || "-";
+        
+        // ==========================================
+        // 🔲 LÓGICA: MOSTRAR RANKING DE ELO (CORREGIDA Y SEGURA)
+        // ==========================================
+        const eloContainer = document.getElementById('modal-elo-container');
+        const eloBlitzTxt = document.getElementById('modal-elo-blitz');
+        const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
+        
+        let eloInfo = null;
+        if (typeof eloRankingData !== 'undefined' && Array.isArray(eloRankingData)) {
+            eloInfo = eloRankingData.find(e => {
+                // Protección: Verificamos que 'e' y 'e.Jugador' existan antes de hacer el string-clean
+                if (!e || !e.Jugador) return false;
+                return e.Jugador.toLowerCase().trim() === name.toLowerCase().trim();
+            });
+        }
+        
+        if (eloInfo && eloContainer && eloBlitzTxt && eloRapidasTxt) {
+            eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
+            eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
+            eloContainer.classList.remove('hidden'); 
+        } else if (eloContainer) {
+            eloContainer.classList.add('hidden'); 
+        }
+    } catch (errEloGlobal) {
+        console.error("Error en la sección de carga de Elo:", errEloGlobal);
     }
     // ==========================================
     
-    const playerInfo = infoData.find(i => i.name.toLowerCase().trim() === name.toLowerCase().trim());
+    // CONTINUACIÓN DE TU LOGICA CORE ORIGINAL (RETAR / WHATSAPP / HISTORIAL)
+    const playerInfo = infoData.find(i => i.name && i.name.toLowerCase().trim() === name.toLowerCase().trim());
     const lichessBtn = document.getElementById('modal-lichess-btn');
     if(playerInfo && playerInfo.lichess) {
         const nickLichess = playerInfo.lichess.trim();
         lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
         lichessBtn.style.display = 'flex';
-    } else {
+    } else if (lichessBtn) {
         lichessBtn.style.display = 'none';
     }
 
@@ -865,98 +876,108 @@ rows.forEach((r, index) => {
             const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
             btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
             btnWhatsapp.style.display = 'flex';
-        } else {
+        } else if (btnWhatsapp) {
             btnWhatsapp.style.display = 'none';
         }
-    } else {
+    } else if (btnWhatsapp) {
         btnWhatsapp.style.display = 'none';
     }
 
     const historyContainer = document.getElementById('modal-history');
-    historyContainer.innerHTML = '';
-    
-    let playerMatches = allMatches.filter(m => m.p1.toLowerCase().trim() === name.toLowerCase().trim() || m.p2.toLowerCase().trim() === name.toLowerCase().trim());
-    playerMatches.sort((a,b) => a.round - b.round);
-
-    let streak = [];
-    if(playerMatches.length === 0) {
-        historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
-    } else {
-        playerMatches.forEach(m => {
-            const isP1 = m.p1.toLowerCase().trim() === name.toLowerCase().trim();
-            const opponent = isP1 ? m.p2 : m.p1;
-            
-            let badgeHTML = "";
-            let tablasFichaHTML = '';
-
-            if (m.status === 'Terminado') {
-                let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
-                let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
-                
-                let outcome = '⚔️ E';
-                let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
-                
-                if(myScore > oppScore) { 
-                    if (myScore === 4 && oppScore === 0) {
-                        outcome = '🍩 ¡Rosco!';
-                        badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
-                    } else {
-                        outcome = '🔥 V';
-                        badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
-                    }
-                    streak.push('V'); 
-                }
-                else if(myScore < oppScore) { 
-                    if (myScore === 0 && oppScore === 4) {
-                        outcome = '🇯🇵 ¡Samurai!';
-                        badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
-                    } else {
-                        outcome = '💀 D';
-                        badgeClass = 'bg-red-100 text-red-950 border-red-300';
-                    }
-                    streak.push('D'); 
-                }
-                else { 
-                    streak.push('T'); 
-                }
-
-                badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
-
-                if (m.tablas && parseInt(m.tablas) > 0) {
-                    tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
-                }
-            } 
-            else {
-                badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
-            }
-
-            historyContainer.innerHTML += `
-                <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
-                    <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
-                    <div class="flex items-center gap-1">
-                        ${badgeHTML}
-                        ${tablasFichaHTML}
-                    </div>
-                </div>
-            `;
-        });
-    }
+    if (historyContainer) {
+        historyContainer.innerHTML = '';
         
-    let continuousStreak = 0;
-    if(streak.length > 0) {
-        let last = streak[streak.length - 1];
-        for(let i = streak.length - 1; i >= 0; i--) {
-            if(streak[i] === last) continuousStreak++;
-            else break;
+        let playerMatches = allMatches.filter(m => (m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim()) || (m.p2 && m.p2.toLowerCase().trim() === name.toLowerCase().trim()));
+        playerMatches.sort((a,b) => a.round - b.round);
+
+        let streak = [];
+        if(playerMatches.length === 0) {
+            historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
+        } else {
+            playerMatches.forEach(m => {
+                const isP1 = m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim();
+                const opponent = isP1 ? m.p2 : m.p1;
+                
+                let badgeHTML = "";
+                let tablasFichaHTML = '';
+
+                if (m.status === 'Terminado') {
+                    let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
+                    let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
+                    
+                    let outcome = '⚔️ E';
+                    let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
+                    
+                    if(myScore > oppScore) { 
+                        if (myScore === 4 && oppScore === 0) {
+                            outcome = '🍩 ¡Rosco!';
+                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
+                        } else {
+                            outcome = '🔥 V';
+                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+                        }
+                        streak.push('V'); 
+                    }
+                    else if(myScore < oppScore) { 
+                        if (myScore === 0 && oppScore === 4) {
+                            outcome = '🇯🇵 ¡Samurai!';
+                            badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
+                        } else {
+                            outcome = '💀 D';
+                            badgeClass = 'bg-red-100 text-red-950 border-red-300';
+                        }
+                        streak.push('D'); 
+                    }
+                    else { 
+                        streak.push('T'); 
+                    }
+
+                    badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
+
+                    if (m.tablas && parseInt(m.tablas) > 0) {
+                        tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
+                    }
+                } 
+                else {
+                    badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
+                }
+
+                historyContainer.innerHTML += `
+                    <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
+                        <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
+                        <div class="flex items-center gap-1">
+                            ${badgeHTML}
+                            ${tablasFichaHTML}
+                        </div>
+                    </div>
+                `;
+            });
         }
-        document.getElementById('modal-streak').innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
-    } else {
-        document.getElementById('modal-streak').innerText = 'Sin racha registrada';
+            
+        let continuousStreak = 0;
+        const streakElem = document.getElementById('modal-streak');
+        if (streakElem) {
+            if(streak.length > 0) {
+                let last = streak[streak.length - 1];
+                for(let i = streak.length - 1; i >= 0; i--) {
+                    if(streak[i] === last) continuousStreak++;
+                    else break;
+                }
+                streakElem.innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
+            } else {
+                streakElem.innerText = 'Sin racha registrada';
+            }
+        }
     }
 
+    // Esto vuelve a hacer visible el modal en pantalla
     document.getElementById('player-modal').classList.remove('hidden');
     if (typeof lucide !== 'undefined') lucide.createIcons();
 };
+        document.getElementById('close-modal').onclick = () => {
+        document.getElementById('player-modal').classList.add('hidden');
+    };
+        
     </script>
 </body>
 </html>
