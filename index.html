@@ -28,7 +28,7 @@
         .bg-lichess-chesspions { background-color: #fff9e6; border-left: 5px solid #d4af37; }
         .bg-lichess-chesscond { background-color: #f0f4f8; border-left: 5px solid #4a7c59; }
         tr:hover { background-color: #f1eae0 !important; }
-        .tab-btn.active { background-color: #363231; color: #ffffff; }
+       .tab-btn.active { background-color: #262322 !important; color: #ffffff !important; opacity: 1 !important; }
         
         /* Indicadores de posición */
         .zone-upgrade { border-left: 4px solid #16a34a !important; } /* Sube */
@@ -39,7 +39,7 @@
 <body class="font-sans min-h-screen antialiased">
 
     <!-- CABECERA PRINCIPAL -->
-    <header class="bg-lichess-dark-header text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-center sticky top-0 z-50 gap-4">
+    <header class="bg-lichess-dark-header text-white shadow-md px-6 py-4 flex flex-col md:flex-row justify-between items-center sticky top-0 z-50 gap-4">
         <div class="flex items-center gap-3">
             <img src="Logo.jpg" alt="Logo Torneo" class="h-10 w-10 object-cover rounded-lg shadow-sm border border-stone-700">
             <div>
@@ -47,13 +47,12 @@
                 <p class="text-xs text-stone-400 font-bold uppercase tracking-widest">Portal de Competición Oficial</p>
             </div>
         </div>
-        <div class="flex gap-2 mb-4 justify-center">
-    <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white bg-stone-800 px-4 py-2 rounded-xl font-bold text-xs transition">🏆 COMPETICIÓN</button>
-    
-    <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-4 py-2 rounded-xl font-bold text-xs transition">✍️ Resumen</button>
-    
-    <button id="tab-reglamento" onclick="switchTab('reglamento')" class="tab-btn text-stone-400 hover:text-stone-200 px-4 py-2 rounded-xl font-bold text-xs transition">📜 REGLAMENTO</button>
-</div>
+        
+        <div class="flex gap-2 justify-center items-center bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
+            <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-4 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider">🏆 Competición</button>
+            <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-4 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider">✍️ Resumen IA</button>
+            <button id="tab-reglamento" onclick="switchTab('reglamento')" class="tab-btn text-stone-400 hover:text-stone-200 px-4 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider">📜 Reglamento</button>
+        </div>
     </header>
 
     <!-- PESTAÑA REGLAMENTO -->
