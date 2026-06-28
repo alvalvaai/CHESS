@@ -420,7 +420,7 @@
             }
         }
 
-        async function fetchPuzzle() {
+       async function fetchPuzzle() {
             try {
                 const res = await fetch('https://lichess.org/api/puzzle/daily');
                 const data = await res.json();
@@ -432,63 +432,63 @@
             }
         }
 
-       async function loadSheetCore() {
-    // ==========================================================
-    // 🤖 LÓGICA: OBTENER RESUMEN DE LA JORNADA DESDE GOOGLE SHEETS (CELDA ÚNICA A3)
-    // ==========================================================
-    try {
-        const resumenRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESUMEN_IA2`);
-        const resumenText = await resumenRes.text();
-        const resumenRows = JSON.parse(resumenText.substring(47).slice(0, -2)).table.rows;
-        
-        let resumenIAData = "";
-
-        // Comprobamos que existan suficientes filas para llegar a la Fila 3 (índice 2)
-        if (resumenRows && resumenRows.length > 2) {
-            // 🔍 ÍNDICE 2: Corresponde exactamente a la Fila 3 (Celda A3) donde está tu texto
-            const filaTexto = resumenRows[2]; 
-            let textoBruto = (filaTexto && filaTexto.c && filaTexto.c[0]) ? filaTexto.c[0].v : "";
-
-            if (textoBruto.trim() !== "") {
-                // 1. ✨ Convertimos los asteriscos *texto* en negritas <b>texto</b>
-                let textoConNegritas = textoBruto.replace(/\*(.*?)\*/g, '<b>$1</b>');
+        async function loadSheetCore() {
+            // Unificamos el try principal de la función para envolver las peticiones de forma segura
+            try {
                 
-                // 2. 📋 Separamos el texto por sus saltos de línea internos para crear párrafos reales
-                resumenIAData = textoConNegritas
-                    .split('\n')
-                    .map(linea => {
-                        let trimLinea = linea.trim();
-                        // Si la línea está vacía (como el espacio antes de RESULTADOS), dejamos un margen
-                        if (trimLinea === "") return '<div class="h-3"></div>';
-                        // Si es una línea con texto, la envolvemos en un párrafo limpio
-                        return `<p class="mb-3">${trimLinea}</p>`;
-                    })
-                    .join('');
-            }
-        }
+                // ==========================================================
+                // 🤖 LÓGICA: OBTENER RESUMEN DE LA JORNADA DESDE GOOGLE SHEETS (CELDA ÚNICA A3)
+                // ==========================================================
+                try {
+                    const resumenRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESUMEN_IA2`);
+                    const resumenText = await resumenRes.text();
+                    const resumenRows = JSON.parse(resumenText.substring(47).slice(0, -2)).table.rows;
+                    
+                    let resumenIAData = "";
 
-        // Si por lo que sea sigue vacío, ponemos el mensaje de espera
-        if (!resumenIAData) {
-            resumenIAData = `<p class="text-stone-500 italic text-center py-4">El resumen estará disponible próximamente.</p>`;
-        }
-        
-        // Inyectamos el resultado final en tu contenedor
-        const contenedorCronica = document.getElementById('texto-resumen-ia');
-        if (contenedorCronica) {
-            contenedorCronica.innerHTML = resumenIAData;
-            console.log("✅ Crónica de la Celda A3 cargada y formateada por párrafos.");
-        }
+                    // Comprobamos que existan suficientes filas para llegar a la Fila 3 (índice 2)
+                    if (resumenRows && resumenRows.length > 2) {
+                        // 🔍 ÍNDICE 2: Corresponde exactamente a la Fila 3 (Celda A3) donde está tu texto
+                        const filaTexto = resumenRows[2]; 
+                        let textoBruto = (filaTexto && filaTexto.c && filaTexto.c[0]) ? filaTexto.c[0].v : "";
 
-    } catch (errResumen) {
-        console.error("❌ Error al cargar la pestaña resumen:", errResumen);
-        const contenedorCronica = document.getElementById('texto-resumen-ia');
-        if (contenedorCronica) {
-            contenedorCronica.innerHTML = `<p class="text-red-500 text-center py-4">Hubo un problema al cargar el resumen de la jornada.</p>`;
-        }
-    }
-} // <-- ¡ESTA LLAVE ES VITAL! Cierra por fin la función completa loadSheetCore()
+                        if (textoBruto.trim() !== "") {
+                            // 1. ✨ Convertimos los asteriscos *texto* en negritas <b>texto</b>
+                            let textoConNegritas = textoBruto.replace(/\*(.*?)\*/g, '<b>$1</b>');
+                            
+                            // 2. 📋 Separamos el texto por sus saltos de línea internos para crear párrafos reales
+                            resumenIAData = textoConNegritas
+                                .split('\n')
+                                .map(linea => {
+                                    let trimLinea = linea.trim();
+                                    // Si la línea está vacía (como el espacio antes de RESULTADOS), dejamos un margen
+                                    if (trimLinea === "") return '<div class="h-3"></div>';
+                                    // Si es una línea con texto, la envolvemos en un párrafo limpio
+                                    return `<p class="mb-3">${trimLinea}</p>`;
+                                })
+                                .join('');
+                        }
+                    }
 
-                
+                    // Si por lo que sea sigue vacío, ponemos el mensaje de espera
+                    if (!resumenIAData) {
+                        resumenIAData = `<p class="text-stone-500 italic text-center py-4">El resumen estará disponible próximamente.</p>`;
+                    }
+                    
+                    // Inyectamos el resultado final en tu contenedor
+                    const contenedorCronica = document.getElementById('texto-resumen-ia');
+                    if (contenedorCronica) {
+                        contenedorCronica.innerHTML = resumenIAData;
+                        console.log("✅ Crónica de la Celda A3 cargada y formateada por párrafos.");
+                    }
+
+                } catch (errResumen) {
+                    console.error("❌ Error al cargar la pestaña resumen:", errResumen);
+                    const contenedorCronica = document.getElementById('texto-resumen-ia');
+                    if (contenedorCronica) {
+                        contenedorCronica.innerHTML = `<p class="text-stone-500 italic text-center py-4">Hubo un problema al cargar el resumen de la jornada.</p>`;
+                    }
+                }
                 // ==========================================================
                 // 📦 NUEVA LOGICA: OBTENER RANKING DE ELOS DE LICHESS
                 // ==========================================================
