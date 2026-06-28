@@ -383,18 +383,30 @@
             await loadSheetCore();
         });
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-white', 'bg-stone-800'));
-            if(tab === 'liga') {
-                document.getElementById('tab-liga').classList.add('active');
-                document.getElementById('content-liga').classList.remove('hidden');
-                document.getElementById('content-reglamento').classList.add('hidden');
-            } else {
-                document.getElementById('tab-reglamento').classList.add('active');
-                document.getElementById('content-liga').classList.add('hidden');
-                document.getElementById('content-reglamento').classList.remove('hidden');
-            }
-        }
+       function switchTab(tab) {
+    // 1. Quitamos el estado activo de TODOS los botones de pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-white', 'bg-stone-800'));
+    
+    // 2. Ocultamos TODOS los contenedores de contenido primero
+    document.getElementById('content-liga').classList.add('hidden');
+    document.getElementById('content-reglamento').classList.add('hidden');
+    
+    // Asegúrate de que el contenedor de tu HTML donde va el texto de la IA tenga el id "content-resumen"
+    const contentResumen = document.getElementById('content-resumen');
+    if (contentResumen) contentResumen.classList.add('hidden');
+
+    // 3. Activamos solo la pestaña y el contenido correspondiente
+    if (tab === 'liga') {
+        document.getElementById('tab-liga').classList.add('active');
+        document.getElementById('content-liga').classList.remove('hidden');
+    } else if (tab === 'resumen') {
+        document.getElementById('tab-resumen').classList.add('active');
+        if (contentResumen) contentResumen.classList.remove('hidden');
+    } else {
+        document.getElementById('tab-reglamento').classList.add('active');
+        document.getElementById('content-reglamento').classList.remove('hidden');
+    }
+}
 
         async function fetchPuzzle() {
             try {
@@ -1017,13 +1029,13 @@ rows.forEach((r, index) => {
             });
         }
             
-        let continuousStreak = 0;
+       let continuousStreak = 0;
         const streakElem = document.getElementById('modal-streak');
         if (streakElem) {
-            if(streak.length > 0) {
+            if (streak.length > 0) {
                 let last = streak[streak.length - 1];
-                for(let i = streak.length - 1; i >= 0; i--) {
-                    if(streak[i] === last) continuousStreak++;
+                for (let i = streak.length - 1; i >= 0; i--) {
+                    if (streak[i] === last) continuousStreak++;
                     else break;
                 }
                 streakElem.innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
@@ -1031,13 +1043,14 @@ rows.forEach((r, index) => {
                 streakElem.innerText = 'Sin racha registrada';
             }
         }
-    }
+        
+        // Esto vuelve a hacer visible el modal en pantalla
+        document.getElementById('player-modal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }; // Aquí se cierra correctamente window.openPlayerModal
 
-    // Esto vuelve a hacer visible el modal en pantalla
-    document.getElementById('player-modal').classList.remove('hidden');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-};
-        document.getElementById('close-modal').onclick = () => {
+    // Evento para el botón de cerrar el modal
+    document.getElementById('close-modal').onclick = () => {
         document.getElementById('player-modal').classList.add('hidden');
     };
         
