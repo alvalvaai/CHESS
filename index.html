@@ -51,6 +51,7 @@
         <div class="flex gap-2 justify-center items-center bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
             <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-4 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider">🏆 Competición</button>
             <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-4 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider">✍️ El Alfil</button>
+            <button id="tab-mundo" onclick="switchTab('mundo')" class="tab-btn text-stone-400 hover:text-stone-200 px-4 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider">🌍 Mundo Chess</button>
             <button id="tab-reglamento" onclick="switchTab('reglamento')" class="tab-btn text-stone-400 hover:text-stone-200 px-4 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider">📜 Reglamento</button>
         </div>
     </header>
@@ -161,6 +162,18 @@
         <!-- Aquí dentro se inyectará el texto de Google Sheets -->
         <div id="texto-resumen-ia" class="text-sm text-stone-800 leading-relaxed space-y-3 whitespace-pre-line">
             <p class="text-stone-500 italic text-center py-4">Cargando crónica de la semana...</p>
+        </div>
+    </div>
+</div>
+    <!-- TAB: MUNDO CHESS (NOTICIAS DE LA SEMANA) -->
+<div id="content-mundo-chess" class="hidden space-y-4">
+    <div class="bg-lichess-card rounded-2xl shadow-xl p-6 border border-stone-400 max-w-2xl mx-auto">
+        <h2 class="text-xl font-black text-stone-900 border-b border-stone-300 pb-3 mb-4 flex items-center gap-2">
+            🌍 Noticias Mundiales de Ajedrez
+        </h2>
+        <!-- 🎯 Aquí dentro se inyectará el resumen de las noticias desde la Sheets -->
+        <div id="texto-mundo-chess" class="text-sm text-stone-800 leading-relaxed space-y-3 whitespace-pre-line">
+            <p class="text-stone-500 italic text-center py-4">Cargando noticias de la semana...</p>
         </div>
     </div>
 </div>
@@ -391,9 +404,12 @@
     document.getElementById('content-liga').classList.add('hidden');
     document.getElementById('content-reglamento').classList.add('hidden');
     
-    // Asegúrate de que el contenedor de tu HTML donde va el texto de la IA tenga el id "content-resumen"
     const contentResumen = document.getElementById('content-resumen');
     if (contentResumen) contentResumen.classList.add('hidden');
+
+    // 🆕 Ocultamos el nuevo contenedor de Mundo Chess
+    const contentMundo = document.getElementById('content-mundo-chess');
+    if (contentMundo) contentMundo.classList.add('hidden');
 
     // 3. Activamos solo la pestaña y el contenido correspondiente
     if (tab === 'liga') {
@@ -402,9 +418,14 @@
     } else if (tab === 'resumen') {
         document.getElementById('tab-resumen').classList.add('active');
         if (contentResumen) contentResumen.classList.remove('hidden');
-    } else {
+    } else if (tab === 'reglamento') {
+        // 🆕 Ahora reglamento tiene su propia condición limpia
         document.getElementById('tab-reglamento').classList.add('active');
         document.getElementById('content-reglamento').classList.remove('hidden');
+    } else if (tab === 'mundo') {
+        // 🆕 Condición para activar la nueva pestaña de Mundo Chess
+        document.getElementById('tab-mundo').classList.add('active');
+        if (contentMundo) contentMundo.classList.remove('hidden');
     }
 }
 
@@ -490,6 +511,60 @@
                     console.error("❌ Error procesando la pestaña resumen:", errResumen);
                 }
                 // ==========================================================
+             // ==========================================================
+                // 🌍 LÓGICA: OBTENER NOTICIAS (MUNDO CHESS) DESDE GOOGLE SHEETS
+                // ==========================================================
+                try {
+                    console.log("🔍 Solicitando pestaña MUNDO_CHESS...");
+                    // ⚠️ Si tu pestaña en Google Sheets se llama distinto, cambia &sheet=MUNDO_CHESS
+                    const noticiasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MUNDO_CHESS`);
+                    const noticiasText = await noticiasRes.text();
+                    const noticiasRows = JSON.parse(noticiasText.substring(47).slice(0, -2)).table.rows;
+                    
+                    let noticiasTextoBruto = "";
+
+                    if (noticiasRows && noticiasRows.length > 0) {
+                        // Buscamos dinámicamente el resumen largo en las filas
+                        for (let i = 0; i < noticiasRows.length; i++) {
+                            const celdaNoticia = noticiasRows[i]?.c?.[0]?.v;
+                            if (celdaNoticia && celdaNoticia.toString().trim().length > 30) {
+                                noticiasTextoBruto = celdaNoticia.toString();
+                                console.log(`🎯 Noticias de Mundo Chess encontradas en el índice ${i}`);
+                                break;
+                            }
+                        }
+                    }
+
+                    let mundoChessData = "";
+                    if (noticiasTextoBruto.trim() !== "") {
+                        // Formateamos los asteriscos a negritas
+                        let textoConNegritas = noticiasTextoBruto.replace(/\*(.*?)\*/g, '<b>$1</b>');
+                        
+                        // Maquetamos línea por línea respetando los párrafos
+                        mundoChessData = textoConNegritas
+                            .split('\n')
+                            .map(linea => {
+                                let trimLinea = linea.trim();
+                                if (trimLinea === "") return '<div class="h-3"></div>';
+                                return `<p class="mb-3">${trimLinea}</p>`;
+                            })
+                            .join('');
+                    }
+
+                    if (!mundoChessData) {
+                        mundoChessData = `<p class="text-stone-500 italic text-center py-4">Las noticias de Mundo Chess estarán disponibles próximamente.</p>`;
+                    }
+                    
+                    // Inyectamos el resultado en la nueva zona
+                    const contenedorMundoChess = document.getElementById('texto-mundo-chess');
+                    if (contenedorMundoChess) {
+                        contenedorMundoChess.innerHTML = mundoChessData;
+                        console.log("✅ Sección Mundo Chess actualizada correctamente.");
+                    }
+
+                } catch (errMundoChess) {
+                    console.error("❌ Error procesando la pestaña Mundo Chess:", errMundoChess);
+                }
                 // ==========================================================
                 // ==========================================================
                 // 📦 NUEVA LOGICA: OBTENER RANKING DE ELOS DE LICHESS
