@@ -625,7 +625,7 @@ resRows.forEach((r, idx) => {
   let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
   let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
   
-  // Leemos la columna donde pones "Aplazado" en el Excel (asumiendo que es la columna G / índice 6)
+  // Leemos la columna H del Excel (índice 7)
   let notasExcel = r.c[7]?.v?.toString().toLowerCase() || ''; 
   
   let matchStatus = 'Pendiente';
@@ -635,33 +635,7 @@ resRows.forEach((r, idx) => {
   } else if (notasExcel.includes('aplazado')) {
     matchStatus = 'Aplazado';
   } else if (notasExcel.includes('fuera de tiempo')) {
-    // ¡AQUÍ ESTÁ! Si escribes "Fuera de Tiempo" en la columna H, entra aquí
-    matchStatus = 'Fuera de tiempo'; 
-  }
-      
-  } else {
-    // 1. Forzamos que la fecha actual sea un objeto limpio para comparar milisegundos
-    const ahora = new Date(); 
-    
-    const roundInfo = datesMap[`J${roundNum}`];
-    if (roundInfo && roundInfo.end) {
-      // 2. Limpiamos posibles espacios en blanco que meta Google Sheets (.trim())
-      let pE = roundInfo.end.toString().trim().split('/');
-      
-      if (pE.length === 3) {
-        // Aseguramos formato estricto: AAAA-MM-DD
-        let año = pE[2];
-        let mes = pE[1].padStart(2, '0');
-        let dia = pE[0].padStart(2, '0');
-        
-        let endDate = new Date(`${año}-${mes}-${dia}T23:59:59`);
-        
-        // 3. Comparamos los milisegundos reales de ambas fechas (.getTime())
-        if (ahora.getTime() > endDate.getTime()) {
-          matchStatus = 'Fuera de tiempo';
-        }
-      }
-    }
+    matchStatus = 'Fuera de tiempo';
   }
 
   let individualDraws = 0;
@@ -673,58 +647,59 @@ resRows.forEach((r, idx) => {
     round: roundNum, div: division, p1: player1, p2: player2,
     s1: score1, s2: score2, status: matchStatus, draws: individualDraws
   });
+}); // <--- AQUÍ CERRABA TU BUCLE FOREACH DE RESULTADOS
+
+// 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
+const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
+const clasText = await clasRes.text();
+const clasRows = JSON.parse(clasText.substring(47).slice(0, -2)).table.rows;
+
+let chesspionsRows = [], chesscondRows = [];
+
+clasRows.forEach((r) => {
+    if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
+    
+    let parseIntegerClean = (val) => {
+        if (!val) return 0;
+        let n = parseFloat(val.toString().replace(',', '.'));
+        return Math.floor(n);
+    };
+
+    let playerData = {
+        pos: r.c[0].v,
+        name: r.c[1].v,
+        div: r.c[2]?.v || '',
+        j: parseIntegerClean(r.c[3]?.v),
+        w: parseIntegerClean(r.c[4]?.v),
+        l: parseIntegerClean(r.c[5]?.v),
+        t: parseIntegerClean(r.c[6]?.v),
+        ev: r.c[7]?.v || 0,
+        ed: r.c[8]?.v || 0,
+        ee: r.c[9]?.v || 0,
+        pts: r.c[10]?.v || 0
+    };
+
+    if(playerData.div.toLowerCase().includes("chesspions")) {
+        chesspionsRows.push(playerData);
+    } else {
+        chesscondRows.push(playerData);
+    }
 });
-                // 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
-                const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
-                const clasText = await clasRes.text();
-                const clasRows = JSON.parse(clasText.substring(47).slice(0, -2)).table.rows;
 
-                let chesspionsRows = [], chesscondRows = [];
+// Helper de insignias independientes por división
+const getLimits = (rows) => {
+    let maxT = -1, maxW = -1, minL = 99;
+    rows.forEach(r => {
+        if(r.t > maxT) maxT = r.t;
+        if(r.w > maxW) maxW = r.w;
+        if(r.l < minL) minL = r.l;
+    });
+    return { maxT, maxW, minL };
+};
 
-                clasRows.forEach((r) => {
-                    if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
-                    
-                    let parseIntegerClean = (val) => {
-                        if (!val) return 0;
-                        let n = parseFloat(val.toString().replace(',', '.'));
-                        return Math.floor(n);
-                    };
-
-                    let playerData = {
-                        pos: r.c[0].v,
-                        name: r.c[1].v,
-                        div: r.c[2]?.v || '',
-                        j: parseIntegerClean(r.c[3]?.v),
-                        w: parseIntegerClean(r.c[4]?.v),
-                        l: parseIntegerClean(r.c[5]?.v),
-                        t: parseIntegerClean(r.c[6]?.v),
-                        ev: r.c[7]?.v || 0,
-                        ed: r.c[8]?.v || 0,
-                        ee: r.c[9]?.v || 0,
-                        pts: r.c[10]?.v || 0
-                    };
-
-                    if(playerData.div.toLowerCase().includes("chesspions")) {
-                        chesspionsRows.push(playerData);
-                    } else {
-                        chesscondRows.push(playerData);
-                    }
-                });
-
-                // Helper de insignias independientes por división
-                const getLimits = (rows) => {
-                    let maxT = -1, maxW = -1, minL = 99;
-                    rows.forEach(r => {
-                        if(r.t > maxT) maxT = r.t;
-                        if(r.w > maxW) maxW = r.w;
-                        if(r.l < minL) minL = r.l;
-                    });
-                    return { maxT, maxW, minL };
-                };
-
-                const buildTableHTML = (rows, isChesspions) => {
-                    let html = '';
-                    const limits = getLimits(rows);
+const buildTableHTML = (rows, isChesspions) => {
+    let html = '';
+    const limits = getLimits(rows);
     // --- NUEVO: PRECALCULAR LOS ROSCOS DE CADA JUGADOR EN ESTA CATEGORÍA ---
     // Guardamos los roscos de cada uno para saber cuál es el número máximo
     let roscosPorJugador = {};
