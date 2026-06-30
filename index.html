@@ -515,11 +515,10 @@
                 }
                 // ==========================================================
              // ==========================================================
-                // 🌍 LÓGICA: OBTENER NOTICIAS (MUNDO CHESS) DESDE GOOGLE SHEETS
+               // 🌍 LÓGICA: OBTENER NOTICIAS (MUNDO CHESS) DESDE GOOGLE SHEETS
                 // ==========================================================
                 try {
                     console.log("🔍 Solicitando pestaña MUNDO_CHESS...");
-                    // ⚠️ Si tu pestaña en Google Sheets se llama distinto, cambia &sheet=MUNDO_CHESS
                     const noticiasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MUNDO_CHESS`);
                     const noticiasText = await noticiasRes.text();
                     const noticiasRows = JSON.parse(noticiasText.substring(47).slice(0, -2)).table.rows;
@@ -527,7 +526,6 @@
                     let noticiasTextoBruto = "";
 
                     if (noticiasRows && noticiasRows.length > 0) {
-                        // Buscamos dinámicamente el resumen largo en las filas
                         for (let i = 0; i < noticiasRows.length; i++) {
                             const celdaNoticia = noticiasRows[i]?.c?.[0]?.v;
                             if (celdaNoticia && celdaNoticia.toString().trim().length > 30) {
@@ -540,10 +538,8 @@
 
                     let mundoChessData = "";
                     if (noticiasTextoBruto.trim() !== "") {
-                        // Formateamos los asteriscos a negritas
                         let textoConNegritas = noticiasTextoBruto.replace(/\*(.*?)\*/g, '<b>$1</b>');
                         
-                        // Maquetamos línea por línea respetando los párrafos
                         mundoChessData = textoConNegritas
                             .split('\n')
                             .map(linea => {
@@ -558,7 +554,6 @@
                         mundoChessData = `<p class="text-stone-500 italic text-center py-4">Las noticias de Mundo Chess estarán disponibles próximamente.</p>`;
                     }
                     
-                    // Inyectamos el resultado en la nueva zona
                     const contenedorMundoChess = document.getElementById('texto-mundo-chess');
                     if (contenedorMundoChess) {
                         contenedorMundoChess.innerHTML = mundoChessData;
@@ -569,7 +564,7 @@
                     console.error("❌ Error procesando la pestaña Mundo Chess:", errMundoChess);
                 }
                 // ==========================================================
-                // ==========================================================
+
                 // 📦 NUEVA LOGICA: OBTENER RANKING DE ELOS DE LICHESS
                 // ==========================================================
                 try {
@@ -590,7 +585,7 @@
                 }
                 // ==========================================================
 
-                // 1. OBTENER INFORMACIÓN DE JUGADORES (Tu código original sigue aquí debajo)
+                // 1. OBTENER INFORMACIÓN DE JUGADORES
                 const infoRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INFO`);
                 const infoText = await infoRes.text();
                 const infoRows = JSON.parse(infoText.substring(47).slice(0, -2)).table.rows;
@@ -598,21 +593,21 @@
                 infoRows.forEach((r) => {
                     if (!r.c || !r.c[1]) return;
         
-        infoData.push({
-            name: r.c[1]?.v || '',
-            lichess: r.c[3]?.v || '',
-            telefono: r.c[5]?.v || ''
-        });
+                    infoData.push({
+                        name: r.c[1]?.v || '',
+                        lichess: r.c[3]?.v || '',
+                        telefono: r.c[5]?.v || ''
+                    });
 
-        if (r.c[7] && r.c[8] && r.c[9]) {
-            datesMap[r.c[7].v] = { 
-                start: r.c[8].f || r.c[8].v, 
-                end: r.c[9].f || r.c[9].v 
-            };
-        }
-    });
+                    if (r.c[7] && r.c[8] && r.c[9]) {
+                        datesMap[r.c[7].v] = { 
+                            start: r.c[8].f || r.c[8].v, 
+                            end: r.c[9].f || r.c[9].v 
+                        };
+                    }
+                }); // <-- LLAVE ALINEADA CORRECTAMENTE AQUÍ
 
-                // 2. OBTENER RESULTADOS COMPLETOS PARA CORRECCIÓN Y CONTROL DE EMPATES EN PARTIDAS INDIVIDUALES
+                // 2. OBTENER RESULTADOS COMPLETOS
                 const resRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESULTADOS`);
                 const resText = await resRes.text();
                 const resRows = JSON.parse(resText.substring(47).slice(0, -2)).table.rows;
@@ -626,47 +621,38 @@
                     let player1 = r.c[2]?.v || '';
                     let player2 = r.c[3]?.v || '';
                     
-                   // =========================================================================
-// 1. LEER LAS COLUMNAS DE SCORE DE FORMA ULTRA-SEGURA (Evita null/undefined de la API)
-// =========================================================================
-let score1 = '';
-if (r.c[4]) {
-    // Intenta leer el texto formateado (.f), si no el valor (.v), y si no, vacío
-    score1 = r.c[4].f !== undefined && r.c[4].f !== null ? r.c[4].f : (r.c[4].v !== null && r.c[4].v !== undefined ? r.c[4].v.toString() : '');
-}
+                    // Aseguramos recuperar individualDraws de la columna 6 del Sheets
+                    let individualDraws = r.c[6]?.v || 0;
 
-let score2 = '';
-if (r.c[5]) {
-    score2 = r.c[5].f !== undefined && r.c[5].f !== null ? r.c[5].f : (r.c[5].v !== null && r.c[5].v !== undefined ? r.c[5].v.toString() : '');
-}
+                    // 1. LEER LAS COLUMNAS DE SCORE DE FORMA ULTRA-SEGURA
+                    let score1 = '';
+                    if (r.c[4]) {
+                        score1 = r.c[4].f !== undefined && r.c[4].f !== null ? r.c[4].f : (r.c[4].v !== null && r.c[4].v !== undefined ? r.c[4].v.toString() : '');
+                    }
 
-// =========================================================================
-// 2. DETECTAR EL ESTADO QUE VIENE DIRECTO DESDE LA FÓRMULA DEL SHEETS
-// =========================================================================
-let matchStatus = 'Pendiente';
+                    let score2 = '';
+                    if (r.c[5]) {
+                        score2 = r.c[5].f !== undefined && r.c[5].f !== null ? r.c[5].f : (r.c[5].v !== null && r.c[5].v !== undefined ? r.c[5].v.toString() : '');
+                    }
 
-// Limpieza absoluta de espacios y conversión a mayúsculas
-let s1Upper = score1.trim().toUpperCase();
-let s2Upper = score2.trim().toUpperCase();
+                    // 2. DETECTAR EL ESTADO
+                    let matchStatus = 'Pendiente';
+                    let s1Upper = score1.trim().toUpperCase();
+                    let s2Upper = score2.trim().toUpperCase();
 
-// DEBUG LOG: Descomenta la línea de abajo si quieres ver en la consola del navegador qué está leyendo exactamente tu web
-// console.log(`Partido: ${player1} vs ${player2} -> Score1 leido: "${s1Upper}", Score2 leido: "${s2Upper}"`);
-
-if (s1Upper.includes('APLAZADO') || s2Upper.includes('APLAZADO')) {
-    matchStatus = 'Aplazado';
-} else if (s1Upper.includes('FUERA DE TIEMPO') || s2Upper.includes('FUERA DE TIEMPO')) {
-    matchStatus = 'Fuera de Tiempo';
-} else if (score1 !== '' && score2 !== '') {
-    // Solo pasa a terminado si ambos tienen texto/número y no son los estados anteriores
-    matchStatus = 'Terminado';
-}
-// =========================================================================
+                    if (s1Upper.includes('APLAZADO') || s2Upper.includes('APLAZADO')) {
+                        matchStatus = 'Aplazado';
+                    } else if (s1Upper.includes('FUERA DE TIEMPO') || s2Upper.includes('FUERA DE TIEMPO')) {
+                        matchStatus = 'Fuera de Tiempo';
+                    } else if (score1 !== '' && score2 !== '') {
+                        matchStatus = 'Terminado';
+                    }
 
                     allMatches.push({
                         round: roundNum, div: division, p1: player1, p2: player2,
                         s1: score1, s2: score2, status: matchStatus, tablas: individualDraws
                     });
-                    });
+                });
 
                 // 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
                 const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
@@ -678,11 +664,10 @@ if (s1Upper.includes('APLAZADO') || s2Upper.includes('APLAZADO')) {
                 clasRows.forEach((r) => {
                     if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
                     
-                    // Limpieza estricta: Asegurar que partidas individuales (J, G, P, T) nunca tengan decimales
                     let parseIntegerClean = (val) => {
                         if (!val) return 0;
                         let n = parseFloat(val.toString().replace(',', '.'));
-                        return Math.floor(n); // Redondeo hacia abajo para limpiar errores de .5 heredados
+                        return Math.floor(n);
                     };
 
                     let playerData = {
@@ -717,10 +702,9 @@ if (s1Upper.includes('APLAZADO') || s2Upper.includes('APLAZADO')) {
                     return { maxT, maxW, minL };
                 };
 
-             const buildTableHTML = (rows, isChesspions) => {
-    let html = '';
-    const limits = getLimits(rows);
-
+                const buildTableHTML = (rows, isChesspions) => {
+                    let html = '';
+                    const limits = getLimits(rows);
     // --- NUEVO: PRECALCULAR LOS ROSCOS DE CADA JUGADOR EN ESTA CATEGORÍA ---
     // Guardamos los roscos de cada uno para saber cuál es el número máximo
     let roscosPorJugador = {};
