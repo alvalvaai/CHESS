@@ -635,13 +635,26 @@ resRows.forEach((r, idx) => {
   } else if (notasExcel.includes('aplazado')) {
     matchStatus = 'Aplazado';
   } else {
-    // Si no hay notas ni resultado, comprobamos si la jornada ya ha expirado
+    // 1. Forzamos que la fecha actual sea un objeto limpio para comparar milisegundos
+    const ahora = new Date(); 
+    
     const roundInfo = datesMap[`J${roundNum}`];
     if (roundInfo && roundInfo.end) {
-      let pE = roundInfo.end.split('/');
-      let endDate = new Date(`${pE[2]}-${pE[1]}-${pE[0]} 23:59:59`); // Fin del domingo de esa jornada
-      if (todayStr > endDate) {
-        matchStatus = 'Fuera de tiempo';
+      // 2. Limpiamos posibles espacios en blanco que meta Google Sheets (.trim())
+      let pE = roundInfo.end.toString().trim().split('/');
+      
+      if (pE.length === 3) {
+        // Aseguramos formato estricto: AAAA-MM-DD
+        let año = pE[2];
+        let mes = pE[1].padStart(2, '0');
+        let dia = pE[0].padStart(2, '0');
+        
+        let endDate = new Date(`${año}-${mes}-${dia}T23:59:59`);
+        
+        // 3. Comparamos los milisegundos reales de ambas fechas (.getTime())
+        if (ahora.getTime() > endDate.getTime()) {
+          matchStatus = 'Fuera de tiempo';
+        }
       }
     }
   }
