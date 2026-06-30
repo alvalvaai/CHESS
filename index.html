@@ -632,7 +632,15 @@
                     // Captura directa del número de tablas de la columna G (índice 6)
         let individualDraws = r.c[6]?.v || 0;
 
-                    let matchStatus = (score1 !== '' || score2 !== '') ? 'Terminado' : 'Pendiente';
+                   // 🔍 DETERMINAR EL ESTADO REAL DEL PARTIDO CON A Y T
+                    let matchStatus = 'Pendiente';
+                    if (score1.toUpperCase() === 'A' || score2.toUpperCase() === 'A') {
+                        matchStatus = 'Aplazado';
+                    } else if (score1.toUpperCase() === 'T' || score2.toUpperCase() === 'T') {
+                        matchStatus = 'Fuera de Tiempo';
+                    } else if (score1 !== '' || score2 !== '') {
+                        matchStatus = 'Terminado';
+                    }
 
                     allMatches.push({
             round: roundNum, div: division, p1: player1, p2: player2,
@@ -960,7 +968,15 @@ renderRoundUI(currentRound);
                     " 
                           class="font-mono text-xs font-black px-3 py-1.5 rounded-lg border block shadow-xs transition-all cursor-pointer hover:bg-amber-800 hover:text-white hover:border-amber-900 hover:scale-105 ${isFin ? 'bg-stone-800 text-white border-stone-900' : 'bg-stone-100 text-stone-500 border-stone-300'}"
                           title="${isFin ? 'Ver partidas del duelo' : 'Ver partida en directo o perfil'}">
-                        ${isFin ? `${m.s1} - ${m.s2}` : 'Pendiente 🟢'}
+                       ${
+                            m.status === 'Terminado' 
+                                ? `${m.s1} - ${m.s2}` 
+                                : m.status === 'Aplazado'
+                                    ? 'Aplazado ⏳'
+                                    : m.status === 'Fuera de Tiempo'
+                                        ? 'Fuera de Tiempo 🔴'
+                                        : 'Pendiente 🟢'
+                        }
                     </span>
                     ${matchBadgeIndicator}
                 </div>
