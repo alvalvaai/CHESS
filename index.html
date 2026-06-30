@@ -817,21 +817,28 @@ rows.forEach((r, index) => {
                 document.querySelector('#table-chesscond tbody').innerHTML = buildTableHTML(chesscondRows, false);
 
                 // Detectar jornada activa por fecha actual
-                const today = new Date();
-                for(let key in datesMap) {
-                    if(!datesMap[key].start) continue;
-                    let pS = datesMap[key].start.split('/');
-                    let pE = datesMap[key].end.split('/');
-                    let start = new Date(`${pS[2]}-${pS[1]}-${pS[0]}`);
-                    let end = new Date(`${pE[2]}-${pE[1]}-${pE[0]}`);
-                    if(today >= start && today <= end) {
-                        currentRound = parseInt(key.replace(/\D/g,'') || '9');
-                        break;
-                    }
-                }
+const today = new Date();
+const currentYear = today.getFullYear(); // Detecta automáticamente el año actual (2026)
 
-                initCalendarUI();
-                renderRoundUI(currentRound);
+for(let key in datesMap) {
+    if(!datesMap[key].start || !datesMap[key].end) continue;
+    
+    let pS = datesMap[key].start.split('/');
+    let pE = datesMap[key].end.split('/');
+    
+    // Creamos las fechas con números (Año, Mes - 1, Día, Hora, Minuto, Segundo)
+    // Restamos 1 al mes porque en JavaScript Enero es 0 y Diciembre es 11
+    let start = new Date(currentYear, parseInt(pS[1]) - 1, parseInt(pS[0]), 0, 0, 0);
+    let end = new Date(currentYear, parseInt(pE[1]) - 1, parseInt(pE[0]), 23, 59, 59);
+    
+    if(today >= start && today <= end) {
+        currentRound = parseInt(key.replace(/\D/g,'') || '10'); // Cambiado a '10' como fallback lógico por tu J10 actual
+        break;
+    }
+}
+
+initCalendarUI();
+renderRoundUI(currentRound);
 
                 // FASES FINALES
                 const playRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=PLAYOFFS`);
