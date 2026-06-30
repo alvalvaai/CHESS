@@ -634,6 +634,10 @@ resRows.forEach((r, idx) => {
     matchStatus = 'Terminado';
   } else if (notasExcel.includes('aplazado')) {
     matchStatus = 'Aplazado';
+  } else if (notasExcel.includes('fuera de tiempo')) {
+    // ¡AQUÍ ESTÁ! Si escribes "Fuera de Tiempo" en la columna H, entra aquí
+    matchStatus = 'Fuera de tiempo'; 
+  }
       
   } else {
     // 1. Forzamos que la fecha actual sea un objeto limpio para comparar milisegundos
