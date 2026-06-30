@@ -651,6 +651,7 @@
                         round: roundNum, div: division, p1: player1, p2: player2,
                         s1: score1, s2: score2, status: matchStatus, tablas: individualDraws
                     });
+                    });
 
                 // 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
                 const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
