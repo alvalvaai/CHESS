@@ -633,19 +633,20 @@
                     let individualDraws = r.c[6]?.v || 0;
 
                     // 2. DETECTAR EL ESTADO QUE VIENE DIRECTO DESDE LA FÓRMULA DEL SHEETS
-                    let matchStatus = 'Pendiente';
-                    
-                    let s1Upper = score1.trim().toUpperCase();
-                    let s2Upper = score2.trim().toUpperCase();
+let matchStatus = 'Pendiente';
 
-                    if (s1Upper === 'APLAZADO' || s2Upper === 'APLAZADO') {
-                        matchStatus = 'Aplazado';
-                    } else if (s1Upper === 'FUERA DE TIEMPO' || s2Upper === 'FUERA DE TIEMPO') {
-                        matchStatus = 'Fuera de Tiempo';
-                    } else if (score1 !== '' || score2 !== '') {
-                        // Si hay un resultado numérico (como 3,5 o 1), pasa a Terminado
-                        matchStatus = 'Terminado';
-                    }
+// Convertimos a texto de forma segura ANTES de usar .trim() y .toUpperCase()
+let s1Upper = (score1 || '').toString().trim().toUpperCase();
+let s2Upper = (score2 || '').toString().trim().toUpperCase();
+
+if (s1Upper === 'APLAZADO' || s2Upper === 'APLAZADO') {
+    matchStatus = 'Aplazado';
+} else if (s1Upper === 'FUERA DE TIEMPO' || s2Upper === 'FUERA DE TIEMPO') {
+    matchStatus = 'Fuera de Tiempo';
+} else if (score1 !== '' && score2 !== '') {
+    // CAMBIADO A &&: Solo pasa a 'Terminado' si AMBAS celdas tienen un resultado numérico
+    matchStatus = 'Terminado';
+}
 
                     allMatches.push({
                         round: roundNum, div: division, p1: player1, p2: player2,
