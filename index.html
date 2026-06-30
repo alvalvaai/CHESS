@@ -626,27 +626,41 @@
                     let player1 = r.c[2]?.v || '';
                     let player2 = r.c[3]?.v || '';
                     
-                    // 1. LEER LAS COLUMNAS DE SCORE DE FORMA ESTÁNDAR
-                    let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
-                    let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
-                    
-                    let individualDraws = r.c[6]?.v || 0;
+                   // =========================================================================
+// 1. LEER LAS COLUMNAS DE SCORE DE FORMA ULTRA-SEGURA (Evita null/undefined de la API)
+// =========================================================================
+let score1 = '';
+if (r.c[4]) {
+    // Intenta leer el texto formateado (.f), si no el valor (.v), y si no, vacío
+    score1 = r.c[4].f !== undefined && r.c[4].f !== null ? r.c[4].f : (r.c[4].v !== null && r.c[4].v !== undefined ? r.c[4].v.toString() : '');
+}
 
-                    // 2. DETECTAR EL ESTADO QUE VIENE DIRECTO DESDE LA FÓRMULA DEL SHEETS
+let score2 = '';
+if (r.c[5]) {
+    score2 = r.c[5].f !== undefined && r.c[5].f !== null ? r.c[5].f : (r.c[5].v !== null && r.c[5].v !== undefined ? r.c[5].v.toString() : '');
+}
+
+// =========================================================================
+// 2. DETECTAR EL ESTADO QUE VIENE DIRECTO DESDE LA FÓRMULA DEL SHEETS
+// =========================================================================
 let matchStatus = 'Pendiente';
 
-// Convertimos a texto de forma segura ANTES de usar .trim() y .toUpperCase()
-let s1Upper = (score1 || '').toString().trim().toUpperCase();
-let s2Upper = (score2 || '').toString().trim().toUpperCase();
+// Limpieza absoluta de espacios y conversión a mayúsculas
+let s1Upper = score1.trim().toUpperCase();
+let s2Upper = score2.trim().toUpperCase();
 
-if (s1Upper === 'APLAZADO' || s2Upper === 'APLAZADO') {
+// DEBUG LOG: Descomenta la línea de abajo si quieres ver en la consola del navegador qué está leyendo exactamente tu web
+// console.log(`Partido: ${player1} vs ${player2} -> Score1 leido: "${s1Upper}", Score2 leido: "${s2Upper}"`);
+
+if (s1Upper.includes('APLAZADO') || s2Upper.includes('APLAZADO')) {
     matchStatus = 'Aplazado';
-} else if (s1Upper === 'FUERA DE TIEMPO' || s2Upper === 'FUERA DE TIEMPO') {
+} else if (s1Upper.includes('FUERA DE TIEMPO') || s2Upper.includes('FUERA DE TIEMPO')) {
     matchStatus = 'Fuera de Tiempo';
 } else if (score1 !== '' && score2 !== '') {
-    // CAMBIADO A &&: Solo pasa a 'Terminado' si AMBAS celdas tienen un resultado numérico
+    // Solo pasa a terminado si ambos tienen texto/número y no son los estados anteriores
     matchStatus = 'Terminado';
 }
+// =========================================================================
 
                     allMatches.push({
                         round: roundNum, div: division, p1: player1, p2: player2,
