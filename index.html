@@ -626,7 +626,7 @@ resRows.forEach((r, idx) => {
   let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
   
   // Leemos la columna donde pones "Aplazado" en el Excel (asumiendo que es la columna G / índice 6)
-  let notasExcel = r.c[6]?.v?.toString().toLowerCase() || ''; 
+  let notasExcel = r.c[7]?.v?.toString().toLowerCase() || ''; 
   
   let matchStatus = 'Pendiente';
   
