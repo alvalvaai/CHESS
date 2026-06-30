@@ -634,8 +634,7 @@ resRows.forEach((r, idx) => {
     matchStatus = 'Terminado';
   } else if (notasExcel.includes('aplazado')) {
     matchStatus = 'Aplazado';
-      } else if (notasExcel.includes('Fuera de Tiempo')) {
-    matchStatus = 'Fuera de Tiempo';
+      
   } else {
     // 1. Forzamos que la fecha actual sea un objeto limpio para comparar milisegundos
     const ahora = new Date(); 
@@ -896,34 +895,34 @@ renderRoundUI(currentRound);
         }
 
         function renderRoundUI(rNum) {
-            const container = document.getElementById('matches-grid');
-            container.innerHTML = '';
-            
-            const roundInfo = datesMap[`J${rNum}`];
-            document.getElementById('calendar-dates').innerText = roundInfo ? `Rango de juego: Del ${roundInfo.start} al ${roundInfo.end}` : 'Sin rango asignado';
+    const container = document.getElementById('matches-grid');
+    container.innerHTML = '';
+    
+    const roundInfo = datesMap[`J${rNum}`];
+    document.getElementById('calendar-dates').innerText = roundInfo ? `Rango de juego: Del ${roundInfo.start} al ${roundInfo.end}` : 'Sin rango asignado';
 
-            const roundMatches = allMatches.filter(m => m.round === rNum);
-            
-            // Separar y fijar destacados de la jornada por división
-            let matchChesspions = roundMatches.find(m => m.div.toLowerCase().includes('chesspions'));
-            let matchChesscond = roundMatches.find(m => m.div.toLowerCase().includes('chesscond') || m.div.toLowerCase().includes('segunda'));
+    const roundMatches = allMatches.filter(m => m.round === rNum);
+    
+    // Separar y fijar destacados de la jornada por división
+    let matchChesspions = roundMatches.find(m => m.div.toLowerCase().includes('chesspions'));
+    let matchChesscond = roundMatches.find(m => m.div.toLowerCase().includes('chesscond') || m.div.toLowerCase().includes('segunda'));
 
-            if(matchChesspions) {
-                document.getElementById('motw-chesspions-details').innerHTML = `
-                    <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p1}</div>
-                    <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-amber-400 mx-2 border border-stone-700">${matchChesspions.status === 'Terminado' ? `${matchChesspions.s1} - ${matchChesspions.s2}` : 'VS'}</div>
-                    <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p2}</div>
-                `;
-            }
-            if(matchChesscond) {
-                document.getElementById('motw-chesscond-details').innerHTML = `
-                    <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p1}</div>
-                    <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-emerald-400 mx-2 border border-stone-700">${matchChesscond.status === 'Terminado' ? `${matchChesscond.s1} - ${matchChesscond.s2}` : 'VS'}</div>
-                    <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p2}</div>
-                `;
-            }
+    if(matchChesspions) {
+        document.getElementById('motw-chesspions-details').innerHTML = `
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p1}</div>
+            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-amber-400 mx-2 border border-stone-700">${matchChesspions.status === 'Terminado' ? `${matchChesspions.s1} - ${matchChesspions.s2}` : 'VS'}</div>
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p2}</div>
+        `;
+    }
+    if(matchChesscond) {
+        document.getElementById('motw-chesscond-details').innerHTML = `
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p1}</div>
+            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-emerald-400 mx-2 border border-stone-700">${matchChesscond.status === 'Terminado' ? `${matchChesscond.s1} - ${matchChesscond.s2}` : 'VS'}</div>
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p2}</div>
+        `;
+    }
 
-            // Renderizado del Grid del Calendario con distinciones claras de división y tablas
+    // Renderizado del Grid del Calendario con distinciones claras de división y tablas
     roundMatches.forEach(m => {
         const isFin = m.status === 'Terminado';
         const isChesspions = m.div.toLowerCase().includes('chesspions');
@@ -937,7 +936,7 @@ renderRoundUI(currentRound);
         const lichessUser1 = player1Info && player1Info.lichess ? player1Info.lichess.trim() : m.p1.trim();
         const lichessUser2 = player2Info && player2Info.lichess ? player2Info.lichess.trim() : m.p2.trim();
 
-      // --- INDICADORES VISUALES EXTRA EN EL RESULTADO GENERAL (SOLO ROSCO) ---
+        // --- INDICADORES VISUALES EXTRA EN EL RESULTADO GENERAL (SOLO ROSCO) ---
         let matchBadgeIndicator = "";
         
         if (isFin) {
@@ -955,6 +954,18 @@ renderRoundUI(currentRound);
             }
         }
 
+        // --- ASIGNACIÓN DINÁMICA DE ESTILOS SEGÚN EL ESTADO REAL DEL PARTIDO ---
+        let btnStatusClass = "";
+        if (m.status === 'Terminado') {
+            btnStatusClass = "bg-stone-800 text-white border-stone-900";
+        } else if (m.status === 'Aplazado') {
+            btnStatusClass = "bg-amber-100 text-amber-800 border-amber-300"; // Fondo amarillento/arena
+        } else if (m.status === 'Fuera de tiempo') {
+            btnStatusClass = "bg-red-100 text-red-700 border-red-300"; // Fondo rojizo
+        } else {
+            btnStatusClass = "bg-stone-100 text-stone-500 border-stone-300"; // Pendiente estándar
+        }
+
         container.innerHTML += `
             <div class="p-4 rounded-xl bg-white border border-stone-300 flex justify-between items-center shadow-xs">
                 <div class="space-y-1">
@@ -966,8 +977,7 @@ renderRoundUI(currentRound);
                     </span>
                 </div>
                 <div class="text-right">
-                    <!-- BOTÓN DINÁMICO CORREGIDO: Nicks exactos de la pestaña INFO y /tv para directos -->
-                   <span onclick="
+                    <span onclick="
                         const p1Name = '${m.p1.replace(/'/g, "\\'")}';
                         const p2Name = '${m.p2.replace(/'/g, "\\'")}';
                         
@@ -979,7 +989,7 @@ renderRoundUI(currentRound);
                         const nick1 = f1 && f1.lichess ? f1.lichess.trim() : p1Name.trim();
                         const nick2 = f2 && f2.lichess ? f2.lichess.trim() : p2Name.trim();
                         
-                        // Formateamos la URL: Si terminó, usa la estructura nueva que nos diste. Si está pendiente, va a /tv
+                        // Formateamos la URL: Si terminó, usa la estructura de búsqueda. Si está pendiente, va a /tv
                         const url = '${isFin}' === 'true' 
                             ? 'https://lichess.org/games/search?players.a=' + encodeURIComponent(nick1) + '&players.b=' + encodeURIComponent(nick2) + '&sort.field=d&sort.order=desc#results'
                             : 'https://lichess.org/@/' + encodeURIComponent(nick1) + '/tv';
@@ -987,14 +997,14 @@ renderRoundUI(currentRound);
                         window.open(url, '_blank'); 
                         event.stopPropagation();
                     " 
-                          class="font-mono text-xs font-black px-3 py-1.5 rounded-lg border block shadow-xs transition-all cursor-pointer hover:bg-amber-800 hover:text-white hover:border-amber-900 hover:scale-105 ${isFin ? 'bg-stone-800 text-white border-stone-900' : 'bg-stone-100 text-stone-500 border-stone-300'}"
+                          class="font-mono text-xs font-black px-3 py-1.5 rounded-lg border block shadow-xs transition-all cursor-pointer hover:bg-amber-800 hover:text-white hover:border-amber-900 hover:scale-105 ${btnStatusClass}"
                           title="${isFin ? 'Ver partidas del duelo' : 'Ver partida en directo o perfil'}">
                        ${
                             m.status === 'Terminado' 
                                 ? `${m.s1} - ${m.s2}` 
                                 : m.status === 'Aplazado'
                                     ? 'Aplazado ⏳'
-                                    : m.status === 'Fuera de Tiempo'
+                                    : m.status === 'Fuera de tiempo'
                                         ? 'Fuera de Tiempo 🔴'
                                         : 'Pendiente 🟢'
                         }
@@ -1004,8 +1014,7 @@ renderRoundUI(currentRound);
             </div>
         `;
     });
-          };  
-
+}
         function renderPlayoffsUI(rows) {
             const container = document.getElementById('playoffs-container');
             container.innerHTML = '';
