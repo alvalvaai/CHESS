@@ -634,6 +634,8 @@ resRows.forEach((r, idx) => {
     matchStatus = 'Terminado';
   } else if (notasExcel.includes('aplazado')) {
     matchStatus = 'Aplazado';
+      } else if (notasExcel.includes('Fuera de Tiempo')) {
+    matchStatus = 'Fuera de Tiempo';
   } else {
     // 1. Forzamos que la fecha actual sea un objeto limpio para comparar milisegundos
     const ahora = new Date(); 
