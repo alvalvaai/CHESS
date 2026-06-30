@@ -607,53 +607,55 @@
                     }
                 }); // <-- LLAVE ALINEADA CORRECTAMENTE AQUÍ
 
-                // 2. OBTENER RESULTADOS COMPLETOS
-                const resRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESULTADOS`);
-                const resText = await resRes.text();
-                const resRows = JSON.parse(resText.substring(47).slice(0, -2)).table.rows;
+                // 2. OBTENER RESULTADOS COMPLETOS Y EVALUAR ESTADOS AVANZADOS
+const resRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESULTADOS`);
+const resText = await resRes.text();
+const resRows = JSON.parse(resText.substring(47).slice(0, -2)).table.rows;
 
-                allMatches = [];
-                resRows.forEach((r, idx) => {
-                    if(idx === 0 || !r.c || !r.c[2]) return;
-                    
-                    let roundNum = parseInt(r.c[0]?.v?.toString().replace(/\D/g,'') || '1');
-                    let division = r.c[1]?.v || '';
-                    let player1 = r.c[2]?.v || '';
-                    let player2 = r.c[3]?.v || '';
-                    
-                    // Aseguramos recuperar individualDraws de la columna 6 del Sheets
-                    let individualDraws = r.c[6]?.v || 0;
+allMatches = [];
+const todayStr = new Date(); // Fecha actual para comparar
 
-                    // 1. LEER LAS COLUMNAS DE SCORE DE FORMA ULTRA-SEGURA
-                    let score1 = '';
-                    if (r.c[4]) {
-                        score1 = r.c[4].f !== undefined && r.c[4].f !== null ? r.c[4].f : (r.c[4].v !== null && r.c[4].v !== undefined ? r.c[4].v.toString() : '');
-                    }
+resRows.forEach((r, idx) => {
+  if (idx === 0 || !r.c || !r.c[2]) return;
+  
+  let roundNum = parseInt(r.c[0]?.v?.toString().replace(/\D/g,'') || '1');
+  let division = r.c[1]?.v || '';
+  let player1 = r.c[2]?.v || '';
+  let player2 = r.c[3]?.v || '';
+  let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
+  let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
+  
+  // Leemos la columna donde pones "Aplazado" en el Excel (asumiendo que es la columna G / índice 6)
+  let notasExcel = r.c[6]?.v?.toString().toLowerCase() || ''; 
+  
+  let matchStatus = 'Pendiente';
+  
+  if (score1 !== '' || score2 !== '') {
+    matchStatus = 'Terminado';
+  } else if (notasExcel.includes('aplazado')) {
+    matchStatus = 'Aplazado';
+  } else {
+    // Si no hay notas ni resultado, comprobamos si la jornada ya ha expirado
+    const roundInfo = datesMap[`J${roundNum}`];
+    if (roundInfo && roundInfo.end) {
+      let pE = roundInfo.end.split('/');
+      let endDate = new Date(`${pE[2]}-${pE[1]}-${pE[0]} 23:59:59`); // Fin del domingo de esa jornada
+      if (todayStr > endDate) {
+        matchStatus = 'Fuera de tiempo';
+      }
+    }
+  }
 
-                    let score2 = '';
-                    if (r.c[5]) {
-                        score2 = r.c[5].f !== undefined && r.c[5].f !== null ? r.c[5].f : (r.c[5].v !== null && r.c[5].v !== undefined ? r.c[5].v.toString() : '');
-                    }
+  let individualDraws = 0;
+  if (score1.includes('.5') || score2.includes('.5')) {
+    individualDraws = 1;
+  }
 
-                    // 2. DETECTAR EL ESTADO
-                    let matchStatus = 'Pendiente';
-                    let s1Upper = score1.trim().toUpperCase();
-                    let s2Upper = score2.trim().toUpperCase();
-
-                    if (s1Upper.includes('APLAZADO') || s2Upper.includes('APLAZADO')) {
-                        matchStatus = 'Aplazado';
-                    } else if (s1Upper.includes('FUERA DE TIEMPO') || s2Upper.includes('FUERA DE TIEMPO')) {
-                        matchStatus = 'Fuera de Tiempo';
-                    } else if (score1 !== '' && score2 !== '') {
-                        matchStatus = 'Terminado';
-                    }
-
-                    allMatches.push({
-                        round: roundNum, div: division, p1: player1, p2: player2,
-                        s1: score1, s2: score2, status: matchStatus, tablas: individualDraws
-                    });
-                });
-
+  allMatches.push({
+    round: roundNum, div: division, p1: player1, p2: player2,
+    s1: score1, s2: score2, status: matchStatus, draws: individualDraws
+  });
+});
                 // 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
                 const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
                 const clasText = await clasRes.text();
