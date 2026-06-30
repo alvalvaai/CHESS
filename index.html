@@ -626,27 +626,31 @@
                     let player1 = r.c[2]?.v || '';
                     let player2 = r.c[3]?.v || '';
                     
+                    // 1. LEER LAS COLUMNAS DE SCORE DE FORMA ESTÁNDAR
                     let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
                     let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
                     
-                    // Captura directa del número de tablas de la columna G (índice 6)
-        let individualDraws = r.c[6]?.v || 0;
+                    let individualDraws = r.c[6]?.v || 0;
 
-                   // 🔍 DETERMINAR EL ESTADO REAL DEL PARTIDO CON A Y T
+                    // 2. DETECTAR EL ESTADO QUE VIENE DIRECTO DESDE LA FÓRMULA DEL SHEETS
                     let matchStatus = 'Pendiente';
-                    if (score1.toUpperCase() === 'A' || score2.toUpperCase() === 'A') {
+                    
+                    let s1Upper = score1.trim().toUpperCase();
+                    let s2Upper = score2.trim().toUpperCase();
+
+                    if (s1Upper === 'APLAZADO' || s2Upper === 'APLAZADO') {
                         matchStatus = 'Aplazado';
-                    } else if (score1.toUpperCase() === 'T' || score2.toUpperCase() === 'T') {
+                    } else if (s1Upper === 'FUERA DE TIEMPO' || s2Upper === 'FUERA DE TIEMPO') {
                         matchStatus = 'Fuera de Tiempo';
                     } else if (score1 !== '' || score2 !== '') {
+                        // Si hay un resultado numérico (como 3,5 o 1), pasa a Terminado
                         matchStatus = 'Terminado';
                     }
 
                     allMatches.push({
-            round: roundNum, div: division, p1: player1, p2: player2,
-            s1: score1, s2: score2, status: matchStatus, tablas: individualDraws
-        });
-                });
+                        round: roundNum, div: division, p1: player1, p2: player2,
+                        s1: score1, s2: score2, status: matchStatus, tablas: individualDraws
+                    });
 
                 // 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
                 const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
