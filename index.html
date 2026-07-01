@@ -386,6 +386,7 @@
         let eloRankingData = []; // 🚀 NUEVA VARIABLE GLOBAL AÑADIDA
         let datesMap = {};
         let resumenIAData = "";
+        let chesspionsRows = [], chesscondRows = [];
 
         window.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
@@ -654,7 +655,8 @@ const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/
 const clasText = await clasRes.text();
 const clasRows = JSON.parse(clasText.substring(47).slice(0, -2)).table.rows;
 
-let chesspionsRows = [], chesscondRows = [];
+chesspionsRows = []; 
+chesscondRows = [];
 
 clasRows.forEach((r) => {
     if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
