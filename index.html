@@ -873,7 +873,7 @@ renderRoundUI(currentRound);
             document.getElementById('next-round').onclick = () => { if(currentRound < 14) { currentRound++; select.value = currentRound; renderRoundUI(currentRound); } };
         }
 
-        function renderRoundUI(rNum) {
+     function renderRoundUI(rNum) {
     const container = document.getElementById('matches-grid');
     container.innerHTML = '';
     
@@ -881,25 +881,6 @@ renderRoundUI(currentRound);
     document.getElementById('calendar-dates').innerText = roundInfo ? `Rango de juego: Del ${roundInfo.start} al ${roundInfo.end}` : 'Sin rango asignado';
 
     const roundMatches = allMatches.filter(m => m.round === rNum);
-    
-    // Separar y fijar destacados de la jornada por división
-    let matchChesspions = roundMatches.find(m => m.div.toLowerCase().includes('chesspions'));
-    let matchChesscond = roundMatches.find(m => m.div.toLowerCase().includes('chesscond') || m.div.toLowerCase().includes('segunda'));
-
-    if(matchChesspions) {
-        document.getElementById('motw-chesspions-details').innerHTML = `
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p1}</div>
-            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-amber-400 mx-2 border border-stone-700">${matchChesspions.status === 'Terminado' ? `${matchChesspions.s1} - ${matchChesspions.s2}` : 'VS'}</div>
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p2}</div>
-        `;
-    }
-    if(matchChesscond) {
-        document.getElementById('motw-chesscond-details').innerHTML = `
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p1}</div>
-            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-emerald-400 mx-2 border border-stone-700">${matchChesscond.status === 'Terminado' ? `${matchChesscond.s1} - ${matchChesscond.s2}` : 'VS'}</div>
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p2}</div>
-        `;
-    }
 
     // Renderizado del Grid del Calendario con distinciones claras de división y tablas
     roundMatches.forEach(m => {
@@ -990,9 +971,76 @@ renderRoundUI(currentRound);
                     </span>
                     ${matchBadgeIndicator}
                 </div>
-            </div>
+            </div>     
         `;
+    }); // <-- Aquí termina el pintado de las tarjetas normales
+
+    // =========================================================================
+    // --- NUEVO: SELECCIÓN MATEMÁTICA INTELIGENTE DE PARTIDOS DESTACADOS ---
+    // =========================================================================
+    
+    // 1. SELECCIÓN PARA CHESSPIONS (PRIMERA)
+    let matchChesspions = null;
+    let mejorValorChesspions = Infinity; 
+
+    let roundChesspionsMatches = roundMatches.filter(m => m.div.toLowerCase().includes('chesspions'));
+
+    roundChesspionsMatches.forEach(m => {
+        let p1Clas = typeof chesspionsRows !== 'undefined' ? chesspionsRows.find(p => p.name.toLowerCase().trim() === m.p1.toLowerCase().trim()) : null;
+        let p2Clas = typeof chesspionsRows !== 'undefined' ? chesspionsRows.find(p => p.name.toLowerCase().trim() === m.p2.toLowerCase().trim()) : null;
+        
+        if (p1Clas && p2Clas) {
+            let valorPartido = p1Clas.pos + p2Clas.pos; // Enfoque 1: Menor suma de posiciones
+            if (valorPartido < mejorValorChesspions) {
+                mejorValorChesspions = valorPartido;
+                matchChesspions = m;
+            }
+        }
     });
+    if (!matchChesspions) matchChesspions = roundChesspionsMatches[0];
+
+    // 2. SELECCIÓN PARA CHESSCOND (SEGUNDA)
+    let matchChesscond = null;
+    let mejorValorChesscond = Infinity;
+
+    let roundChesscondMatches = roundMatches.filter(m => m.div.toLowerCase().includes('chesscond') || m.div.toLowerCase().includes('segunda'));
+
+    roundChesscondMatches.forEach(m => {
+        let p1Clas = typeof chesscondRows !== 'undefined' ? chesscondRows.find(p => p.name.toLowerCase().trim() === m.p1.toLowerCase().trim()) : null;
+        let p2Clas = typeof chesscondRows !== 'undefined' ? chesscondRows.find(p => p.name.toLowerCase().trim() === m.p2.toLowerCase().trim()) : null;
+        
+        if (p1Clas && p2Clas) {
+            let valorPartido = p1Clas.pos + p2Clas.pos;
+            if (valorPartido < mejorValorChesscond) {
+                mejorValorChesscond = valorPartido;
+                matchChesscond = m;
+            }
+        }
+    });
+    if (!matchChesscond) matchChesscond = roundChesscondMatches[0];
+
+    // 3. INYECTAR EL HTML EN LAS CABECERAS DESTACADAS (MOTW)
+    if(matchChesspions) {
+        const isFinC = matchChesspions.status === 'Terminado';
+        document.getElementById('motw-chesspions-details').innerHTML = `
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p1}</div>
+            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-amber-400 mx-2 border border-stone-700">
+                ${isFinC ? `${matchChesspions.s1} - ${matchChesspions.s2}` : 'VS'}
+            </div>
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p2}</div>
+        `;
+    }
+    
+    if(matchChesscond) {
+        const isFinS = matchChesscond.status === 'Terminado';
+        document.getElementById('motw-chesscond-details').innerHTML = `
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p1}</div>
+            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-emerald-400 mx-2 border border-stone-700">
+                ${isFinS ? `${matchChesscond.s1} - ${matchChesscond.s2}` : 'VS'}
+            </div>
+            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p2}</div>
+        `;
+    }
 }
         function renderPlayoffsUI(rows) {
             const container = document.getElementById('playoffs-container');
