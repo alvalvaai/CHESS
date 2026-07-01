@@ -998,7 +998,7 @@ renderRoundUI(currentRound);
         let p2Clas = typeof chesspionsRows !== 'undefined' ? chesspionsRows.find(p => p.name.toLowerCase().trim() === m.p2.toLowerCase().trim()) : null;
         
         if (p1Clas && p2Clas) {
-            let valorPartido = p1Clas.pos + p2Clas.pos; // Enfoque 1: Menor suma de posiciones
+            let valorPartido = -(p1Clas.pts * p2Clas.pts); // Enfoque 1: Menor suma de posiciones
             if (valorPartido < mejorValorChesspions) {
                 mejorValorChesspions = valorPartido;
                 matchChesspions = m;
