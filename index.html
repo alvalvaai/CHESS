@@ -685,7 +685,10 @@ clasRows.forEach((r) => {
         chesscondRows.push(playerData);
     }
 });
-
+if (typeof currentRound !== 'undefined') {
+    renderRoundUI(currentRound); 
+}
+                
 // Helper de insignias independientes por división
 const getLimits = (rows) => {
     let maxT = -1, maxW = -1, minL = 99;
