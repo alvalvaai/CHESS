@@ -984,6 +984,9 @@ renderRoundUI(currentRound);
     let mejorValorChesspions = Infinity; 
 
     let roundChesspionsMatches = roundMatches.filter(m => m.div.toLowerCase().includes('chesspions'));
+     // ... (debajo de let roundChesspionsMatches = ...)
+    console.log("Partidos encontrados en la jornada:", roundChesspionsMatches);
+    console.log("Clasificación de Primera disponible:", typeof chesspionsRows !== 'undefined' ? chesspionsRows : "No detectada");    
 
     roundChesspionsMatches.forEach(m => {
         let p1Clas = typeof chesspionsRows !== 'undefined' ? chesspionsRows.find(p => p.name.toLowerCase().trim() === m.p1.toLowerCase().trim()) : null;
