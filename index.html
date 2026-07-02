@@ -1141,10 +1141,7 @@ renderRoundUI(currentRound);
             lucide.createIcons();
         }
 
-     window.openPlayerModal = function(name, division) {
-    // Forzamos a que el modal se intente mostrar pase lo que pase al final
-    let modalAbiertoCorrectamente = false;
-
+ window.openPlayerModal = function(name, division) {
     try {
         // 1. Datos básicos iniciales
         document.getElementById('modal-name').innerText = name || "-";
@@ -1203,7 +1200,7 @@ renderRoundUI(currentRound);
         }
 
         // ==========================================
-        // 📜 HISTORIAL DE PARTIDOS Y RACHAS
+        // 📜 HISTORIAL DE PARTIDOS Y RACHAS (CORREGIDO PROPIEDADES)
         // ==========================================
         const historyContainer = document.getElementById('modal-history');
         let streak = [];
@@ -1211,7 +1208,12 @@ renderRoundUI(currentRound);
         if (historyContainer) {
             historyContainer.innerHTML = '';
             
-            let playerMatches = allMatches.filter(m => m && ((m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim()) || (m.p2 && m.p2.toLowerCase().trim() === name.toLowerCase().trim())));
+            // CORRECCIÓN: Filtramos usando m.player1 y m.player2 en vez de m.p1/m.p2
+            let playerMatches = allMatches.filter(m => m && (
+                (m.player1 && m.player1.toLowerCase().trim() === name.toLowerCase().trim()) || 
+                (m.player2 && m.player2.toLowerCase().trim() === name.toLowerCase().trim())
+            ));
+            
             playerMatches.sort((a,b) => (a.round || 0) - (b.round || 0));
 
             if(playerMatches.length === 0) {
@@ -1219,13 +1221,15 @@ renderRoundUI(currentRound);
             } else {
                 playerMatches.forEach(m => {
                     if (!m) return;
-                    const isP1 = m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim();
-                    const opponent = isP1 ? m.p2 : m.p1;
+                    // CORRECCIÓN: Identificamos si es player1
+                    const isP1 = m.player1 && m.player1.toLowerCase().trim() === name.toLowerCase().trim();
+                    const opponent = isP1 ? m.player2 : m.player1;
                     
                     let badgeHTML = "";
                     let tablasFichaHTML = '';
 
                     if (m.status === 'Terminado') {
+                        // CORRECCIÓN: Ajustamos a m.s1 / m.s2 según cómo lo guardes, asumiendo s1 y s2 por tu código original
                         let myScore = parseFloat(isP1 ? (m.s1||"0").replace(',','.') : (m.s2||"0").replace(',','.'));
                         let oppScore = parseFloat(isP1 ? (m.s2||"0").replace(',','.') : (m.s1||"0").replace(',','.'));
                         
@@ -1302,7 +1306,6 @@ renderRoundUI(currentRound);
                 const oldTermometro = document.getElementById('modal-termometro-grafico');
                 if (oldTermometro) oldTermometro.remove();
 
-                // Usamos "division" o en su defecto un string vacío si viene undefined
                 const formBadges = getPlayerFormBadges(name, division || "");
 
                 const termometroContainer = document.createElement('div');
@@ -1318,13 +1321,9 @@ renderRoundUI(currentRound);
             }
         }
 
-        // Si llegó hasta aquí sin petar el hilo principal, todo ok
-        modalAbiertoCorrectamente = true;
-
     } catch (globalError) {
         console.error("💥 ERROR CRÍTICO INTERNO EN OPENPLAYERMODAL:", globalError);
     } finally {
-        // ESTA LÍNEA SE EJECUTA SÍ O SÍ, PASE LO QUE PASE ARRIBA. El modal se abrirá.
         const modalElement = document.getElementById('player-modal');
         if (modalElement) {
             modalElement.classList.remove('hidden');
