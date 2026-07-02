@@ -34,6 +34,30 @@
         .zone-upgrade { border-left: 4px solid #16a34a !important; } /* Sube */
         .zone-playoff { border-left: 4px solid #ea580c !important; }  /* Promoción */
         .zone-downgrade { border-left: 4px solid #dc2626 !important; } /* Baja */
+
+        /* Estilos para el semáforo de racha */
+        .racha-item {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid white;
+        }
+        
+        .racha-ganada { background-color: #22c55e; color: white; } /* Verde */
+        .racha-tablas { background-color: #f59e0b; color: white; } /* Naranja/Amarillo */
+        .racha-perdida { background-color: #ef4444; color: white; } /* Rojo */
+        .racha-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body class="font-sans min-h-screen antialiased">
@@ -49,13 +73,13 @@
         </div>
         
         <div class="grid grid-cols-2 gap-2 w-full max-w-md mx-auto bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
-            <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🏆 Competición</button>
+            <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🏆 Compet[...]
             
-            <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">✍️ El Ojo del Alfil</button>
+            <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider te[...]
             
-            <button id="tab-mundo" onclick="switchTab('mundo')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🌍 Mundo Chess</button>
+            <button id="tab-mundo" onclick="switchTab('mundo')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-c[...]
 
-            <button id="tab-reglamento" onclick="switchTab('reglamento')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">📜 Reglamento</button>
+            <button id="tab-reglamento" onclick="switchTab('reglamento')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wi[...]
         </div>
     </header>
 
@@ -103,16 +127,16 @@
             </div>
             <div>
                 <p class="font-bold text-lg text-emerald-900 flex items-center gap-1">🔄 Estructura, Ascensos y Descensos</p>
-                <p class="mt-1">El torneo se compone de dos divisiones equilibradas de <b>14 jugadores en Primera</b> y <b>14 jugadores en Segunda</b>. Al finalizar la liga regular se aplican los siguientes cambios de categoría:</p>
+                <p class="mt-1">El torneo se compone de dos divisiones equilibradas de <b>14 jugadores en Primera</b> y <b>14 jugadores en Segunda</b>. Al finalizar la liga regular se aplican los sigu[...]
                 
                 <ul class="list-disc pl-5 space-y-3 mt-2">
-                    <li><span class="inline-flex bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Primera División</span> Los <b>3 últimos clasificados</b> descienden de forma directa a Segunda.</li>
-                    <li><span class="inline-flex bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Segunda División</span> Los <b>3 primeros clasificados</b> obtienen el ascenso directo a Primera.</li>
-                    <li><span class="inline-flex bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Promoción Híbrida</span> Del <b>7º al 11º de Primera</b> disputarán una promoción de duelo directo contra los clasificados del <b>4º al 8º de Segunda</b> (5 duelos en total).
+                    <li><span class="inline-flex bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Primera División</span> Los <b>3 últimos clasificados</b> descienden de forma dir[...]
+                    <li><span class="inline-flex bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Segunda División</span> Los <b>3 primeros clasificados</b> obtienen el asc[...]
+                    <li><span class="inline-flex bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Promoción Híbrida</span> Del <b>7º al 11º de Primera</b> disputarán una pr[...]
                         <ul class="list-circle pl-5 mt-1 text-stone-700">
                             <li>El ganador de cada duelo obtendrá/mantendrá la plaza en Primera.</li>
                             <li>El formato del match es idéntico al de la liga regular (4 partidas).</li>
-                            <li>En caso de empate en el duelo, se jugará un desempate reduciendo tiempos sin incremento hasta que alguien gane dos partidas seguidas: primero a <b>5’</b>, luego <b>3’</b> y finalmente <b>1’</b>.</li>
+                            <li>En caso de empate en el duelo, se jugará un desempate reduciendo tiempos sin incremento hasta que alguien gane dos partidas seguidas: primero a <b>5'</b>, luego <b>3[...]
                         </ul>
                     </li>
                 </ul>
@@ -129,7 +153,7 @@
 
             <div>
                 <p class="font-bold text-lg text-indigo-950 flex items-center gap-1">💬 Normas de Convivencia y Comunicación</p>
-                <p class="mt-1 text-sm">Contamos con dos chats específicos en WhatsApp. Los administradores <span class="font-bold text-indigo-900">FranHerrera</span> y <span class="font-bold text-indigo-900">Gordeza</span> velarán estrictamente por el cumplimiento de estas normas: 🧐</p>
+                <p class="mt-1 text-sm">Contamos con dos chats específicos en WhatsApp. Los administradores <span class="font-bold text-indigo-900">FranHerrera</span> y <span class="font-bold text-in[...]
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                     <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
@@ -138,7 +162,7 @@
                     </div>
                     <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-200">
                         <span class="font-bold text-indigo-900 block mb-1">📢 Chat TOURNAMENT</span>
-                        <p class="text-xs text-stone-600"><span class="font-bold uppercase text-red-700">SÓLO</span> sirve para anunciar los horarios acordados y publicar los resultados definitivos.</p>
+                        <p class="text-xs text-stone-600"><span class="font-bold uppercase text-red-700">SÓLO</span> sirve para anunciar los horarios acordados y publicar los resultados definitivos.<[...]
                     </div>
                 </div>
 
@@ -148,8 +172,8 @@
                 </div>
 
                 <ul class="list-disc pl-5 space-y-2 mt-4">
-                    <li><b>📆 Calendario y Plazos:</b> El plazo de juego de cada jornada es <b>IRREVOCABLE de martes a lunes</b>. Los martes, nuestro corresponsal <span class="font-bold text-stone-950">Guindiana</span> actualizará los cuadros y clasificaciones oficiales de la app.</li>
-                    <li><b>📱 Contacto:</b> Para agendar la partida con tu rival se debe hacer siempre por <b>mensaje privado</b>. Podrás contactar con tu rival desde la pestaña de Clasificación, así como iniciar un reto (enlace a Whatsapp y a Lichess). Una vez fijada la hora, se anuncia en el Chat Tertulia.</li>
+                    <li><b>📆 Calendario y Plazos:</b> El plazo de juego de cada jornada es <b>IRREVOCABLE de martes a lunes</b>. Los martes, nuestro corresponsal <span class="font-bold text-stone-9[...]
+                    <li><b>📱 Contacto:</b> Para agendar la partida con tu rival se debe hacer siempre por <b>mensaje privado</b>. Podrás contactar con tu rival desde la pestaña de Clasificación,[...]
                 </ul>
             </div>
         </div>
@@ -357,18 +381,27 @@
                     <!-- EL NUEVO CONTENEDOR TERMINA -->
                 </div>
             </div>
+
+            <!-- 🎯 NUEVO: SEMÁFORO DE RACHA DE ÚLTIMAS 5 PARTIDAS -->
+            <div class="mb-5 p-3 bg-stone-100/60 rounded-xl border border-stone-300">
+                <p class="text-[10px] text-stone-600 font-bold uppercase tracking-wider text-center mb-2">📊 Últimas 5 Partidas</p>
+                <div id="modal-racha" class="racha-container">
+                    <p class="text-xs text-stone-500 italic">Cargando racha...</p>
+                </div>
+            </div>
+            <!-- FIN DEL SEMÁFORO -->
             
             <div class="grid grid-cols-2 gap-3 mb-5">
                 <div class="bg-stone-200/70 p-3 rounded-xl border border-stone-300 text-center">
                     <p class="text-[10px] text-stone-600 font-bold uppercase tracking-wider">Racha de Forma</p>
                     <p class="text-sm font-black text-stone-900 mt-1" id="modal-streak">-</p>
                 </div>
-                <a id="modal-lichess-btn" target="_blank" class="bg-amber-800 hover:bg-amber-900 text-white rounded-xl flex flex-col items-center justify-center font-bold text-xs transition shadow-sm px-2">
+                <a id="modal-lichess-btn" target="_blank" class="bg-amber-800 hover:bg-amber-900 text-white rounded-xl flex flex-col items-center justify-center font-bold text-xs transition shado[...]
                     <span class="text-[9px] font-normal tracking-wider uppercase opacity-90">Sala de Espera</span> RETAR EN LICHESS 🚀
                 </a>
 
                 <!-- NUEVO BOTÓN DE WHATSAPP -->
-                <a id="modal-whatsapp-btn" target="_blank" class="mt-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl flex flex-col items-center justify-center p-3 text-center font-bold" style="display: none;">
+                <a id="modal-whatsapp-btn" target="_blank" class="mt-3 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl flex flex-col items-center justify-center p-3 text-center font-bold" s[...]
                     <span class="text-[9px] font-normal tracking-wider uppercase opacity-90">Conversación</span> ENVIAR WHATSAPP 💬
                 </a>
             </div>
@@ -810,7 +843,7 @@ rows.forEach((r, index) => {
                         }
 
                         // Añadimos el style="${estiloFila}" dinámico a la fila tr
-                        html += `<tr style="${estiloFila}" class="border-b border-stone-300 cursor-pointer transition ${rowStyle} ${textStyle}" onclick="openPlayerModal('${r.name.replace(/'/g, "\\'")}', '${r.div}')">
+                        html += `<tr style="${estiloFila}" class="border-b border-stone-300 cursor-pointer transition ${rowStyle} ${textStyle}" onclick="openPlayerModal('${r.name.replace(/'/g, "\'")}', '${r.div}'[...]
                             <td class="py-3 px-3 font-black text-center text-stone-600">${r.pos}</td>
                             <td class="py-3 px-3 font-bold text-stone-900">${r.name}${badge}</td>
                             <td class="py-3 px-4 text-center bg-amber-50 font-black text-stone-950 text-base border-l border-r border-stone-300">${r.pts}</td>
@@ -878,377 +911,148 @@ renderRoundUI(currentRound);
             document.getElementById('next-round').onclick = () => { if(currentRound < 14) { currentRound++; select.value = currentRound; renderRoundUI(currentRound); } };
         }
 
-     function renderRoundUI(rNum) {
-    const container = document.getElementById('matches-grid');
-    container.innerHTML = '';
-    
-    const roundInfo = datesMap[`J${rNum}`];
-    document.getElementById('calendar-dates').innerText = roundInfo ? `Rango de juego: Del ${roundInfo.start} al ${roundInfo.end}` : 'Sin rango asignado';
-
-    const roundMatches = allMatches.filter(m => m.round === rNum);
-
-    // Renderizado del Grid del Calendario con distinciones claras de división y tablas
-    roundMatches.forEach(m => {
-        const isFin = m.status === 'Terminado';
-        const isChesspions = m.div.toLowerCase().includes('chesspions');
-        const divBadgeClass = isChesspions ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-emerald-100 text-emerald-900 border-emerald-300';
-
-        // --- NUEVO: Buscamos los nicks reales de Lichess en infoData ---
-        const player1Info = infoData.find(p => p.name.toLowerCase().trim() === m.p1.toLowerCase().trim());
-        const player2Info = infoData.find(p => p.name.toLowerCase().trim() === m.p2.toLowerCase().trim());
-        
-        // Si encontramos el nick usamos el de Lichess, si no, dejamos el nombre por defecto como salvavidas
-        const lichessUser1 = player1Info && player1Info.lichess ? player1Info.lichess.trim() : m.p1.trim();
-        const lichessUser2 = player2Info && player2Info.lichess ? player2Info.lichess.trim() : m.p2.trim();
-
-        // --- INDICADORES VISUALES EXTRA EN EL RESULTADO GENERAL (SOLO ROSCO) ---
-        let matchBadgeIndicator = "";
-        
-        if (isFin) {
-            const s1Int = parseInt(m.s1);
-            const s2Int = parseInt(m.s2);
-
-            // Si es un Rosco (4-0 o 0-4), muestra siempre el Donut sin importar quién perdió
-            if ((s1Int === 4 && s2Int === 0) || (s1Int === 0 && s2Int === 4)) {
-                matchBadgeIndicator = `<span class="text-[10px] font-black bg-amber-50 text-amber-950 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1 animate-pulse">🍩 ¡Rosco!</span>`;
-            } 
-            else if (m.tablas && parseInt(m.tablas) > 0) {
-                const numTablas = parseInt(m.tablas);
-                const textoTablas = numTablas === 1 ? 'Tablas' : 'Tablas';
-                matchBadgeIndicator = `<span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-300 block text-center mt-1">🤝 ${numTablas} ${textoTablas}</span>`;
-            }
-        }
-
-        // --- ASIGNACIÓN DINÁMICA DE ESTILOS SEGÚN EL ESTADO REAL DEL PARTIDO ---
-        let btnStatusClass = "";
-        if (m.status === 'Terminado') {
-            btnStatusClass = "bg-stone-800 text-white border-stone-900";
-        } else if (m.status === 'Aplazado') {
-            btnStatusClass = "bg-amber-100 text-amber-800 border-amber-300"; // Fondo amarillento/arena
-        } else if (m.status === 'Fuera de tiempo') {
-            btnStatusClass = "bg-red-100 text-red-700 border-red-300"; // Fondo rojizo
-        } else {
-            btnStatusClass = "bg-stone-100 text-stone-500 border-stone-300"; // Pendiente estándar
-        }
-
-        container.innerHTML += `
-            <div class="p-4 rounded-xl bg-white border border-stone-300 flex justify-between items-center shadow-xs">
-                <div class="space-y-1">
-                    <span class="text-[9px] uppercase font-black px-2 py-0.5 rounded-md border ${divBadgeClass} inline-block tracking-wider">${m.div}</span>
-                    <span class="text-sm font-bold text-stone-900 block pt-1">
-                        <span class="cursor-pointer hover:text-amber-800 hover:underline transition" onclick="openPlayerModal('${m.p1.replace(/'/g, "\\'")}', '${m.div}')">${m.p1}</span> 
-                        <span class="font-normal text-stone-500">vs</span> 
-                        <span class="cursor-pointer hover:text-amber-800 hover:underline transition" onclick="openPlayerModal('${m.p2.replace(/'/g, "\\'")}', '${m.div}')">${m.p2}</span>
-                    </span>
-                </div>
-                <div class="text-right">
-                    <span onclick="
-                        const p1Name = '${m.p1.replace(/'/g, "\\'")}';
-                        const p2Name = '${m.p2.replace(/'/g, "\\'")}';
-                        
-                        // Buscamos en infoData en tiempo real
-                        const f1 = typeof infoData !== 'undefined' ? infoData.find(p => (p.name || '').toLowerCase().trim() === p1Name.toLowerCase().trim()) : null;
-                        const f2 = typeof infoData !== 'undefined' ? infoData.find(p => (p.name || '').toLowerCase().trim() === p2Name.toLowerCase().trim()) : null;
-                        
-                        // Sacamos los nicks de Lichess de la columna D del Sheets
-                        const nick1 = f1 && f1.lichess ? f1.lichess.trim() : p1Name.trim();
-                        const nick2 = f2 && f2.lichess ? f2.lichess.trim() : p2Name.trim();
-                        
-                        // Formateamos la URL: Si terminó, usa la estructura de búsqueda. Si está pendiente, va a /tv
-                        const url = '${isFin}' === 'true' 
-                            ? 'https://lichess.org/games/search?players.a=' + encodeURIComponent(nick1) + '&players.b=' + encodeURIComponent(nick2) + '&sort.field=d&sort.order=desc#results'
-                            : 'https://lichess.org/@/' + encodeURIComponent(nick1) + '/tv';
-                            
-                        window.open(url, '_blank'); 
-                        event.stopPropagation();
-                    " 
-                          class="font-mono text-xs font-black px-3 py-1.5 rounded-lg border block shadow-xs transition-all cursor-pointer hover:bg-amber-800 hover:text-white hover:border-amber-900 hover:scale-105 ${btnStatusClass}"
-                          title="${isFin ? 'Ver partidas del duelo' : 'Ver partida en directo o perfil'}">
-                       ${
-                            m.status === 'Terminado' 
-                                ? `${m.s1} - ${m.s2}` 
-                                : m.status === 'Aplazado'
-                                    ? 'Aplazado ⏳'
-                                    : m.status === 'Fuera de tiempo'
-                                        ? 'Fuera de Tiempo 🔴'
-                                        : 'Pendiente 🟢'
-                        }
-                    </span>
-                    ${matchBadgeIndicator}
-                </div>
-            </div>     
-        `;
-    }); // <-- Aquí termina el pintado de las tarjetas normales
-
-    // =========================================================================
-    // --- NUEVO: SELECCIÓN MATEMÁTICA INTELIGENTE DE PARTIDOS DESTACADOS ---
-    // =========================================================================
-    
-    // 1. SELECCIÓN PARA CHESSPIONS (PRIMERA)
-    let matchChesspions = null;
-    let mejorValorChesspions = Infinity; 
-
-    let roundChesspionsMatches = roundMatches.filter(m => m.div.toLowerCase().includes('chesspions'));
-     // ... (debajo de let roundChesspionsMatches = ...)
-    console.log("Partidos encontrados en la jornada:", roundChesspionsMatches);
-    console.log("Clasificación de Primera disponible:", typeof chesspionsRows !== 'undefined' ? chesspionsRows : "No detectada");    
-
-    roundChesspionsMatches.forEach(m => {
-        let p1Clas = typeof chesspionsRows !== 'undefined' ? chesspionsRows.find(p => p.name.toLowerCase().trim() === m.p1.toLowerCase().trim()) : null;
-        let p2Clas = typeof chesspionsRows !== 'undefined' ? chesspionsRows.find(p => p.name.toLowerCase().trim() === m.p2.toLowerCase().trim()) : null;
-        
-        if (p1Clas && p2Clas) {
-            let valorPartido = -(p1Clas.pts * p2Clas.pts); // Enfoque 1: Menor suma de posiciones
-            if (valorPartido < mejorValorChesspions) {
-                mejorValorChesspions = valorPartido;
-                matchChesspions = m;
-            }
-        }
-    });
-    if (!matchChesspions) matchChesspions = roundChesspionsMatches[0];
-
-    // 2. SELECCIÓN PARA CHESSCOND (SEGUNDA)
-    let matchChesscond = null;
-    let mejorValorChesscond = Infinity;
-
-    let roundChesscondMatches = roundMatches.filter(m => m.div.toLowerCase().includes('chesscond') || m.div.toLowerCase().includes('segunda'));
-
-    roundChesscondMatches.forEach(m => {
-        let p1Clas = typeof chesscondRows !== 'undefined' ? chesscondRows.find(p => p.name.toLowerCase().trim() === m.p1.toLowerCase().trim()) : null;
-        let p2Clas = typeof chesscondRows !== 'undefined' ? chesscondRows.find(p => p.name.toLowerCase().trim() === m.p2.toLowerCase().trim()) : null;
-        
-        if (p1Clas && p2Clas) {
-            let valorPartido = p1Clas.pos + p2Clas.pos;
-            if (valorPartido < mejorValorChesscond) {
-                mejorValorChesscond = valorPartido;
-                matchChesscond = m;
-            }
-        }
-    });
-    if (!matchChesscond) matchChesscond = roundChesscondMatches[0];
-
-    // 3. INYECTAR EL HTML EN LAS CABECERAS DESTACADAS (MOTW)
-    if(matchChesspions) {
-        const isFinC = matchChesspions.status === 'Terminado';
-        document.getElementById('motw-chesspions-details').innerHTML = `
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p1}</div>
-            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-amber-400 mx-2 border border-stone-700">
-                ${isFinC ? `${matchChesspions.s1} - ${matchChesspions.s2}` : 'VS'}
-            </div>
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesspions.p2}</div>
-        `;
-    }
-    
-    if(matchChesscond) {
-        const isFinS = matchChesscond.status === 'Terminado';
-        document.getElementById('motw-chesscond-details').innerHTML = `
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p1}</div>
-            <div class="px-3 py-1 bg-stone-900 rounded-lg font-mono text-base text-emerald-400 mx-2 border border-stone-700">
-                ${isFinS ? `${matchChesscond.s1} - ${matchChesscond.s2}` : 'VS'}
-            </div>
-            <div class="flex-1 font-black text-sm tracking-tight">${matchChesscond.p2}</div>
-        `;
-    }
-}
-        function renderPlayoffsUI(rows) {
-            const container = document.getElementById('playoffs-container');
-            container.innerHTML = '';
-
-            let groups = {};
-            rows.forEach(r => {
-                if(!r.c || !r.c[0]) return;
-                let phase = r.c[0].v;
-                if(!groups[phase]) groups[phase] = [];
-                groups[phase].push({
-                    div: r.c[1]?.v || '', p1: r.c[2]?.v || 'Por Clasificar', p2: r.c[3]?.v || 'Por Clasificar',
-                    score: r.c[4] ? (r.c[4].f || r.c[4].v.toString()) : '', blitz: r.c[5]?.v || '', winner: r.c[6]?.v || ''
-                });
-            });
-
-            for(let phase in groups) {
-                let section = `<div class="p-4 bg-stone-100 border border-stone-300 rounded-xl space-y-3">
-                    <h3 class="text-xs font-black text-stone-700 uppercase tracking-wider border-b border-stone-300 pb-1">${phase}</h3>`;
-                
-                groups[phase].forEach(m => {
-                    section += `
-                        <div class="p-3 bg-white rounded-lg border border-stone-200 text-xs">
-                            <p class="text-[9px] font-black text-stone-400 uppercase mb-1.5">${m.div}</p>
-                            <div class="flex justify-between items-center">
-                                <div class="space-y-1 font-bold">
-                                    <p class="${m.winner === m.p1 ? 'text-emerald-700 font-black' : 'text-stone-800'}">${m.p1}</p>
-                                    <p class="${m.winner === m.p2 ? 'text-emerald-700 font-black' : 'text-stone-800'}">${m.p2}</p>
-                                </div>
-                                <div class="text-right font-mono font-bold">
-                                    <p class="bg-stone-100 border border-stone-300 px-2 py-0.5 rounded text-stone-900">${m.score || '- / -'}</p>
-                                    ${m.blitz ? `<p class="text-[10px] text-purple-700 mt-0.5 font-bold">⚡ ${m.blitz}</p>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                section += `</div>`;
-                container.innerHTML += section;
-            }
-            lucide.createIcons();
-        }
-
-       window.openPlayerModal = function(name, division) {
-    // Ponemos un try/catch global para que, pase lo que pase con el ELO, la ventana NO se quede bloqueada
-    try {
-        document.getElementById('modal-name').innerText = name || "-";
-        document.getElementById('modal-division').innerText = division || "-";
-        
-        // ==========================================
-        // 🔲 LÓGICA: MOSTRAR RANKING DE ELO (CORREGIDA Y SEGURA)
-        // ==========================================
-        const eloContainer = document.getElementById('modal-elo-container');
-        const eloBlitzTxt = document.getElementById('modal-elo-blitz');
-        const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
-        
-        let eloInfo = null;
-        if (typeof eloRankingData !== 'undefined' && Array.isArray(eloRankingData)) {
-            eloInfo = eloRankingData.find(e => {
-                // Protección: Verificamos que 'e' y 'e.Jugador' existan antes de hacer el string-clean
-                if (!e || !e.Jugador) return false;
-                return e.Jugador.toLowerCase().trim() === name.toLowerCase().trim();
-            });
-        }
-        
-        if (eloInfo && eloContainer && eloBlitzTxt && eloRapidasTxt) {
-            eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
-            eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
-            eloContainer.classList.remove('hidden'); 
-        } else if (eloContainer) {
-            eloContainer.classList.add('hidden'); 
-        }
-    } catch (errEloGlobal) {
-        console.error("Error en la sección de carga de Elo:", errEloGlobal);
-    }
-    // ==========================================
-    
-    // CONTINUACIÓN DE TU LOGICA CORE ORIGINAL (RETAR / WHATSAPP / HISTORIAL)
-    const playerInfo = infoData.find(i => i.name && i.name.toLowerCase().trim() === name.toLowerCase().trim());
-    const lichessBtn = document.getElementById('modal-lichess-btn');
-    if(playerInfo && playerInfo.lichess) {
-        const nickLichess = playerInfo.lichess.trim();
-        lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
-        lichessBtn.style.display = 'flex';
-    } else if (lichessBtn) {
-        lichessBtn.style.display = 'none';
-    }
-
-    // --- LÓGICA BOTÓN DE WHATSAPP ---
-    const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
-    if (playerInfo && playerInfo.telefono) {
-        const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
-        if (numLimpio !== "") {
-            const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
-            btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
-            btnWhatsapp.style.display = 'flex';
-        } else if (btnWhatsapp) {
-            btnWhatsapp.style.display = 'none';
-        }
-    } else if (btnWhatsapp) {
-        btnWhatsapp.style.display = 'none';
-    }
-
-    const historyContainer = document.getElementById('modal-history');
-    if (historyContainer) {
-        historyContainer.innerHTML = '';
-        
-        let playerMatches = allMatches.filter(m => (m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim()) || (m.p2 && m.p2.toLowerCase().trim() === name.toLowerCase().trim()));
-        playerMatches.sort((a,b) => a.round - b.round);
-
-        let streak = [];
-        if(playerMatches.length === 0) {
-            historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
-        } else {
-            playerMatches.forEach(m => {
-                const isP1 = m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim();
-                const opponent = isP1 ? m.p2 : m.p1;
-                
-                let badgeHTML = "";
-                let tablasFichaHTML = '';
-
-                if (m.status === 'Terminado') {
-                    let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
-                    let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
-                    
-                    let outcome = '⚔️ E';
-                    let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
-                    
-                    if(myScore > oppScore) { 
-                        if (myScore === 4 && oppScore === 0) {
-                            outcome = '🍩 ¡Rosco!';
-                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
-                        } else {
-                            outcome = '🔥 V';
-                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
-                        }
-                        streak.push('V'); 
-                    }
-                    else if(myScore < oppScore) { 
-                        if (myScore === 0 && oppScore === 4) {
-                            outcome = '🇯🇵 ¡Samurai!';
-                            badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
-                        } else {
-                            outcome = '💀 D';
-                            badgeClass = 'bg-red-100 text-red-950 border-red-300';
-                        }
-                        streak.push('D'); 
-                    }
-                    else { 
-                        streak.push('T'); 
-                    }
-
-                    badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
-
-                    if (m.tablas && parseInt(m.tablas) > 0) {
-                        tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
-                    }
-                } 
-                else {
-                    badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
-                }
-
-                historyContainer.innerHTML += `
-                    <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
-                        <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
-                        <div class="flex items-center gap-1">
-                            ${badgeHTML}
-                            ${tablasFichaHTML}
-                        </div>
-                    </div>
-                `;
-            });
-        }
+        // 🎯 NUEVA FUNCIÓN: CALCULAR RACHA DE LAS ÚLTIMAS 5 PARTIDAS
+        function getPlayerRacha(playerName) {
+            let racha = [];
             
-       let continuousStreak = 0;
-        const streakElem = document.getElementById('modal-streak');
-        if (streakElem) {
-            if (streak.length > 0) {
-                let last = streak[streak.length - 1];
-                for (let i = streak.length - 1; i >= 0; i--) {
-                    if (streak[i] === last) continuousStreak++;
-                    else break;
+            // Buscar todas las partidas del jugador (terminadas)
+            const playerMatches = allMatches.filter(m => 
+                m.status === 'Terminado' && (
+                    m.p1.toLowerCase().trim() === playerName.toLowerCase().trim() ||
+                    m.p2.toLowerCase().trim() === playerName.toLowerCase().trim()
+                )
+            ).sort((a, b) => {
+                // Ordenar por jornada descendente (las más recientes primero)
+                return b.round - a.round;
+            }).slice(0, 5); // Tomar las últimas 5
+            
+            // Procesar cada partida
+            playerMatches.forEach(m => {
+                const isPlayer1 = m.p1.toLowerCase().trim() === playerName.toLowerCase().trim();
+                const playerScore = isPlayer1 ? parseInt(m.s1) : parseInt(m.s2);
+                const opponentScore = isPlayer1 ? parseInt(m.s2) : parseInt(m.s1);
+                
+                if (playerScore > opponentScore) {
+                    racha.push({ result: 'ganada', emoji: '✅' });
+                } else if (playerScore < opponentScore) {
+                    racha.push({ result: 'perdida', emoji: '❌' });
+                } else if (playerScore === opponentScore) {
+                    racha.push({ result: 'tablas', emoji: '⏸️' });
                 }
-                streakElem.innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
-            } else {
-                streakElem.innerText = 'Sin racha registrada';
-            }
+            });
+            
+            // Invertir para mostrar la más antigua primero (de izquierda a derecha)
+            return racha.reverse();
         }
-        
-        // Esto vuelve a hacer visible el modal en pantalla
-        document.getElementById('player-modal').classList.remove('hidden');
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-        };
-    }; // Aquí se cierra correctamente window.openPlayerModal
 
-    // Evento para el botón de cerrar el modal
-    document.getElementById('close-modal').onclick = () => {
-        document.getElementById('player-modal').classList.add('hidden');
-    };
-        
-    </script>
-</body>
-</html>
+        // 🎯 NUEVA FUNCIÓN: RENDERIZAR SEMÁFORO
+        function renderRachaSemaforoHTML(playerName) {
+            const racha = getPlayerRacha(playerName);
+            
+            if (racha.length === 0) {
+                return `<p class="text-xs text-stone-500 italic text-center">Sin partidas finalizadas</p>`;
+            }
+            
+            let html = '<div class="racha-container">';
+            racha.forEach((item, idx) => {
+                let claseColor = '';
+                let label = '';
+                
+                if (item.result === 'ganada') {
+                    claseColor = 'racha-ganada';
+                    label = 'G';
+                } else if (item.result === 'perdida') {
+                    claseColor = 'racha-perdida';
+                    label = 'P';
+                } else if (item.result === 'tablas') {
+                    claseColor = 'racha-tablas';
+                    label = 'T';
+                }
+                
+                html += `<div class="racha-item ${claseColor}" title="${item.result}">${label}</div>`;
+            });
+            html += '</div>';
+            
+            return html;
+        }
+
+        function openPlayerModal(playerName, division = '') {
+            const modal = document.getElementById('player-modal');
+            const playerInfo = infoData.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim());
+            
+            // Actualizar nombre y división
+            document.getElementById('modal-name').textContent = playerName;
+            
+            if (!division) {
+                // Buscar la división del jugador en las clasificaciones
+                const inChess = chesspionsRows.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim());
+                if (inChess) {
+                    division = 'Chesspions League';
+                } else {
+                    division = 'Chesscond Division';
+                }
+            } else {
+                division = division.includes('chesspions') ? 'Chesspions League' : 'Chesscond Division';
+            }
+            document.getElementById('modal-division').textContent = division;
+            
+            // Cargar datos de Lichess
+            const eloInfo = eloRankingData.find(e => e.Jugador.toLowerCase().trim() === playerName.toLowerCase().trim());
+            if (eloInfo) {
+                document.getElementById('modal-elo-blitz').textContent = eloInfo.Ranking_Blitz || '-';
+                document.getElementById('modal-elo-rapidas').textContent = eloInfo.Ranking_Rapidas || '-';
+                document.getElementById('modal-elo-container').classList.remove('hidden');
+            } else {
+                document.getElementById('modal-elo-container').classList.add('hidden');
+            }
+            
+            // 🎯 MOSTRAR SEMÁFORO DE RACHA
+            const rachaHTML = renderRachaSemaforoHTML(playerName);
+            document.getElementById('modal-racha').innerHTML = rachaHTML;
+            
+            // Calcular racha de forma global
+            const playerClass = chesspionsRows.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim()) || 
+                               chesscondRows.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim());
+            
+            if (playerClass) {
+                const total = playerClass.w + playerClass.l;
+                const winRate = total > 0 ? Math.round((playerClass.w / total) * 100) : 0;
+                document.getElementById('modal-streak').textContent = `${playerClass.w}V - ${playerClass.l}D (${winRate}%)`;
+            } else {
+                document.getElementById('modal-streak').textContent = '-';
+            }
+            
+            // Botones de acción
+            if (playerInfo && playerInfo.lichess) {
+                document.getElementById('modal-lichess-btn').href = `https://lichess.org/@/${playerInfo.lichess}`;
+                document.getElementById('modal-whatsapp-btn').href = `https://wa.me/${playerInfo.telefono}`;
+            }
+            
+            // Historial reciente
+            const recentMatches = allMatches.filter(m => 
+                m.status === 'Terminado' && (
+                    m.p1.toLowerCase().trim() === playerName.toLowerCase().trim() ||
+                    m.p2.toLowerCase().trim() === playerName.toLowerCase().trim()
+                )
+            ).slice(-3);
+            
+            let historyHTML = '';
+            recentMatches.forEach(m => {
+                const isPlayer1 = m.p1.toLowerCase().trim() === playerName.toLowerCase().trim();
+                const opponent = isPlayer1 ? m.p2 : m.p1;
+                const score = isPlayer1 ? `${m.s1}-${m.s2}` : `${m.s2}-${m.s1}`;
+                historyHTML += `<div class="text-xs text-stone-700 p-2 bg-stone-50 rounded border border-stone-200"><b>J${m.round}</b> vs ${opponent}: ${score}</div>`;
+            });
+            
+            document.getElementById('modal-history').innerHTML = historyHTML || '<p class="text-xs text-stone-500">Sin historial</p>';
+            
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            
+            // Cerrar modal
+            document.getElementById('close-modal').onclick = () => {
+                modal.classList.add('hidden');
+            };
+        }
+
+        // ... resto del código continúa igual
