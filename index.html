@@ -678,7 +678,7 @@ clasRows.forEach((r) => {
         ev: r.c[7]?.v || 0,
         ed: r.c[8]?.v || 0,
         ee: r.c[9]?.v || 0,
-        pts: r.c[10]?.v || 0
+       pts: parseIntegerClean(r.c[10]?.v || 0)
     };
 
     if(playerData.div.toLowerCase().includes("chesspions")) {
