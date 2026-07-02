@@ -706,19 +706,24 @@ const getLimits = (rows) => {
 function getPlayerFormBadges(playerName, playerDiv) {
     if (typeof allMatches === 'undefined' || !Array.isArray(allMatches)) return '';
 
+    // Aseguramos formatos limpios para comparar sin importar espacios ni mayúsculas
+    const searchName = playerName.toLowerCase().trim();
+    const searchDiv = (playerDiv || "").toLowerCase().trim();
+
     let playerMatches = allMatches.filter(m => {
         if (!m) return false;
         
-        // Detectar dinámicamente cómo se llama la propiedad de la división en tu objeto
-        const mDiv = m.division || m.div || '';
-        const isMyDiv = mDiv.toLowerCase().trim() === playerDiv.toLowerCase().trim();
+        // 1. EXTRAER DIVISIÓN (Buscamos en cualquier propiedad posible)
+        const mDiv = (m.division || m.div || '').toLowerCase().trim();
         
-        // Detectar dinámicamente cómo se llaman los jugadores (player1/p1 y player2/p2)
-        const p1 = m.player1 || m.p1 || '';
-        const p2 = m.player2 || m.p2 || '';
+        // Flexibilidad total: Si una contiene a la otra (ej: "chesspions" está en "chesspions league"), la damos por válida
+        const isMyDiv = mDiv.includes(searchDiv) || searchDiv.includes(mDiv) || searchDiv === "";
         
-        const isMyPlayer = p1.toLowerCase().trim() === playerName.toLowerCase().trim() || 
-                           p2.toLowerCase().trim() === playerName.toLowerCase().trim();
+        // 2. EXTRAER JUGADORES
+        const p1 = (m.player1 || m.p1 || '').toLowerCase().trim();
+        const p2 = (m.player2 || m.p2 || '').toLowerCase().trim();
+        
+        const isMyPlayer = (p1 === searchName) || (p2 === searchName);
                            
         return m.status === 'Terminado' && isMyDiv && isMyPlayer;
     });
@@ -730,22 +735,21 @@ function getPlayerFormBadges(playerName, playerDiv) {
     let lastMatches = playerMatches.slice(-4);
 
     if (lastMatches.length === 0) {
-        return `<span class="text-xs text-stone-400 italic">Sin partidos recientes</span>`;
+        return `<span class="text-xs text-stone-400 italic">Sin tendencia (0 encuentros)</span>`;
     }
 
     let badgesHTML = lastMatches.map(m => {
-        const p1 = m.player1 || m.p1 || '';
-        const p1Lower = p1.toLowerCase().trim();
-        const nameLower = playerName.toLowerCase().trim();
+        const p1 = (m.player1 || m.p1 || '').toLowerCase().trim();
         
-        // Detectar cómo se llama el score (s1/score1)
-        const score1 = m.s1 || m.score1 || "0";
-        const score2 = m.s2 || m.score2 || "0";
+        // Buscamos los scores según cómo se llamen en tu objeto de resultados
+        const score1 = m.s1 || m.score1 || m.puntosJ1 || m.sJ1 || "0";
+        const score2 = m.s2 || m.score2 || m.puntosJ2 || m.sJ2 || "0";
         
-        const s1 = parseInt(score1) || 0;
-        const s2 = parseInt(score2) || 0;
+        // Si tus scores vienen formateados con comas de un string (ej: "2,5"), lo pasamos a punto
+        const s1 = parseFloat(score1.toString().replace(',', '.')) || 0;
+        const s2 = parseFloat(score2.toString().replace(',', '.')) || 0;
 
-        const isP1 = p1Lower === nameLower;
+        const isP1 = p1 === searchName;
         const myScore = isP1 ? s1 : s2;
         const rivalScore = isP1 ? s2 : s1;
 
