@@ -1141,137 +1141,146 @@ renderRoundUI(currentRound);
             lucide.createIcons();
         }
 
-      window.openPlayerModal = function(name, division) {
-    // Ponemos un try/catch global para que, pase lo que pase con el ELO, la ventana NO se quede bloqueada
+     window.openPlayerModal = function(name, division) {
+    // Forzamos a que el modal se intente mostrar pase lo que pase al final
+    let modalAbiertoCorrectamente = false;
+
     try {
+        // 1. Datos básicos iniciales
         document.getElementById('modal-name').innerText = name || "-";
         document.getElementById('modal-division').innerText = division || "-";
         
         // ==========================================
-        // 🔲 LÓGICA: MOSTRAR RANKING DE ELO (CORREGIDA Y SEGURA)
+        // 🔲 LÓGICA: MOSTRAR RANKING DE ELO
         // ==========================================
-        const eloContainer = document.getElementById('modal-elo-container');
-        const eloBlitzTxt = document.getElementById('modal-elo-blitz');
-        const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
-        
-        let eloInfo = null;
-        if (typeof eloRankingData !== 'undefined' && Array.isArray(eloRankingData)) {
-            eloInfo = eloRankingData.find(e => {
-                // Protección: Verificamos que 'e' y 'e.Jugador' existan antes de hacer el string-clean
-                if (!e || !e.Jugador) return false;
-                return e.Jugador.toLowerCase().trim() === name.toLowerCase().trim();
-            });
+        try {
+            const eloContainer = document.getElementById('modal-elo-container');
+            const eloBlitzTxt = document.getElementById('modal-elo-blitz');
+            const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
+            
+            let eloInfo = null;
+            if (typeof eloRankingData !== 'undefined' && Array.isArray(eloRankingData)) {
+                eloInfo = eloRankingData.find(e => e && e.Jugador && e.Jugador.toLowerCase().trim() === name.toLowerCase().trim());
+            }
+            
+            if (eloInfo && eloContainer && eloBlitzTxt && eloRapidasTxt) {
+                eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
+                eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
+                eloContainer.classList.remove('hidden'); 
+            } else if (eloContainer) {
+                eloContainer.classList.add('hidden'); 
+            }
+        } catch (errElo) {
+            console.error("Error en Elo:", errElo);
         }
         
-        if (eloInfo && eloContainer && eloBlitzTxt && eloRapidasTxt) {
-            eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
-            eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
-            eloContainer.classList.remove('hidden'); 
-        } else if (eloContainer) {
-            eloContainer.classList.add('hidden'); 
+        // ==========================================
+        // 🔗 ENLACES DE LICHESS Y WHATSAPP
+        // ==========================================
+        const playerInfo = infoData.find(i => i && i.name && i.name.toLowerCase().trim() === name.toLowerCase().trim());
+        
+        const lichessBtn = document.getElementById('modal-lichess-btn');
+        if(playerInfo && playerInfo.lichess && lichessBtn) {
+            const nickLichess = playerInfo.lichess.trim();
+            lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
+            lichessBtn.style.display = 'flex';
+        } else if (lichessBtn) {
+            lichessBtn.style.display = 'none';
         }
-    } catch (errEloGlobal) {
-        console.error("Error en la sección de carga de Elo:", errEloGlobal);
-    }
-    // ==========================================
-    
-    // CONTINUACIÓN DE TU LOGICA CORE ORIGINAL (RETAR / WHATSAPP / HISTORIAL)
-    const playerInfo = infoData.find(i => i.name && i.name.toLowerCase().trim() === name.toLowerCase().trim());
-    const lichessBtn = document.getElementById('modal-lichess-btn');
-    if(playerInfo && playerInfo.lichess) {
-        const nickLichess = playerInfo.lichess.trim();
-        lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
-        lichessBtn.style.display = 'flex';
-    } else if (lichessBtn) {
-        lichessBtn.style.display = 'none';
-    }
 
-    // --- LÓGICA BOTÓN DE WHATSAPP ---
-    const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
-    if (playerInfo && playerInfo.telefono) {
-        const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
-        if (numLimpio !== "") {
-            const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
-            btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
-            btnWhatsapp.style.display = 'flex';
+        const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
+        if (playerInfo && playerInfo.telefono && btnWhatsapp) {
+            const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
+            if (numLimpio !== "") {
+                const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
+                btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
+                btnWhatsapp.style.display = 'flex';
+            } else {
+                btnWhatsapp.style.display = 'none';
+            }
         } else if (btnWhatsapp) {
             btnWhatsapp.style.display = 'none';
         }
-    } else if (btnWhatsapp) {
-        btnWhatsapp.style.display = 'none';
-    }
 
-    const historyContainer = document.getElementById('modal-history');
-    if (historyContainer) {
-        historyContainer.innerHTML = '';
-        
-        let playerMatches = allMatches.filter(m => (m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim()) || (m.p2 && m.p2.toLowerCase().trim() === name.toLowerCase().trim()));
-        playerMatches.sort((a,b) => a.round - b.round);
-
+        // ==========================================
+        // 📜 HISTORIAL DE PARTIDOS Y RACHAS
+        // ==========================================
+        const historyContainer = document.getElementById('modal-history');
         let streak = [];
-        if(playerMatches.length === 0) {
-            historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
-        } else {
-            playerMatches.forEach(m => {
-                const isP1 = m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim();
-                const opponent = isP1 ? m.p2 : m.p1;
-                
-                let badgeHTML = "";
-                let tablasFichaHTML = '';
 
-                if (m.status === 'Terminado') {
-                    let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
-                    let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
+        if (historyContainer) {
+            historyContainer.innerHTML = '';
+            
+            let playerMatches = allMatches.filter(m => m && ((m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim()) || (m.p2 && m.p2.toLowerCase().trim() === name.toLowerCase().trim())));
+            playerMatches.sort((a,b) => (a.round || 0) - (b.round || 0));
+
+            if(playerMatches.length === 0) {
+                historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
+            } else {
+                playerMatches.forEach(m => {
+                    if (!m) return;
+                    const isP1 = m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim();
+                    const opponent = isP1 ? m.p2 : m.p1;
                     
-                    let outcome = '⚔️ E';
-                    let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
-                    
-                    if(myScore > oppScore) { 
-                        if (myScore === 4 && oppScore === 0) {
-                            outcome = '🍩 ¡Rosco!';
-                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
-                        } else {
-                            outcome = '🔥 V';
-                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+                    let badgeHTML = "";
+                    let tablasFichaHTML = '';
+
+                    if (m.status === 'Terminado') {
+                        let myScore = parseFloat(isP1 ? (m.s1||"0").replace(',','.') : (m.s2||"0").replace(',','.'));
+                        let oppScore = parseFloat(isP1 ? (m.s2||"0").replace(',','.') : (m.s1||"0").replace(',','.'));
+                        
+                        let outcome = '⚔️ E';
+                        let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
+                        
+                        if(myScore > oppScore) { 
+                            if (myScore === 4 && oppScore === 0) {
+                                outcome = '🍩 ¡Rosco!';
+                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
+                            } else {
+                                outcome = '🔥 V';
+                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
+                            }
+                            streak.push('V'); 
                         }
-                        streak.push('V'); 
-                    }
-                    else if(myScore < oppScore) { 
-                        if (myScore === 0 && oppScore === 4) {
-                            outcome = '🇯🇵 ¡Samurai!';
-                            badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
-                        } else {
-                            outcome = '💀 D';
-                            badgeClass = 'bg-red-100 text-red-950 border-red-300';
+                        else if(myScore < oppScore) { 
+                            if (myScore === 0 && oppScore === 4) {
+                                outcome = '🇯🇵 ¡Samurai!';
+                                badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
+                            } else {
+                                outcome = '💀 D';
+                                badgeClass = 'bg-red-100 text-red-950 border-red-300';
+                            }
+                            streak.push('D'); 
                         }
-                        streak.push('D'); 
-                    }
-                    else { 
-                        streak.push('T'); 
+                        else { 
+                            streak.push('T'); 
+                        }
+
+                        badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
+
+                        if (m.tablas && parseInt(m.tablas) > 0) {
+                            tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
+                        }
+                    } else {
+                        badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
                     }
 
-                    badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
-
-                    if (m.tablas && parseInt(m.tablas) > 0) {
-                        tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
-                    }
-                } 
-                else {
-                    badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
-                }
-
-                historyContainer.innerHTML += `
-                    <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
-                        <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
-                        <div class="flex items-center gap-1">
-                            ${badgeHTML}
-                            ${tablasFichaHTML}
+                    historyContainer.innerHTML += `
+                        <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
+                            <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
+                            <div class="flex items-center gap-1">
+                                ${badgeHTML}
+                                ${tablasFichaHTML}
+                            </div>
                         </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
         }
             
+        // ==========================================
+        // 📊 CONTROL DE TEXTO DE LA RACHA
+        // ==========================================
         let continuousStreak = 0;
         const streakElem = document.getElementById('modal-streak');
         if (streakElem) {
@@ -1285,37 +1294,53 @@ renderRoundUI(currentRound);
             } else {
                 streakElem.innerText = 'Sin racha registrada';
             }
-        
-            // =========================================================================
-            // 🔥 ¡NUEVO!: INYECTAR LOS CÍRCULOS DEL TERMÓMETRO JUSTO DEBAJO DE LA RACHA
-            // =========================================================================
-            const oldTermometro = document.getElementById('modal-termometro-grafico');
-            if (oldTermometro) oldTermometro.remove();
+            
+            // ==========================================
+            // 🔥 TERMÓMETRO GRÁFICO SEGURO
+            // ==========================================
+            try {
+                const oldTermometro = document.getElementById('modal-termometro-grafico');
+                if (oldTermometro) oldTermometro.remove();
 
-            const formBadges = getPlayerFormBadges(name, division);
+                // Usamos "division" o en su defecto un string vacío si viene undefined
+                const formBadges = getPlayerFormBadges(name, division || "");
 
-            const termometroContainer = document.createElement('div');
-            termometroContainer.id = 'modal-termometro-grafico';
-            termometroContainer.className = 'mt-2 pt-2 border-t border-stone-200/60 flex flex-col items-center justify-center';
-            termometroContainer.innerHTML = `
-                <span class="text-[9px] uppercase font-black tracking-wider text-stone-400 block mb-1">Tendencia</span>
-                ${formBadges}
-            `;
-
-            streakElem.parentElement.appendChild(termometroContainer);
-            // =========================================================================
+                const termometroContainer = document.createElement('div');
+                termometroContainer.id = 'modal-termometro-grafico';
+                termometroContainer.className = 'mt-2 pt-2 border-t border-stone-200/60 flex flex-col items-center justify-center';
+                termometroContainer.innerHTML = `
+                    <span class="text-[9px] uppercase font-black tracking-wider text-stone-400 block mb-1">Tendencia</span>
+                    ${formBadges}
+                `;
+                streakElem.parentElement.appendChild(termometroContainer);
+            } catch (errTermometro) {
+                console.error("Fallo controlado en el termómetro gráfico:", errTermometro);
+            }
         }
-    }
-    
-    // Esto vuelve a hacer visible el modal en pantalla
-    document.getElementById('player-modal').classList.remove('hidden');
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}; // Cierre correcto de window.openPlayerModal
 
-// Evento para el botón de cerrar el modal
-document.getElementById('close-modal').onclick = () => {
-    document.getElementById('player-modal').classList.add('hidden');
+        // Si llegó hasta aquí sin petar el hilo principal, todo ok
+        modalAbiertoCorrectamente = true;
+
+    } catch (globalError) {
+        console.error("💥 ERROR CRÍTICO INTERNO EN OPENPLAYERMODAL:", globalError);
+    } finally {
+        // ESTA LÍNEA SE EJECUTA SÍ O SÍ, PASE LO QUE PASE ARRIBA. El modal se abrirá.
+        const modalElement = document.getElementById('player-modal');
+        if (modalElement) {
+            modalElement.classList.remove('hidden');
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
 };
+
+// Evento de cierre independiente
+const closeBtn = document.getElementById('close-modal');
+if (closeBtn) {
+    closeBtn.onclick = () => {
+        const modalElement = document.getElementById('player-modal');
+        if (modalElement) modalElement.classList.add('hidden');
+    };
+}
         
     </script>
 </body>
