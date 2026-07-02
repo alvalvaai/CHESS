@@ -703,35 +703,23 @@ const getLimits = (rows) => {
 };
 
 // HELPER: Calcula la tendencia de forma reciente (Últimos 4 partidos)
-function getPlayerFormBadges(playerName, playerDiv) {
+function getPlayerFormBadges(playerName) {
     if (typeof allMatches === 'undefined' || !Array.isArray(allMatches)) return '';
 
-    // Aseguramos formatos limpios para comparar sin importar espacios ni mayúsculas
     const searchName = playerName.toLowerCase().trim();
-    const searchDiv = (playerDiv || "").toLowerCase().trim();
 
     let playerMatches = allMatches.filter(m => {
         if (!m) return false;
         
-        // 1. EXTRAER DIVISIÓN (Buscamos en cualquier propiedad posible)
-        const mDiv = (m.division || m.div || '').toLowerCase().trim();
-        
-        // Flexibilidad total: Si una contiene a la otra (ej: "chesspions" está en "chesspions league"), la damos por válida
-        const isMyDiv = mDiv.includes(searchDiv) || searchDiv.includes(mDiv) || searchDiv === "";
-        
-        // 2. EXTRAER JUGADORES
         const p1 = (m.player1 || m.p1 || '').toLowerCase().trim();
         const p2 = (m.player2 || m.p2 || '').toLowerCase().trim();
         
         const isMyPlayer = (p1 === searchName) || (p2 === searchName);
                            
-        return m.status === 'Terminado' && isMyDiv && isMyPlayer;
+        return m.status === 'Terminado' && isMyPlayer;
     });
 
-    // Ordenar por ronda de forma segura
     playerMatches.sort((a, b) => (a.round || 0) - (b.round || 0));
-    
-    // Agarrar los últimos 4 partidos
     let lastMatches = playerMatches.slice(-4);
 
     if (lastMatches.length === 0) {
@@ -741,11 +729,9 @@ function getPlayerFormBadges(playerName, playerDiv) {
     let badgesHTML = lastMatches.map(m => {
         const p1 = (m.player1 || m.p1 || '').toLowerCase().trim();
         
-        // Buscamos los scores según cómo se llamen en tu objeto de resultados
-        const score1 = m.s1 || m.score1 || m.puntosJ1 || m.sJ1 || "0";
-        const score2 = m.s2 || m.score2 || m.puntosJ2 || m.sJ2 || "0";
+        const score1 = m.s1 || m.score1 || "0";
+        const score2 = m.s2 || m.score2 || "0";
         
-        // Si tus scores vienen formateados con comas de un string (ej: "2,5"), lo pasamos a punto
         const s1 = parseFloat(score1.toString().replace(',', '.')) || 0;
         const s2 = parseFloat(score2.toString().replace(',', '.')) || 0;
 
@@ -1214,7 +1200,7 @@ renderRoundUI(currentRound);
         }
 
         // ==========================================
-        // 📜 HISTORIAL DE PARTIDOS Y RACHAS (CORREGIDO PROPIEDADES)
+        // 📜 HISTORIAL DE PARTIDOS Y RACHAS (SIN FILTRO DE DIVISIÓN)
         // ==========================================
         const historyContainer = document.getElementById('modal-history');
         let streak = [];
@@ -1222,7 +1208,7 @@ renderRoundUI(currentRound);
         if (historyContainer) {
             historyContainer.innerHTML = '';
             
-            // CORRECCIÓN: Filtramos usando m.player1 y m.player2 en vez de m.p1/m.p2
+            // Omitimos la división, buscamos directamente por nombre de jugador
             let playerMatches = allMatches.filter(m => m && (
                 (m.player1 && m.player1.toLowerCase().trim() === name.toLowerCase().trim()) || 
                 (m.player2 && m.player2.toLowerCase().trim() === name.toLowerCase().trim())
@@ -1235,7 +1221,6 @@ renderRoundUI(currentRound);
             } else {
                 playerMatches.forEach(m => {
                     if (!m) return;
-                    // CORRECCIÓN: Identificamos si es player1
                     const isP1 = m.player1 && m.player1.toLowerCase().trim() === name.toLowerCase().trim();
                     const opponent = isP1 ? m.player2 : m.player1;
                     
@@ -1243,7 +1228,6 @@ renderRoundUI(currentRound);
                     let tablasFichaHTML = '';
 
                     if (m.status === 'Terminado') {
-                        // CORRECCIÓN: Ajustamos a m.s1 / m.s2 según cómo lo guardes, asumiendo s1 y s2 por tu código original
                         let myScore = parseFloat(isP1 ? (m.s1||"0").replace(',','.') : (m.s2||"0").replace(',','.'));
                         let oppScore = parseFloat(isP1 ? (m.s2||"0").replace(',','.') : (m.s1||"0").replace(',','.'));
                         
@@ -1320,7 +1304,7 @@ renderRoundUI(currentRound);
                 const oldTermometro = document.getElementById('modal-termometro-grafico');
                 if (oldTermometro) oldTermometro.remove();
 
-                const formBadges = getPlayerFormBadges(name, division || "");
+                const formBadges = getPlayerFormBadges(name);
 
                 const termometroContainer = document.createElement('div');
                 termometroContainer.id = 'modal-termometro-grafico';
@@ -1345,7 +1329,6 @@ renderRoundUI(currentRound);
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 };
-
 // Evento de cierre independiente
 const closeBtn = document.getElementById('close-modal');
 if (closeBtn) {
