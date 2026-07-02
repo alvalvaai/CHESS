@@ -702,6 +702,55 @@ const getLimits = (rows) => {
     return { maxT, maxW, minL };
 };
 
+// HELPER: Calcula la tendencia de forma reciente (Últimos 4 partidos)
+function getPlayerFormBadges(playerName, playerDiv) {
+    if (typeof allMatches === 'undefined') return '';
+
+    // 1. Filtrar solo los partidos TERMINADOS de este jugador en su división
+    let playerMatches = allMatches.filter(m => {
+        const isMyDiv = m.div.toLowerCase().trim() === playerDiv.toLowerCase().trim();
+        const isMyPlayer = m.p1.toLowerCase().trim() === playerName.toLowerCase().trim() || 
+                           m.p2.toLowerCase().trim() === playerName.toLowerCase().trim();
+        return m.status === 'Terminado' && isMyDiv;
+    });
+
+    // 2. Ordenarlos por jornada de la más antigua a la más reciente
+    playerMatches.sort((a, b) => a.round - b.round);
+
+    // 3. Quedarnos únicamente con los últimos 4 partidos jugados
+    let lastMatches = playerMatches.slice(-4);
+
+    if (lastMatches.length === 0) {
+        return `<span class="text-xs text-stone-400 italic">Sin partidos jugados</span>`;
+    }
+
+    // 4. Mapear cada partido a su círculo correspondiente
+    let badgesHTML = lastMatches.map(m => {
+        const p1Lower = m.p1.toLowerCase().trim();
+        const nameLower = playerName.toLowerCase().trim();
+        const s1 = parseInt(m.s1) || 0;
+        const s2 = parseInt(m.s2) || 0;
+
+        // Determinar si este jugador era Local (p1) o Visitante (p2)
+        const isP1 = p1Lower === nameLower;
+        const myScore = isP1 ? s1 : s2;
+        const rivalScore = isP1 ? s2 : s1;
+
+        if (myScore > rivalScore) {
+            // VICTORIA: Círculo verde con una "V" blanca dentro
+            return `<span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter" title="Victoria (${myScore}-${rivalScore})">V</span>`;
+        } else if (myScore < rivalScore) {
+            // DERROTA: Círculo rojo con una "D"
+            return `<span class="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter" title="Derrota (${myScore}-${rivalScore})">D</span>`;
+        } else {
+            // TABLAS: Círculo amarillo/arena con una "E" (Empate)
+            return `<span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter" title="Tablas (${myScore}-${rivalScore})">E</span>`;
+        }
+    }).join('');
+
+    return `<div class="flex gap-1.5 items-center">${badgesHTML}</div>`;
+}
+                
 const buildTableHTML = (rows, isChesspions) => {
     let html = '';
     const limits = getLimits(rows);
@@ -1236,6 +1285,29 @@ renderRoundUI(currentRound);
             } else {
                 streakElem.innerText = 'Sin racha registrada';
             }
+        }
+        // =========================================================================
+            // 🔥 ¡NUEVO!: INYECTAR LOS CÍRCULOS DEL TERMÓMETRO JUSTO DEBAJO DE LA RACHA
+            // =========================================================================
+            // 1. Borramos cualquier termómetro viejo que se haya quedado de otro jugador
+            const oldTermometro = document.getElementById('modal-termometro-grafico');
+            if (oldTermometro) oldTermometro.remove();
+
+            // 2. Calculamos los nuevos círculos usando la función del Paso 1
+            const formBadges = getPlayerFormBadges(name, division);
+
+            // 3. Creamos un contenedor HTML para meter los círculos con un margen superior estético
+            const termometroContainer = document.createElement('div');
+            termometroContainer.id = 'modal-termometro-grafico';
+            termometroContainer.className = 'mt-2 pt-2 border-t border-stone-200/60 flex flex-col items-center justify-center';
+            termometroContainer.innerHTML = `
+                <span class="text-[9px] uppercase font-black tracking-wider text-stone-400 block mb-1">Tendencia</span>
+                ${formBadges}
+            `;
+
+            // 4. Lo pegamos dentro del mismo bloque gris del HTML de la racha
+            streakElem.parentElement.appendChild(termometroContainer);
+            // =========================================================================
         }
         
         // Esto vuelve a hacer visible el modal en pantalla
