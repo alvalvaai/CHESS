@@ -35,26 +35,29 @@
         .zone-playoff { border-left: 4px solid #ea580c !important; }  /* Promoción */
         .zone-downgrade { border-left: 4px solid #dc2626 !important; } /* Baja */
 
-        /* Estilos para el semáforo de racha */
+        /* Estilos para el semáforo de racha - SOLO CÍRCULOS */
         .racha-item {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border: 2px solid white;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.5);
+            cursor: help;
+            transition: transform 0.2s ease;
+        }
+
+        .racha-item:hover {
+            transform: scale(1.15);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         
-        .racha-ganada { background-color: #22c55e; color: white; } /* Verde */
-        .racha-tablas { background-color: #f59e0b; color: white; } /* Naranja/Amarillo */
-        .racha-perdida { background-color: #ef4444; color: white; } /* Rojo */
+        .racha-ganada { background-color: #22c55e; } /* Verde */
+        .racha-tablas { background-color: #fbbf24; } /* Amarillo/Naranja */
+        .racha-perdida { background-color: #ef4444; } /* Rojo */
         .racha-container {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
         }
@@ -73,7 +76,7 @@
         </div>
         
         <div class="grid grid-cols-2 gap-2 w-full max-w-md mx-auto bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
-            <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🏆 Compet[...]
+            <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🏆 Co[...]
             
             <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider te[...]
             
@@ -127,16 +130,16 @@
             </div>
             <div>
                 <p class="font-bold text-lg text-emerald-900 flex items-center gap-1">🔄 Estructura, Ascensos y Descensos</p>
-                <p class="mt-1">El torneo se compone de dos divisiones equilibradas de <b>14 jugadores en Primera</b> y <b>14 jugadores en Segunda</b>. Al finalizar la liga regular se aplican los sigu[...]
+                <p class="mt-1">El torneo se compone de dos divisiones equilibradas de <b>14 jugadores en Primera</b> y <b>14 jugadores en Segunda</b>. Al finalizar la liga regular se aplican los[...]
                 
                 <ul class="list-disc pl-5 space-y-3 mt-2">
-                    <li><span class="inline-flex bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Primera División</span> Los <b>3 últimos clasificados</b> descienden de forma dir[...]
-                    <li><span class="inline-flex bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Segunda División</span> Los <b>3 primeros clasificados</b> obtienen el asc[...]
-                    <li><span class="inline-flex bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Promoción Híbrida</span> Del <b>7º al 11º de Primera</b> disputarán una pr[...]
+                    <li><span class="inline-flex bg-red-100 text-red-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Primera División</span> Los <b>3 últimos clasificados</b> descienden de form[...]
+                    <li><span class="inline-flex bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Segunda División</span> Los <b>3 primeros clasificados</b> obtienen e[...]
+                    <li><span class="inline-flex bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold mr-1">Promoción Híbrida</span> Del <b>7º al 11º de Primera</b> disputarán u[...]
                         <ul class="list-circle pl-5 mt-1 text-stone-700">
                             <li>El ganador de cada duelo obtendrá/mantendrá la plaza en Primera.</li>
                             <li>El formato del match es idéntico al de la liga regular (4 partidas).</li>
-                            <li>En caso de empate en el duelo, se jugará un desempate reduciendo tiempos sin incremento hasta que alguien gane dos partidas seguidas: primero a <b>5'</b>, luego <b>3[...]
+                            <li>En caso de empate en el duelo, se jugará un desempate reduciendo tiempos sin incremento hasta que alguien gane dos partidas seguidas: primero a <b>5'</b>, luego <[...]
                         </ul>
                     </li>
                 </ul>
@@ -153,7 +156,7 @@
 
             <div>
                 <p class="font-bold text-lg text-indigo-950 flex items-center gap-1">💬 Normas de Convivencia y Comunicación</p>
-                <p class="mt-1 text-sm">Contamos con dos chats específicos en WhatsApp. Los administradores <span class="font-bold text-indigo-900">FranHerrera</span> y <span class="font-bold text-in[...]
+                <p class="mt-1 text-sm">Contamos con dos chats específicos en WhatsApp. Los administradores <span class="font-bold text-indigo-900">FranHerrera</span> y <span class="font-bold te[...]
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                     <div class="p-3 bg-stone-50 rounded-xl border border-stone-200">
@@ -162,7 +165,7 @@
                     </div>
                     <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-200">
                         <span class="font-bold text-indigo-900 block mb-1">📢 Chat TOURNAMENT</span>
-                        <p class="text-xs text-stone-600"><span class="font-bold uppercase text-red-700">SÓLO</span> sirve para anunciar los horarios acordados y publicar los resultados definitivos.<[...]
+                        <p class="text-xs text-stone-600"><span class="font-bold uppercase text-red-700">SÓLO</span> sirve para anunciar los horarios acordados y publicar los resultados definiti[...]
                     </div>
                 </div>
 
@@ -172,8 +175,8 @@
                 </div>
 
                 <ul class="list-disc pl-5 space-y-2 mt-4">
-                    <li><b>📆 Calendario y Plazos:</b> El plazo de juego de cada jornada es <b>IRREVOCABLE de martes a lunes</b>. Los martes, nuestro corresponsal <span class="font-bold text-stone-9[...]
-                    <li><b>📱 Contacto:</b> Para agendar la partida con tu rival se debe hacer siempre por <b>mensaje privado</b>. Podrás contactar con tu rival desde la pestaña de Clasificación,[...]
+                    <li><b>📆 Calendario y Plazos:</b> El plazo de juego de cada jornada es <b>IRREVOCABLE de martes a lunes</b>. Los martes, nuestro corresponsal <span class="font-bold text-st[...]
+                    <li><b>📱 Contacto:</b> Para agendar la partida con tu rival se debe hacer siempre por <b>mensaje privado</b>. Podrás contactar con tu rival desde la pestaña de Clasificac[...]
                 </ul>
             </div>
         </div>
@@ -239,9 +242,9 @@
                         <p class="text-sm font-bold text-stone-600 mt-1" id="calendar-dates">Cargando fechas de juego...</p>
                     </div>
                     <div class="flex items-center gap-2 self-end sm:self-auto">
-                        <button id="prev-round" class="p-2 rounded-xl border border-stone-400 bg-white text-stone-800 hover:bg-stone-100"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+                        <button id="prev-round" class="p-2 rounded-xl border border-stone-400 bg-white text-stone-800 hover:bg-stone-100"><i data-lucide="chevron-left" class="w-4 h-4"></i></butto[...]
                         <select id="round-select" class="bg-white border border-stone-400 rounded-xl px-3 py-2 text-sm font-bold text-stone-800 focus:outline-none shadow-xs"></select>
-                        <button id="next-round" class="p-2 rounded-xl border border-stone-400 bg-white text-stone-800 hover:bg-stone-100"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                        <button id="next-round" class="p-2 rounded-xl border border-stone-400 bg-white text-stone-800 hover:bg-stone-100"><i data-lucide="chevron-right" class="w-4 h-4"></i></butt[...]
                     </div>
                 </div>
                 <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -382,9 +385,9 @@
                 </div>
             </div>
 
-            <!-- 🎯 NUEVO: SEMÁFORO DE RACHA DE ÚLTIMAS 5 PARTIDAS -->
+            <!-- 🎯 NUEVO: SEMÁFORO DE RACHA DE ÚLTIMAS 5 PARTIDAS (SOLO CÍRCULOS) -->
             <div class="mb-5 p-3 bg-stone-100/60 rounded-xl border border-stone-300">
-                <p class="text-[10px] text-stone-600 font-bold uppercase tracking-wider text-center mb-2">📊 Últimas 5 Partidas</p>
+                <p class="text-[10px] text-stone-600 font-bold uppercase tracking-wider text-center mb-3">📊 Últimas 5 Partidas</p>
                 <div id="modal-racha" class="racha-container">
                     <p class="text-xs text-stone-500 italic">Cargando racha...</p>
                 </div>
@@ -416,7 +419,7 @@
         let currentRound = 9;
         let allMatches = [];
         let infoData = [];
-        let eloRankingData = []; // 🚀 NUEVA VARIABLE GLOBAL AÑADIDA
+        let eloRankingData = [];
         let datesMap = {};
         let resumenIAData = "";
         let chesspionsRows = [], chesscondRows = [];
@@ -427,28 +430,18 @@
             await loadSheetCore();
         });
 
-          window.addEventListener('DOMContentLoaded', async () => {
-            lucide.createIcons();
-            await fetchPuzzle();
-            await loadSheetCore();
-        });
-
        function switchTab(tab) {
-    // 1. Quitamos el estado activo de TODOS los botones de pestañas
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'text-white', 'bg-stone-800'));
     
-    // 2. Ocultamos TODOS los contenedores de contenido primero
     document.getElementById('content-liga').classList.add('hidden');
     document.getElementById('content-reglamento').classList.add('hidden');
     
     const contentResumen = document.getElementById('content-resumen');
     if (contentResumen) contentResumen.classList.add('hidden');
 
-    // 🆕 Ocultamos el nuevo contenedor de Mundo Chess
     const contentMundo = document.getElementById('content-mundo-chess');
     if (contentMundo) contentMundo.classList.add('hidden');
 
-    // 3. Activamos solo la pestaña y el contenido correspondiente
     if (tab === 'liga') {
         document.getElementById('tab-liga').classList.add('active');
         document.getElementById('content-liga').classList.remove('hidden');
@@ -456,11 +449,9 @@
         document.getElementById('tab-resumen').classList.add('active');
         if (contentResumen) contentResumen.classList.remove('hidden');
     } else if (tab === 'reglamento') {
-        // 🆕 Ahora reglamento tiene su propia condición limpia
         document.getElementById('tab-reglamento').classList.add('active');
         document.getElementById('content-reglamento').classList.remove('hidden');
     } else if (tab === 'mundo') {
-        // 🆕 Condición para activar la nueva pestaña de Mundo Chess
         document.getElementById('tab-mundo').classList.add('active');
         if (contentMundo) contentMundo.classList.remove('hidden');
     }
@@ -478,25 +469,8 @@
             }
         }
 
-       async function fetchPuzzle() {
-            try {
-                const res = await fetch('https://lichess.org/api/puzzle/daily');
-                const data = await res.json();
-                document.getElementById('puzzle-side').innerHTML = `🎯 <b>Mueven:</b> ${data.puzzle.color === 'white' ? 'Blancas ⚪' : 'Negras ⚫'}`;
-                document.getElementById('puzzle-frame').src = `https://lichess.org/training/frame?id=${data.puzzle.id}&theme=brown&bg=light`;
-                document.getElementById('puzzle-link').href = `https://lichess.org/training/${data.puzzle.id}`;
-            } catch (e) {
-                document.getElementById('puzzle-side').innerText = "Desafío diario disponible online.";
-            }
-        }
-
         async function loadSheetCore() {
-            // Unificamos el try principal de la función para envolver las peticiones de forma segura
             try {
-                
-               // ==========================================================
-                // 🤖 LÓGICA: OBTENER RESUMEN DESDE GOOGLE SHEETS (BÚSQUEDA DINÁMICA)
-                // ==========================================================
                 try {
                     console.log("🔍 [1/4] Solicitando pestaña RESUMEN_IA...");
                     const resumenRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESUMEN_IA`);
@@ -506,10 +480,8 @@
                     let textoBruto = "";
 
                     if (resumenRows && resumenRows.length > 0) {
-                        // Recorremos todas las filas devueltas buscando el texto de Gemini
                         for (let i = 0; i < resumenRows.length; i++) {
                             const celda = resumenRows[i]?.c?.[0]?.v;
-                            // Si encontramos una celda con un texto largo (la crónica), nos quedamos con ella
                             if (celda && celda.toString().trim().length > 50) {
                                 textoBruto = celda.toString();
                                 console.log(`🎯 ¡Crónica encontrada con éxito en la fila de índice ${i}!`);
@@ -520,10 +492,8 @@
 
                     let resumenIAData = "";
                     if (textoBruto.trim() !== "") {
-                        // ✨ Convertimos los asteriscos *texto* en negritas <b>texto</b>
                         let textoConNegritas = textoBruto.replace(/\*(.*?)\*/g, '<b>$1</b>');
                         
-                        // 📋 Separamos por saltos de línea para maquetar los párrafos
                         resumenIAData = textoConNegritas
                             .split('\n')
                             .map(linea => {
@@ -547,10 +517,7 @@
                 } catch (errResumen) {
                     console.error("❌ Error procesando la pestaña resumen:", errResumen);
                 }
-                // ==========================================================
-             // ==========================================================
-               // 🌍 LÓGICA: OBTENER NOTICIAS (MUNDO CHESS) DESDE GOOGLE SHEETS
-                // ==========================================================
+
                 try {
                     console.log("🔍 Solicitando pestaña MUNDO_CHESS...");
                     const noticiasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=MUNDO_CHESS`);
@@ -597,10 +564,7 @@
                 } catch (errMundoChess) {
                     console.error("❌ Error procesando la pestaña Mundo Chess:", errMundoChess);
                 }
-                // ==========================================================
 
-                // 📦 NUEVA LOGICA: OBTENER RANKING DE ELOS DE LICHESS
-                // ==========================================================
                 try {
                     const eloRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=ELO_RANKING`);
                     const eloText = await eloRes.text();
@@ -617,9 +581,7 @@
                 } catch (errElo) {
                     console.error("Error al cargar la pestaña ELO_RANKING:", errElo);
                 }
-                // ==========================================================
 
-                // 1. OBTENER INFORMACIÓN DE JUGADORES
                 const infoRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INFO`);
                 const infoText = await infoRes.text();
                 const infoRows = JSON.parse(infoText.substring(47).slice(0, -2)).table.rows;
@@ -639,253 +601,92 @@
                             end: r.c[9].f || r.c[9].v 
                         };
                     }
-                }); // <-- LLAVE ALINEADA CORRECTAMENTE AQUÍ
+                });
 
-                // 2. OBTENER RESULTADOS COMPLETOS Y EVALUAR ESTADOS AVANZADOS
-const resRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESULTADOS`);
-const resText = await resRes.text();
-const resRows = JSON.parse(resText.substring(47).slice(0, -2)).table.rows;
+                const resRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=RESULTADOS`);
+                const resText = await resRes.text();
+                const resRows = JSON.parse(resText.substring(47).slice(0, -2)).table.rows;
 
-allMatches = [];
-const todayStr = new Date(); // Fecha actual para comparar
+                allMatches = [];
+                const todayStr = new Date();
 
-resRows.forEach((r, idx) => {
-  if (!r.c || !r.c[2]) return;
-  
-  let roundNum = parseInt(r.c[0]?.v?.toString().replace(/\D/g,'') || '1');
-  let division = r.c[1]?.v || '';
-  let player1 = r.c[2]?.v || '';
-  let player2 = r.c[3]?.v || '';
-  let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
-  let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
-  
-  // Leemos la columna H del Excel (índice 7)
-  let notasExcel = r.c[7]?.v?.toString().toLowerCase() || ''; 
-  
-  let matchStatus = 'Pendiente';
-  
-  if (score1 !== '' || score2 !== '') {
-    matchStatus = 'Terminado';
-  } else if (notasExcel.includes('aplazado')) {
-    matchStatus = 'Aplazado';
-  } else if (notasExcel.includes('fuera de tiempo')) {
-    matchStatus = 'Fuera de tiempo';
-  }
+                resRows.forEach((r, idx) => {
+                  if (!r.c || !r.c[2]) return;
+                  
+                  let roundNum = parseInt(r.c[0]?.v?.toString().replace(/\D/g,'') || '1');
+                  let division = r.c[1]?.v || '';
+                  let player1 = r.c[2]?.v || '';
+                  let player2 = r.c[3]?.v || '';
+                  let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
+                  let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
+                  
+                  let notasExcel = r.c[7]?.v?.toString().toLowerCase() || ''; 
+                  
+                  let matchStatus = 'Pendiente';
+                  
+                  if (score1 !== '' || score2 !== '') {
+                    matchStatus = 'Terminado';
+                  } else if (notasExcel.includes('aplazado')) {
+                    matchStatus = 'Aplazado';
+                  } else if (notasExcel.includes('fuera de tiempo')) {
+                    matchStatus = 'Fuera de tiempo';
+                  }
 
-  let individualDraws = 0;
-  if (score1.includes('.5') || score2.includes('.5')) {
-    individualDraws = 1;
-  }
+                  let individualDraws = 0;
+                  if (score1.includes('.5') || score2.includes('.5')) {
+                    individualDraws = 1;
+                  }
 
-  allMatches.push({
-    round: roundNum, div: division, p1: player1, p2: player2,
-    s1: score1, s2: score2, status: matchStatus, draws: individualDraws
-  });
-}); // <--- AQUÍ CERRABA TU BUCLE FOREACH DE RESULTADOS
+                  allMatches.push({
+                    round: roundNum, div: division, p1: player1, p2: player2,
+                    s1: score1, s2: score2, status: matchStatus, draws: individualDraws
+                  });
+                });
 
-// 3. OBTENER Y AJUSTAR CLASIFICACIÓN CON NUEVO ORDEN DE COLUMNAS
-const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
-const clasText = await clasRes.text();
-const clasRows = JSON.parse(clasText.substring(47).slice(0, -2)).table.rows;
+                const clasRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=CLASIFICACION`);
+                const clasText = await clasRes.text();
+                const clasRows = JSON.parse(clasText.substring(47).slice(0, -2)).table.rows;
 
-chesspionsRows = []; 
-chesscondRows = [];
+                chesspionsRows = []; 
+                chesscondRows = [];
 
-clasRows.forEach((r) => {
-    if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
-    
-    let parseIntegerClean = (val) => {
-        if (!val) return 0;
-        let n = parseFloat(val.toString().replace(',', '.'));
-        return Math.floor(n);
-    };
+                clasRows.forEach((r) => {
+                    if(!r.c || !r.c[1] || r.c[1].v === "Jugador" || typeof r.c[0]?.v !== 'number') return;
+                    
+                    let parseIntegerClean = (val) => {
+                        if (!val) return 0;
+                        let n = parseFloat(val.toString().replace(',', '.'));
+                        return Math.floor(n);
+                    };
 
-    let playerData = {
-        pos: r.c[0].v,
-        name: r.c[1].v,
-        div: r.c[2]?.v || '',
-        j: parseIntegerClean(r.c[3]?.v),
-        w: parseIntegerClean(r.c[4]?.v),
-        l: parseIntegerClean(r.c[5]?.v),
-        t: parseIntegerClean(r.c[6]?.v),
-        ev: r.c[7]?.v || 0,
-        ed: r.c[8]?.v || 0,
-        ee: r.c[9]?.v || 0,
-       pts: parseIntegerClean(r.c[10]?.v || 0)
-    };
+                    let playerData = {
+                        pos: r.c[0].v,
+                        name: r.c[1].v,
+                        div: r.c[2]?.v || '',
+                        j: parseIntegerClean(r.c[3]?.v),
+                        w: parseIntegerClean(r.c[4]?.v),
+                        l: parseIntegerClean(r.c[5]?.v),
+                        t: parseIntegerClean(r.c[6]?.v),
+                        ev: r.c[7]?.v || 0,
+                        ed: r.c[8]?.v || 0,
+                        ee: r.c[9]?.v || 0,
+                       pts: parseIntegerClean(r.c[10]?.v || 0)
+                    };
 
-    if(playerData.div.toLowerCase().includes("chesspions")) {
-        chesspionsRows.push(playerData);
-    } else {
-        chesscondRows.push(playerData);
-    }
-});
-if (typeof currentRound !== 'undefined') {
-    renderRoundUI(currentRound); 
-}
-                
-// Helper de insignias independientes por división
-const getLimits = (rows) => {
-    let maxT = -1, maxW = -1, minL = 99;
-    rows.forEach(r => {
-        if(r.t > maxT) maxT = r.t;
-        if(r.w > maxW) maxW = r.w;
-        if(r.l < minL) minL = r.l;
-    });
-    return { maxT, maxW, minL };
-};
-
-const buildTableHTML = (rows, isChesspions) => {
-    let html = '';
-    const limits = getLimits(rows);
-    // --- NUEVO: PRECALCULAR LOS ROSCOS DE CADA JUGADOR EN ESTA CATEGORÍA ---
-    // Guardamos los roscos de cada uno para saber cuál es el número máximo
-    let roscosPorJugador = {};
-    let maxRoscosEnDivision = 0;
-    
-    // NUEVAS VARIABLES: Para contar los roscos RECIBIDOS (Samurái 🇯🇵)
-    let roscosRecibidosPorJugador = {};
-    let maxRoscosRecibidosEnDivision = 0;
-
-    rows.forEach(r => {
-        let count = 0;          // Cuenta los hechos a favor (Donut)
-        let countRecibidos = 0; // Cuenta los recibidos en contra (Japón)
-        
-        if (typeof allMatches !== 'undefined') {
-            allMatches.forEach(m => {
-                if (m.status === 'Terminado') {
-                    const s1Int = parseInt(m.s1);
-                    const s2Int = parseInt(m.s2);
-                    const rNameLower = r.name.toLowerCase().trim();
-                    const p1Lower = m.p1.toLowerCase().trim();
-                    const p2Lower = m.p2.toLowerCase().trim();
-
-                    // --- 🍩 ROSCOS HECHOS A FAVOR ---
-                    // Si ganó 4-0 como local
-                    if (p1Lower === rNameLower && s1Int === 4 && s2Int === 0) {
-                        count++;
+                    if(playerData.div.toLowerCase().includes("chesspions")) {
+                        chesspionsRows.push(playerData);
+                    } else {
+                        chesscondRows.push(playerData);
                     }
-                    // Si ganó 0-4 como visitante
-                    if (p2Lower === rNameLower && s1Int === 0 && s2Int === 4) {
-                        count++;
-                    }
+                });
 
-                    // --- 🇯🇵 ROSCOS RECIBIDOS EN CONTRA ---
-                    // Si PERDIÓ 0-4 como local
-                    if (p1Lower === rNameLower && s1Int === 0 && s2Int === 4) {
-                        countRecibidos++;
-                    }
-                    // Si PERDIÓ 4-0 como visitante
-                    if (p2Lower === rNameLower && s1Int === 4 && s2Int === 0) {
-                        countRecibidos++;
-                    }
+                if (typeof currentRound !== 'undefined') {
+                    renderRoundUI(currentRound); 
                 }
-            });
-        }
-        
-        // Guardamos los datos de los roscos hechos
-        roscosPorJugador[r.name] = count;
-        if (count > maxRoscosEnDivision) {
-            maxRoscosEnDivision = count;
-        }
+                
+                initCalendarUI();
+                renderRoundUI(currentRound);
 
-        // Guardamos los datos de los roscos recibidos
-        roscosRecibidosPorJugador[r.name] = countRecibidos;
-        if (countRecibidos > maxRoscosRecibidosEnDivision) {
-            maxRoscosRecibidosEnDivision = countRecibidos;
-        }
-    });
-
-   // --- RENDERIZADO DE LAS FILAS CON LAS INSIGNIAS CORREGIDAS ---
-rows.forEach((r, index) => {
-    let badge = '';
-    if(r.t === limits.maxT && r.t > 0) badge += ' 🤝';
-    if(r.w === limits.maxW && r.w > 0) badge += ' 👑'; // Corona para el máximo de victorias
-    if(r.l === limits.minL) badge += ' 🛡️';
-
-    // El donut se otorga SOLO si el jugador tiene el número máximo de roscos A FAVOR de su división (y al menos tiene 1)
-    if (maxRoscosEnDivision > 0 && roscosPorJugador[r.name] === maxRoscosEnDivision) {
-        badge += ' 🍩';
-    }
-
-    // NUEVA INSIGNIA: Bandera de Japón para el que más roscos ha RECIBIDO en la división
-    if (typeof maxRoscosRecibidosEnDivision !== 'undefined' && maxRoscosRecibidosEnDivision > 0 && roscosRecibidosPorJugador[r.name] === maxRoscosRecibidosEnDivision) {
-        badge += ' 🇯🇵';
-    }
-
-    // Clases estéticas por defecto de tamaño para el Top 3
-    let rowStyle = "";
-    let textStyle = "text-stone-800 font-medium";
-
-    if(index === 0) { rowStyle = "bg-amber-100/50 scale-[1.01] font-bold text-base"; }
-    else if(index === 1) { rowStyle = "bg-stone-100/80 text-sm font-bold"; }
-    else if(index === 2) { rowStyle = "bg-orange-50/60 text-sm font-bold"; }
-    // ... el resto de tu código del forEach continúa igual
-        // // --- NUEVA LÓGICA DE COLORES DE LIGA PERSONALIZADOS ---
-        let estiloFila = '';
-                        const posicion = r.pos; // Usamos la posición real de la tabla
-
-                        if (isChesspions) {
-                            if (posicion >= 1 && posicion <= 4) {
-                                estiloFila = 'background-color: rgba(46, 204, 113, 0.15) !important; border-left: 5px solid #2ecc71;'; // Verde Playoff
-                            } else if (posicion >= 7 && posicion <= 11) {
-                                estiloFila = 'background-color: rgba(241, 196, 15, 0.15) !important; border-left: 5px solid #f1c40f;'; // Amarillo Promoción
-                            } else if (posicion >= 12 && posicion <= 14) {
-                                estiloFila = 'background-color: rgba(231, 76, 60, 0.15) !important; border-left: 5px solid #e74c3c;'; // Rojo Descenso
-                            }
-                        } else {
-                            // Si es Chesscond Division
-                            if (posicion >= 1 && posicion <= 3) {
-                                estiloFila = 'background-color: rgba(46, 204, 113, 0.15) !important; border-left: 5px solid #2ecc71;'; // Verde Ascenso
-                            } else if (posicion >= 4 && posicion <= 8) {
-                                estiloFila = 'background-color: rgba(241, 196, 15, 0.15) !important; border-left: 5px solid #f1c40f;'; // Amarillo Promoción
-                            }
-                        }
-
-                        // Añadimos el style="${estiloFila}" dinámico a la fila tr
-                        html += `<tr style="${estiloFila}" class="border-b border-stone-300 cursor-pointer transition ${rowStyle} ${textStyle}" onclick="openPlayerModal('${r.name.replace(/'/g, "\'")}', '${r.div}'[...]
-                            <td class="py-3 px-3 font-black text-center text-stone-600">${r.pos}</td>
-                            <td class="py-3 px-3 font-bold text-stone-900">${r.name}${badge}</td>
-                            <td class="py-3 px-4 text-center bg-amber-50 font-black text-stone-950 text-base border-l border-r border-stone-300">${r.pts}</td>
-                            <td class="py-3 px-2 text-center text-indigo-900 font-bold">${r.ev}</td>
-                            <td class="py-3 px-2 text-center text-rose-700">${r.ed}</td>
-                            <td class="py-3 px-2 text-center text-stone-600">${r.ee}</td>
-                            <td class="py-3 px-2 text-center text-stone-800 font-semibold border-l border-stone-300">${r.j}</td>
-                            <td class="py-3 px-2 text-center text-emerald-700 font-bold">${r.w}</td>
-                            <td class="py-3 px-2 text-center text-red-600">${r.l}</td>
-                            <td class="py-3 px-2 text-center text-amber-600 font-semibold">${r.t}</td>
-                        </tr>`;
-                    });
-                    return html;
-                };
-                document.querySelector('#table-chesspions tbody').innerHTML = buildTableHTML(chesspionsRows, true);
-                document.querySelector('#table-chesscond tbody').innerHTML = buildTableHTML(chesscondRows, false);
-
-                // Detectar jornada activa por fecha actual
-const today = new Date();
-const currentYear = today.getFullYear(); // Detecta automáticamente el año actual (2026)
-
-for(let key in datesMap) {
-    if(!datesMap[key].start || !datesMap[key].end) continue;
-    
-    let pS = datesMap[key].start.split('/');
-    let pE = datesMap[key].end.split('/');
-    
-    // Creamos las fechas con números (Año, Mes - 1, Día, Hora, Minuto, Segundo)
-    // Restamos 1 al mes porque en JavaScript Enero es 0 y Diciembre es 11
-    let start = new Date(currentYear, parseInt(pS[1]) - 1, parseInt(pS[0]), 0, 0, 0);
-    let end = new Date(currentYear, parseInt(pE[1]) - 1, parseInt(pE[0]), 23, 59, 59);
-    
-    if(today >= start && today <= end) {
-        currentRound = parseInt(key.replace(/\D/g,'') || '10'); // Cambiado a '10' como fallback lógico por tu J10 actual
-        break;
-    }
-}
-
-initCalendarUI();
-renderRoundUI(currentRound);
-
-                // FASES FINALES
                 const playRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=PLAYOFFS`);
                 const playText = await playRes.text();
                 const playRows = JSON.parse(playText.substring(47).slice(0, -2)).table.rows.slice(1);
@@ -915,37 +716,33 @@ renderRoundUI(currentRound);
         function getPlayerRacha(playerName) {
             let racha = [];
             
-            // Buscar todas las partidas del jugador (terminadas)
             const playerMatches = allMatches.filter(m => 
                 m.status === 'Terminado' && (
                     m.p1.toLowerCase().trim() === playerName.toLowerCase().trim() ||
                     m.p2.toLowerCase().trim() === playerName.toLowerCase().trim()
                 )
             ).sort((a, b) => {
-                // Ordenar por jornada descendente (las más recientes primero)
                 return b.round - a.round;
-            }).slice(0, 5); // Tomar las últimas 5
+            }).slice(0, 5);
             
-            // Procesar cada partida
             playerMatches.forEach(m => {
                 const isPlayer1 = m.p1.toLowerCase().trim() === playerName.toLowerCase().trim();
                 const playerScore = isPlayer1 ? parseInt(m.s1) : parseInt(m.s2);
                 const opponentScore = isPlayer1 ? parseInt(m.s2) : parseInt(m.s1);
                 
                 if (playerScore > opponentScore) {
-                    racha.push({ result: 'ganada', emoji: '✅' });
+                    racha.push({ result: 'ganada' });
                 } else if (playerScore < opponentScore) {
-                    racha.push({ result: 'perdida', emoji: '❌' });
+                    racha.push({ result: 'perdida' });
                 } else if (playerScore === opponentScore) {
-                    racha.push({ result: 'tablas', emoji: '⏸️' });
+                    racha.push({ result: 'tablas' });
                 }
             });
             
-            // Invertir para mostrar la más antigua primero (de izquierda a derecha)
             return racha.reverse();
         }
 
-        // 🎯 NUEVA FUNCIÓN: RENDERIZAR SEMÁFORO
+        // 🎯 NUEVA FUNCIÓN: RENDERIZAR SEMÁFORO CON SOLO CÍRCULOS
         function renderRachaSemaforoHTML(playerName) {
             const racha = getPlayerRacha(playerName);
             
@@ -954,22 +751,22 @@ renderRoundUI(currentRound);
             }
             
             let html = '<div class="racha-container">';
-            racha.forEach((item, idx) => {
+            racha.forEach((item) => {
                 let claseColor = '';
-                let label = '';
+                let titulo = '';
                 
                 if (item.result === 'ganada') {
                     claseColor = 'racha-ganada';
-                    label = 'G';
+                    titulo = 'Ganada';
                 } else if (item.result === 'perdida') {
                     claseColor = 'racha-perdida';
-                    label = 'P';
+                    titulo = 'Perdida';
                 } else if (item.result === 'tablas') {
                     claseColor = 'racha-tablas';
-                    label = 'T';
+                    titulo = 'Tablas';
                 }
                 
-                html += `<div class="racha-item ${claseColor}" title="${item.result}">${label}</div>`;
+                html += `<div class="racha-item ${claseColor}" title="${titulo}"></div>`;
             });
             html += '</div>';
             
@@ -980,11 +777,9 @@ renderRoundUI(currentRound);
             const modal = document.getElementById('player-modal');
             const playerInfo = infoData.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim());
             
-            // Actualizar nombre y división
             document.getElementById('modal-name').textContent = playerName;
             
             if (!division) {
-                // Buscar la división del jugador en las clasificaciones
                 const inChess = chesspionsRows.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim());
                 if (inChess) {
                     division = 'Chesspions League';
@@ -996,7 +791,6 @@ renderRoundUI(currentRound);
             }
             document.getElementById('modal-division').textContent = division;
             
-            // Cargar datos de Lichess
             const eloInfo = eloRankingData.find(e => e.Jugador.toLowerCase().trim() === playerName.toLowerCase().trim());
             if (eloInfo) {
                 document.getElementById('modal-elo-blitz').textContent = eloInfo.Ranking_Blitz || '-';
@@ -1006,11 +800,10 @@ renderRoundUI(currentRound);
                 document.getElementById('modal-elo-container').classList.add('hidden');
             }
             
-            // 🎯 MOSTRAR SEMÁFORO DE RACHA
+            // 🎯 MOSTRAR SEMÁFORO DE RACHA CON SOLO CÍRCULOS
             const rachaHTML = renderRachaSemaforoHTML(playerName);
             document.getElementById('modal-racha').innerHTML = rachaHTML;
             
-            // Calcular racha de forma global
             const playerClass = chesspionsRows.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim()) || 
                                chesscondRows.find(p => p.name.toLowerCase().trim() === playerName.toLowerCase().trim());
             
@@ -1022,13 +815,11 @@ renderRoundUI(currentRound);
                 document.getElementById('modal-streak').textContent = '-';
             }
             
-            // Botones de acción
             if (playerInfo && playerInfo.lichess) {
                 document.getElementById('modal-lichess-btn').href = `https://lichess.org/@/${playerInfo.lichess}`;
                 document.getElementById('modal-whatsapp-btn').href = `https://wa.me/${playerInfo.telefono}`;
             }
             
-            // Historial reciente
             const recentMatches = allMatches.filter(m => 
                 m.status === 'Terminado' && (
                     m.p1.toLowerCase().trim() === playerName.toLowerCase().trim() ||
@@ -1046,13 +837,12 @@ renderRoundUI(currentRound);
             
             document.getElementById('modal-history').innerHTML = historyHTML || '<p class="text-xs text-stone-500">Sin historial</p>';
             
-            // Mostrar modal
             modal.classList.remove('hidden');
             
-            // Cerrar modal
             document.getElementById('close-modal').onclick = () => {
                 modal.classList.add('hidden');
             };
         }
-
-        // ... resto del código continúa igual
+    </script>
+</body>
+</html>
