@@ -702,46 +702,6 @@ const getLimits = (rows) => {
     return { maxT, maxW, minL };
 };
 
-// HELPER: Calcula la tendencia de forma reciente (Últimos 4 partidos)
-function getPlayerFormBadges(playerName) {
-    if (typeof allMatches === 'undefined' || !Array.isArray(allMatches)) return '';
-
-    const searchName = playerName.toLowerCase().trim();
-
-    // Filtramos usando estrictamente tus variables reales y solo partidos "Terminado"
-    let playerMatches = allMatches.filter(m => m && m.status === 'Terminado' && (
-        (m.player1 && m.player1.toLowerCase().trim() === searchName) || 
-        (m.player2 && m.player2.toLowerCase().trim() === searchName)
-    ));
-
-    playerMatches.sort((a, b) => (a.round || 0) - (b.round || 0));
-    let lastMatches = playerMatches.slice(-4);
-
-    if (lastMatches.length === 0) {
-        return `<span class="text-xs text-stone-400 italic">Sin tendencia (0 encuentros)</span>`;
-    }
-
-    let badgesHTML = lastMatches.map(m => {
-        const isP1 = m.player1 && m.player1.toLowerCase().trim() === searchName;
-        
-        const s1 = parseFloat((m.score1 || "0").toString().replace(',', '.')) || 0;
-        const s2 = parseFloat((m.score2 || "0").toString().replace(',', '.')) || 0;
-
-        const myScore = isP1 ? s1 : s2;
-        const rivalScore = isP1 ? s2 : s1;
-
-        if (myScore > rivalScore) {
-            return `<span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter">V</span>`;
-        } else if (myScore < rivalScore) {
-            return `<span class="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter">D</span>`;
-        } else {
-            return `<span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter">E</span>`;
-        }
-    }).join('');
-
-    return `<div class="flex gap-1.5 items-center justify-center">${badgesHTML}</div>`;
-}
-                
 const buildTableHTML = (rows, isChesspions) => {
     let html = '';
     const limits = getLimits(rows);
@@ -1132,151 +1092,138 @@ renderRoundUI(currentRound);
             lucide.createIcons();
         }
 
-window.openPlayerModal = function(name, division) {
+       window.openPlayerModal = function(name, division) {
+    // Ponemos un try/catch global para que, pase lo que pase con el ELO, la ventana NO se quede bloqueada
     try {
-        // 1. Datos básicos iniciales
         document.getElementById('modal-name').innerText = name || "-";
         document.getElementById('modal-division').innerText = division || "-";
         
         // ==========================================
-        // 🔲 LÓGICA: MOSTRAR RANKING DE ELO
+        // 🔲 LÓGICA: MOSTRAR RANKING DE ELO (CORREGIDA Y SEGURA)
         // ==========================================
-        try {
-            const eloContainer = document.getElementById('modal-elo-container');
-            const eloBlitzTxt = document.getElementById('modal-elo-blitz');
-            const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
-            
-            let eloInfo = null;
-            if (typeof eloRankingData !== 'undefined' && Array.isArray(eloRankingData)) {
-                eloInfo = eloRankingData.find(e => e && e.Jugador && e.Jugador.toLowerCase().trim() === name.toLowerCase().trim());
-            }
-            
-            if (eloInfo && eloContainer && eloBlitzTxt && eloRapidasTxt) {
-                eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
-                eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
-                eloContainer.classList.remove('hidden'); 
-            } else if (eloContainer) {
-                eloContainer.classList.add('hidden'); 
-            }
-        } catch (errElo) {
-            console.error("Error en Elo:", errElo);
+        const eloContainer = document.getElementById('modal-elo-container');
+        const eloBlitzTxt = document.getElementById('modal-elo-blitz');
+        const eloRapidasTxt = document.getElementById('modal-elo-rapidas');
+        
+        let eloInfo = null;
+        if (typeof eloRankingData !== 'undefined' && Array.isArray(eloRankingData)) {
+            eloInfo = eloRankingData.find(e => {
+                // Protección: Verificamos que 'e' y 'e.Jugador' existan antes de hacer el string-clean
+                if (!e || !e.Jugador) return false;
+                return e.Jugador.toLowerCase().trim() === name.toLowerCase().trim();
+            });
         }
         
-        // ==========================================
-        // 🔗 ENLACES DE LICHESS Y WHATSAPP
-        // ==========================================
-        const playerInfo = infoData.find(i => i && i.name && i.name.toLowerCase().trim() === name.toLowerCase().trim());
-        
-        const lichessBtn = document.getElementById('modal-lichess-btn');
-        if(playerInfo && playerInfo.lichess && lichessBtn) {
-            const nickLichess = playerInfo.lichess.trim();
-            lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
-            lichessBtn.style.display = 'flex';
-        } else if (lichessBtn) {
-            lichessBtn.style.display = 'none';
+        if (eloInfo && eloContainer && eloBlitzTxt && eloRapidasTxt) {
+            eloBlitzTxt.innerText = eloInfo.Ranking_Blitz || "N/A";
+            eloRapidasTxt.innerText = eloInfo.Ranking_Rapidas || "N/A";
+            eloContainer.classList.remove('hidden'); 
+        } else if (eloContainer) {
+            eloContainer.classList.add('hidden'); 
         }
+    } catch (errEloGlobal) {
+        console.error("Error en la sección de carga de Elo:", errEloGlobal);
+    }
+    // ==========================================
+    
+    // CONTINUACIÓN DE TU LOGICA CORE ORIGINAL (RETAR / WHATSAPP / HISTORIAL)
+    const playerInfo = infoData.find(i => i.name && i.name.toLowerCase().trim() === name.toLowerCase().trim());
+    const lichessBtn = document.getElementById('modal-lichess-btn');
+    if(playerInfo && playerInfo.lichess) {
+        const nickLichess = playerInfo.lichess.trim();
+        lichessBtn.href = `https://lichess.org/?user=${encodeURIComponent(nickLichess)}&time=10&increment=0#friend`;
+        lichessBtn.style.display = 'flex';
+    } else if (lichessBtn) {
+        lichessBtn.style.display = 'none';
+    }
 
-        const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
-        if (playerInfo && playerInfo.telefono && btnWhatsapp) {
-            const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
-            if (numLimpio !== "") {
-                const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
-                btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
-                btnWhatsapp.style.display = 'flex';
-            } else {
-                btnWhatsapp.style.display = 'none';
-            }
+    // --- LÓGICA BOTÓN DE WHATSAPP ---
+    const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
+    if (playerInfo && playerInfo.telefono) {
+        const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
+        if (numLimpio !== "") {
+            const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
+            btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
+            btnWhatsapp.style.display = 'flex';
         } else if (btnWhatsapp) {
             btnWhatsapp.style.display = 'none';
         }
+    } else if (btnWhatsapp) {
+        btnWhatsapp.style.display = 'none';
+    }
 
-        // ==========================================
-        // 📜 HISTORIAL DE PARTIDOS REALES (CORREGIDO)
-        // ==========================================
-        const historyContainer = document.getElementById('modal-history');
+    const historyContainer = document.getElementById('modal-history');
+    if (historyContainer) {
+        historyContainer.innerHTML = '';
+        
+        let playerMatches = allMatches.filter(m => (m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim()) || (m.p2 && m.p2.toLowerCase().trim() === name.toLowerCase().trim()));
+        playerMatches.sort((a,b) => a.round - b.round);
+
         let streak = [];
+        if(playerMatches.length === 0) {
+            historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
+        } else {
+            playerMatches.forEach(m => {
+                const isP1 = m.p1 && m.p1.toLowerCase().trim() === name.toLowerCase().trim();
+                const opponent = isP1 ? m.p2 : m.p1;
+                
+                let badgeHTML = "";
+                let tablasFichaHTML = '';
 
-        if (historyContainer) {
-            historyContainer.innerHTML = '';
-            const searchName = name.toLowerCase().trim();
-            
-            // Filtramos los partidos con tus variables reales del Sheets (player1 y player2)
-            let playerMatches = allMatches.filter(m => m && (
-                (m.player1 && m.player1.toLowerCase().trim() === searchName) || 
-                (m.player2 && m.player2.toLowerCase().trim() === searchName)
-            ));
-            
-            playerMatches.sort((a,b) => (a.round || 0) - (b.round || 0));
-
-            if(playerMatches.length === 0) {
-                historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
-            } else {
-                playerMatches.forEach(m => {
-                    const isP1 = m.player1 && m.player1.toLowerCase().trim() === searchName;
-                    const opponent = isP1 ? m.player2 : m.player1;
+                if (m.status === 'Terminado') {
+                    let myScore = parseFloat(isP1 ? m.s1.replace(',','.') : m.s2.replace(',','.'));
+                    let oppScore = parseFloat(isP1 ? m.s2.replace(',','.') : m.s1.replace(',','.'));
                     
-                    let badgeHTML = "";
-                    let tablasFichaHTML = '';
-
-                    // CONTROL ESTRICTO: Solo si el estado es textualmente "Terminado" procesamos puntuación
-                    if (m.status === 'Terminado') {
-                        let myScore = parseFloat((isP1 ? m.score1 : m.score2 || "0").toString().replace(',','.'));
-                        let oppScore = parseFloat((isP1 ? m.score2 : m.score1 || "0").toString().replace(',','.'));
-                        
-                        let outcome = '⚔️ E';
-                        let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
-                        
-                        if(myScore > oppScore) { 
-                            if (myScore === 4 && oppScore === 0) {
-                                outcome = '🍩 ¡Rosco!';
-                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
-                            } else {
-                                outcome = '🔥 V';
-                                badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
-                            }
-                            streak.push('V'); 
+                    let outcome = '⚔️ E';
+                    let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
+                    
+                    if(myScore > oppScore) { 
+                        if (myScore === 4 && oppScore === 0) {
+                            outcome = '🍩 ¡Rosco!';
+                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
+                        } else {
+                            outcome = '🔥 V';
+                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
                         }
-                        else if(myScore < oppScore) { 
-                            if (myScore === 0 && oppScore === 4) {
-                                outcome = '🇯🇵 ¡Samurai!';
-                                badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
-                            } else {
-                                outcome = '💀 D';
-                                badgeClass = 'bg-red-100 text-red-950 border-red-300';
-                            }
-                            streak.push('D'); 
+                        streak.push('V'); 
+                    }
+                    else if(myScore < oppScore) { 
+                        if (myScore === 0 && oppScore === 4) {
+                            outcome = '🇯🇵 ¡Samurai!';
+                            badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
+                        } else {
+                            outcome = '💀 D';
+                            badgeClass = 'bg-red-100 text-red-950 border-red-300';
                         }
-                        else { 
-                            streak.push('T'); 
-                        }
-
-                        badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
-
-                        if (m.tablas && parseInt(m.tablas) > 0) {
-                            tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
-                        }
-                    } else {
-                        // Si está pendiente, se queda como PENDIENTE sin inventar resultados
-                        badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
+                        streak.push('D'); 
+                    }
+                    else { 
+                        streak.push('T'); 
                     }
 
-                    historyContainer.innerHTML += `
-                        <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
-                            <span class="text-stone-800 font-bold"><b>J${m.round || '?'}</b> vs ${opponent}</span>
-                            <div class="flex items-center gap-1">
-                                ${badgeHTML}
-                                ${tablasFichaHTML}
-                            </div>
+                    badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
+
+                    if (m.tablas && parseInt(m.tablas) > 0) {
+                        tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
+                    }
+                } 
+                else {
+                    badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
+                }
+
+                historyContainer.innerHTML += `
+                    <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
+                        <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
+                        <div class="flex items-center gap-1">
+                            ${badgeHTML}
+                            ${tablasFichaHTML}
                         </div>
-                    `;
-                });
-            }
+                    </div>
+                `;
+            });
         }
             
-        // ==========================================
-        // 📊 CONTROL DE TEXTO DE LA RACHA Y SEMÁFORO
-        // ==========================================
-        let continuousStreak = 0;
+       let continuousStreak = 0;
         const streakElem = document.getElementById('modal-streak');
         if (streakElem) {
             if (streak.length > 0) {
@@ -1289,42 +1236,18 @@ window.openPlayerModal = function(name, division) {
             } else {
                 streakElem.innerText = 'Sin racha registrada';
             }
-            
-            try {
-                const oldTermometro = document.getElementById('modal-termometro-grafico');
-                if (oldTermometro) oldTermometro.remove();
-
-                const formBadges = getPlayerFormBadges(name);
-
-                const termometroContainer = document.createElement('div');
-                termometroContainer.id = 'modal-termometro-grafico';
-                termometroContainer.className = 'mt-2 pt-2 border-t border-stone-200/60 flex flex-col items-center justify-center';
-                termometroContainer.innerHTML = `
-                    <span class="text-[9px] uppercase font-black tracking-wider text-stone-400 block mb-1">Tendencia</span>
-                    ${formBadges}
-                `;
-                streakElem.parentElement.appendChild(termometroContainer);
-            } catch (errTermometro) {
-                console.error("Fallo controlado en el termómetro gráfico:", errTermometro);
-            }
         }
-
-    } catch (globalError) {
-        console.error("💥 ERROR CRÍTICO INTERNO EN OPENPLAYERMODAL:", globalError);
-    } finally {
-        const modalElement = document.getElementById('player-modal');
-        if (modalElement) modalElement.classList.remove('hidden');
+        
+        // Esto vuelve a hacer visible el modal en pantalla
+        document.getElementById('player-modal').classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-};
-// Evento de cierre independiente
-const closeBtn = document.getElementById('close-modal');
-if (closeBtn) {
-    closeBtn.onclick = () => {
-        const modalElement = document.getElementById('player-modal');
-        if (modalElement) modalElement.classList.add('hidden');
+        };
+    }; // Aquí se cierra correctamente window.openPlayerModal
+
+    // Evento para el botón de cerrar el modal
+    document.getElementById('close-modal').onclick = () => {
+        document.getElementById('player-modal').classList.add('hidden');
     };
-}
         
     </script>
 </body>
