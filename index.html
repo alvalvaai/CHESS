@@ -708,12 +708,13 @@ function getPlayerFormBadges(playerName) {
 
     const searchName = playerName.toLowerCase().trim();
 
-    let playerMatches = allMatches.filter(m => {
-        if (!m) return false;
-        return Object.values(m).some(val => val && val.toString().toLowerCase().trim() === searchName);
-    });
+    // Filtramos usando estrictamente tus variables reales y solo partidos "Terminado"
+    let playerMatches = allMatches.filter(m => m && m.status === 'Terminado' && (
+        (m.player1 && m.player1.toLowerCase().trim() === searchName) || 
+        (m.player2 && m.player2.toLowerCase().trim() === searchName)
+    ));
 
-    playerMatches.sort((a, b) => (a.round || a.ronda || 0) - (b.round || b.ronda || 0));
+    playerMatches.sort((a, b) => (a.round || 0) - (b.round || 0));
     let lastMatches = playerMatches.slice(-4);
 
     if (lastMatches.length === 0) {
@@ -721,16 +722,10 @@ function getPlayerFormBadges(playerName) {
     }
 
     let badgesHTML = lastMatches.map(m => {
-        const keys = Object.keys(m);
-        const p1Key = keys.find(k => k.toLowerCase().includes('player1') || k.toLowerCase() === 'p1' || k.toLowerCase().includes('jugador1')) || keys[2];
-        const s1Key = keys.find(k => k.toLowerCase() === 's1' || k.toLowerCase().includes('score1')) || keys[4];
-        const s2Key = keys.find(k => k.toLowerCase() === 's2' || k.toLowerCase().includes('score2')) || keys[5];
-
-        const p1Val = (m[p1Key] || '').toString().toLowerCase().trim();
-        const isP1 = p1Val === searchName;
+        const isP1 = m.player1 && m.player1.toLowerCase().trim() === searchName;
         
-        const s1 = parseFloat((m[s1Key] || "0").toString().replace(',', '.')) || 0;
-        const s2 = parseFloat((m[s2Key] || "0").toString().replace(',', '.')) || 0;
+        const s1 = parseFloat((m.score1 || "0").toString().replace(',', '.')) || 0;
+        const s2 = parseFloat((m.score2 || "0").toString().replace(',', '.')) || 0;
 
         const myScore = isP1 ? s1 : s2;
         const rivalScore = isP1 ? s2 : s1;
@@ -1196,7 +1191,7 @@ window.openPlayerModal = function(name, division) {
         }
 
         // ==========================================
-        // 📜 HISTORIAL CON DETECTOR UNIVERSAL DE PROPIEDADES
+        // 📜 HISTORIAL DE PARTIDOS REALES (CORREGIDO)
         // ==========================================
         const historyContainer = document.getElementById('modal-history');
         let streak = [];
@@ -1205,44 +1200,28 @@ window.openPlayerModal = function(name, division) {
             historyContainer.innerHTML = '';
             const searchName = name.toLowerCase().trim();
             
-            // Imprimimos el primer elemento en la consola para auditarlo en caso de error
-            if(allMatches && allMatches.length > 0) {
-                console.log("Estructura real de un partido detectada:", allMatches[0]);
-            }
-
-            let playerMatches = allMatches.filter(m => {
-                if (!m) return false;
-                // Buscamos dinámicamente cualquier propiedad que contenga el nombre del jugador
-                return Object.values(m).some(val => val && val.toString().toLowerCase().trim() === searchName);
-            });
+            // Filtramos los partidos con tus variables reales del Sheets (player1 y player2)
+            let playerMatches = allMatches.filter(m => m && (
+                (m.player1 && m.player1.toLowerCase().trim() === searchName) || 
+                (m.player2 && m.player2.toLowerCase().trim() === searchName)
+            ));
             
-            playerMatches.sort((a,b) => (a.round || a.ronda || 0) - (b.round || b.ronda || 0));
+            playerMatches.sort((a,b) => (a.round || 0) - (b.round || 0));
 
             if(playerMatches.length === 0) {
                 historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
             } else {
                 playerMatches.forEach(m => {
-                    // Extraer claves dinámicamente
-                    const keys = Object.keys(m);
-                    const p1Key = keys.find(k => k.toLowerCase().includes('player1') || k.toLowerCase() === 'p1' || k.toLowerCase().includes('jugador1')) || keys[2];
-                    const p2Key = keys.find(k => k.toLowerCase().includes('player2') || k.toLowerCase() === 'p2' || k.toLowerCase().includes('jugador2')) || keys[3];
-                    const s1Key = keys.find(k => k.toLowerCase() === 's1' || k.toLowerCase().includes('score1') || k.toLowerCase().includes('resultado1')) || keys[4];
-                    const s2Key = keys.find(k => k.toLowerCase() === 's2' || k.toLowerCase().includes('score2') || k.toLowerCase().includes('resultado2')) || keys[5];
-                    const roundKey = keys.find(k => k.toLowerCase().includes('round') || k.toLowerCase().includes('ronda')) || 'round';
-
-                    const p1Val = (m[p1Key] || '').toString();
-                    const p2Val = (m[p2Key] || '').toString();
-                    const isP1 = p1Val.toLowerCase().trim() === searchName;
-                    const opponent = isP1 ? p2Val : p1Val;
-                    const roundNum = m[roundKey] || '?';
-
+                    const isP1 = m.player1 && m.player1.toLowerCase().trim() === searchName;
+                    const opponent = isP1 ? m.player2 : m.player1;
+                    
                     let badgeHTML = "";
                     let tablasFichaHTML = '';
 
-                    const mStatus = (m.status || m.estado || '').toLowerCase();
-                    if (mStatus.includes('terminado') || mStatus.includes('fin') || m[s1Key] !== undefined) {
-                        let myScore = parseFloat((isP1 ? m[s1Key] : m[s2Key] || "0").toString().replace(',','.'));
-                        let oppScore = parseFloat((isP1 ? m[s2Key] : m[s1Key] || "0").toString().replace(',','.'));
+                    // CONTROL ESTRICTO: Solo si el estado es textualmente "Terminado" procesamos puntuación
+                    if (m.status === 'Terminado') {
+                        let myScore = parseFloat((isP1 ? m.score1 : m.score2 || "0").toString().replace(',','.'));
+                        let oppScore = parseFloat((isP1 ? m.score2 : m.score1 || "0").toString().replace(',','.'));
                         
                         let outcome = '⚔️ E';
                         let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
@@ -1277,12 +1256,13 @@ window.openPlayerModal = function(name, division) {
                             tablasFichaHTML = `<span class="text-[10px] text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded font-bold ml-1 inline-flex items-center gap-1">🤝 ${m.tablas}</span>`;
                         }
                     } else {
+                        // Si está pendiente, se queda como PENDIENTE sin inventar resultados
                         badgeHTML = `<span class="px-2 py-0.5 rounded font-bold border bg-stone-100 text-stone-500 border-stone-300 inline-flex items-center gap-1">⏳ Pendiente</span>`;
                     }
 
                     historyContainer.innerHTML += `
                         <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
-                            <span class="text-stone-800 font-bold"><b>J${roundNum}</b> vs ${opponent}</span>
+                            <span class="text-stone-800 font-bold"><b>J${m.round || '?'}</b> vs ${opponent}</span>
                             <div class="flex items-center gap-1">
                                 ${badgeHTML}
                                 ${tablasFichaHTML}
@@ -1294,7 +1274,7 @@ window.openPlayerModal = function(name, division) {
         }
             
         // ==========================================
-        // 📊 CONTROL DE TEXTO DE LA RACHA Y TERMÓMETRO
+        // 📊 CONTROL DE TEXTO DE LA RACHA Y SEMÁFORO
         // ==========================================
         let continuousStreak = 0;
         const streakElem = document.getElementById('modal-streak');
