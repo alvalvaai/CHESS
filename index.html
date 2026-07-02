@@ -710,16 +710,10 @@ function getPlayerFormBadges(playerName) {
 
     let playerMatches = allMatches.filter(m => {
         if (!m) return false;
-        
-        const p1 = (m.player1 || m.p1 || '').toLowerCase().trim();
-        const p2 = (m.player2 || m.p2 || '').toLowerCase().trim();
-        
-        const isMyPlayer = (p1 === searchName) || (p2 === searchName);
-                           
-        return m.status === 'Terminado' && isMyPlayer;
+        return Object.values(m).some(val => val && val.toString().toLowerCase().trim() === searchName);
     });
 
-    playerMatches.sort((a, b) => (a.round || 0) - (b.round || 0));
+    playerMatches.sort((a, b) => (a.round || a.ronda || 0) - (b.round || b.ronda || 0));
     let lastMatches = playerMatches.slice(-4);
 
     if (lastMatches.length === 0) {
@@ -727,24 +721,26 @@ function getPlayerFormBadges(playerName) {
     }
 
     let badgesHTML = lastMatches.map(m => {
-        const p1 = (m.player1 || m.p1 || '').toLowerCase().trim();
-        
-        const score1 = m.s1 || m.score1 || "0";
-        const score2 = m.s2 || m.score2 || "0";
-        
-        const s1 = parseFloat(score1.toString().replace(',', '.')) || 0;
-        const s2 = parseFloat(score2.toString().replace(',', '.')) || 0;
+        const keys = Object.keys(m);
+        const p1Key = keys.find(k => k.toLowerCase().includes('player1') || k.toLowerCase() === 'p1' || k.toLowerCase().includes('jugador1')) || keys[2];
+        const s1Key = keys.find(k => k.toLowerCase() === 's1' || k.toLowerCase().includes('score1')) || keys[4];
+        const s2Key = keys.find(k => k.toLowerCase() === 's2' || k.toLowerCase().includes('score2')) || keys[5];
 
-        const isP1 = p1 === searchName;
+        const p1Val = (m[p1Key] || '').toString().toLowerCase().trim();
+        const isP1 = p1Val === searchName;
+        
+        const s1 = parseFloat((m[s1Key] || "0").toString().replace(',', '.')) || 0;
+        const s2 = parseFloat((m[s2Key] || "0").toString().replace(',', '.')) || 0;
+
         const myScore = isP1 ? s1 : s2;
         const rivalScore = isP1 ? s2 : s1;
 
         if (myScore > rivalScore) {
-            return `<span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter" title="Victoria (${myScore}-${rivalScore})">V</span>`;
+            return `<span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter">V</span>`;
         } else if (myScore < rivalScore) {
-            return `<span class="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter" title="Derrota (${myScore}-${rivalScore})">D</span>`;
+            return `<span class="w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter">D</span>`;
         } else {
-            return `<span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter" title="Tablas (${myScore}-${rivalScore})">E</span>`;
+            return `<span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-[11px] font-black shadow-xs tracking-tighter">E</span>`;
         }
     }).join('');
 
@@ -1141,7 +1137,7 @@ renderRoundUI(currentRound);
             lucide.createIcons();
         }
 
- window.openPlayerModal = function(name, division) {
+window.openPlayerModal = function(name, division) {
     try {
         // 1. Datos básicos iniciales
         document.getElementById('modal-name').innerText = name || "-";
@@ -1200,36 +1196,53 @@ renderRoundUI(currentRound);
         }
 
         // ==========================================
-        // 📜 HISTORIAL DE PARTIDOS Y RACHAS (SIN FILTRO DE DIVISIÓN)
+        // 📜 HISTORIAL CON DETECTOR UNIVERSAL DE PROPIEDADES
         // ==========================================
         const historyContainer = document.getElementById('modal-history');
         let streak = [];
 
         if (historyContainer) {
             historyContainer.innerHTML = '';
+            const searchName = name.toLowerCase().trim();
             
-            // Omitimos la división, buscamos directamente por nombre de jugador
-            let playerMatches = allMatches.filter(m => m && (
-                (m.player1 && m.player1.toLowerCase().trim() === name.toLowerCase().trim()) || 
-                (m.player2 && m.player2.toLowerCase().trim() === name.toLowerCase().trim())
-            ));
+            // Imprimimos el primer elemento en la consola para auditarlo en caso de error
+            if(allMatches && allMatches.length > 0) {
+                console.log("Estructura real de un partido detectada:", allMatches[0]);
+            }
+
+            let playerMatches = allMatches.filter(m => {
+                if (!m) return false;
+                // Buscamos dinámicamente cualquier propiedad que contenga el nombre del jugador
+                return Object.values(m).some(val => val && val.toString().toLowerCase().trim() === searchName);
+            });
             
-            playerMatches.sort((a,b) => (a.round || 0) - (b.round || 0));
+            playerMatches.sort((a,b) => (a.round || a.ronda || 0) - (b.round || b.ronda || 0));
 
             if(playerMatches.length === 0) {
                 historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
             } else {
                 playerMatches.forEach(m => {
-                    if (!m) return;
-                    const isP1 = m.player1 && m.player1.toLowerCase().trim() === name.toLowerCase().trim();
-                    const opponent = isP1 ? m.player2 : m.player1;
-                    
+                    // Extraer claves dinámicamente
+                    const keys = Object.keys(m);
+                    const p1Key = keys.find(k => k.toLowerCase().includes('player1') || k.toLowerCase() === 'p1' || k.toLowerCase().includes('jugador1')) || keys[2];
+                    const p2Key = keys.find(k => k.toLowerCase().includes('player2') || k.toLowerCase() === 'p2' || k.toLowerCase().includes('jugador2')) || keys[3];
+                    const s1Key = keys.find(k => k.toLowerCase() === 's1' || k.toLowerCase().includes('score1') || k.toLowerCase().includes('resultado1')) || keys[4];
+                    const s2Key = keys.find(k => k.toLowerCase() === 's2' || k.toLowerCase().includes('score2') || k.toLowerCase().includes('resultado2')) || keys[5];
+                    const roundKey = keys.find(k => k.toLowerCase().includes('round') || k.toLowerCase().includes('ronda')) || 'round';
+
+                    const p1Val = (m[p1Key] || '').toString();
+                    const p2Val = (m[p2Key] || '').toString();
+                    const isP1 = p1Val.toLowerCase().trim() === searchName;
+                    const opponent = isP1 ? p2Val : p1Val;
+                    const roundNum = m[roundKey] || '?';
+
                     let badgeHTML = "";
                     let tablasFichaHTML = '';
 
-                    if (m.status === 'Terminado') {
-                        let myScore = parseFloat(isP1 ? (m.s1||"0").replace(',','.') : (m.s2||"0").replace(',','.'));
-                        let oppScore = parseFloat(isP1 ? (m.s2||"0").replace(',','.') : (m.s1||"0").replace(',','.'));
+                    const mStatus = (m.status || m.estado || '').toLowerCase();
+                    if (mStatus.includes('terminado') || mStatus.includes('fin') || m[s1Key] !== undefined) {
+                        let myScore = parseFloat((isP1 ? m[s1Key] : m[s2Key] || "0").toString().replace(',','.'));
+                        let oppScore = parseFloat((isP1 ? m[s2Key] : m[s1Key] || "0").toString().replace(',','.'));
                         
                         let outcome = '⚔️ E';
                         let badgeClass = 'bg-amber-100 text-amber-950 border-amber-300';
@@ -1269,7 +1282,7 @@ renderRoundUI(currentRound);
 
                     historyContainer.innerHTML += `
                         <div class="flex justify-between items-center p-2 bg-stone-50 rounded-lg text-xs border border-stone-200">
-                            <span class="text-stone-800 font-bold"><b>J${m.round}</b> vs ${opponent}</span>
+                            <span class="text-stone-800 font-bold"><b>J${roundNum}</b> vs ${opponent}</span>
                             <div class="flex items-center gap-1">
                                 ${badgeHTML}
                                 ${tablasFichaHTML}
@@ -1281,7 +1294,7 @@ renderRoundUI(currentRound);
         }
             
         // ==========================================
-        // 📊 CONTROL DE TEXTO DE LA RACHA
+        // 📊 CONTROL DE TEXTO DE LA RACHA Y TERMÓMETRO
         // ==========================================
         let continuousStreak = 0;
         const streakElem = document.getElementById('modal-streak');
@@ -1297,9 +1310,6 @@ renderRoundUI(currentRound);
                 streakElem.innerText = 'Sin racha registrada';
             }
             
-            // ==========================================
-            // 🔥 TERMÓMETRO GRÁFICO SEGURO
-            // ==========================================
             try {
                 const oldTermometro = document.getElementById('modal-termometro-grafico');
                 if (oldTermometro) oldTermometro.remove();
@@ -1323,9 +1333,7 @@ renderRoundUI(currentRound);
         console.error("💥 ERROR CRÍTICO INTERNO EN OPENPLAYERMODAL:", globalError);
     } finally {
         const modalElement = document.getElementById('player-modal');
-        if (modalElement) {
-            modalElement.classList.remove('hidden');
-        }
+        if (modalElement) modalElement.classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 };
