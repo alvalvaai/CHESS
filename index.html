@@ -1079,7 +1079,7 @@ renderRoundUI(currentRound);
                     if(myScore > oppScore) { 
                         if (myScore === 4 && oppScore === 0) {
                             outcome = '🍩 ¡Rosco!';
-                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300 animate-pulse';
+                            badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
                         } else {
                             outcome = '🔥 V';
                             badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
@@ -1089,7 +1089,7 @@ renderRoundUI(currentRound);
                     else if(myScore < oppScore) { 
                         if (myScore === 0 && oppScore === 4) {
                             outcome = '🇯🇵 ¡Samurai!';
-                            badgeClass = 'bg-red-100 text-red-950 border-red-300 animate-pulse';
+                            badgeClass = 'bg-red-100 text-red-950 border-red-300';
                         } else {
                             outcome = '💀 D';
                             badgeClass = 'bg-red-100 text-red-950 border-red-300';
@@ -1122,7 +1122,7 @@ renderRoundUI(currentRound);
             });
         }
             
-       let continuousStreak = 0;
+        let continuousStreak = 0;
         const streakElem = document.getElementById('modal-streak');
         if (streakElem) {
             if (streak.length > 0) {
@@ -1137,40 +1137,32 @@ renderRoundUI(currentRound);
             }
         }
         
-        // 🟢🟡🔴 LÓGICA DEL SEMÁFORO DE LAS ÚLTIMAS 5 PARTIDAS
+        // 🟢🟡🔴 Renderizado forzado del semáforo de forma de las últimas 5 partidas
         const semaforoContainer = document.getElementById('modal-semaforo');
         if (semaforoContainer) {
             semaforoContainer.innerHTML = '';
-            
-            // Obtenemos las últimas 5 del historial del jugador
             let ultimas5 = streak.slice(-5);
-            
-            // Si tiene menos de 5, rellenamos el principio con espacios grises 'X'
             while (ultimas5.length < 5) {
                 ultimas5.unshift('X');
             }
-            
-            // Dibujamos las esferas de colores en base al resultado mapeado
             ultimas5.forEach(resultado => {
                 let claseBola = "bola-vacia";
                 let toolTip = "Sin partida";
-                
                 if (resultado === 'V') { claseBola = "bola-v"; toolTip = "Victoria"; }
                 else if (resultado === 'T') { claseBola = "bola-t"; toolTip = "Tablas / Empate"; }
                 else if (resultado === 'D') { claseBola = "bola-d"; toolTip = "Derrota"; }
-                
                 semaforoContainer.innerHTML += `<span class="bola-semaforo ${claseBola}" title="${toolTip}"></span>`;
             });
         }
         
         document.getElementById('player-modal').classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
-    };
-
-    document.getElementById('close-modal').onclick = () => {
-        document.getElementById('player-modal').classList.add('hidden');
-    };
+    } catch(e) {
+        console.error("Error crítico abriendo el modal:", e);
+    }
+};
         
+      
     </script>
 </body>
 </html>
