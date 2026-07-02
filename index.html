@@ -1122,6 +1122,7 @@ renderRoundUI(currentRound);
             });
         }
             
+       // Cálculo de racha continua que ya tenías
         let continuousStreak = 0;
         const streakElem = document.getElementById('modal-streak');
         if (streakElem) {
@@ -1137,7 +1138,7 @@ renderRoundUI(currentRound);
             }
         }
         
-        // 🟢🟡🔴 Renderizado forzado del semáforo de forma de las últimas 5 partidas
+        // 🟢🟡🔴 EL SEMÁFORO DE LAS ÚLTIMAS 5 PARTIDAS (Agregado limpio)
         const semaforoContainer = document.getElementById('modal-semaforo');
         if (semaforoContainer) {
             semaforoContainer.innerHTML = '';
@@ -1155,12 +1156,15 @@ renderRoundUI(currentRound);
             });
         }
         
+        // Abre el modal en pantalla
         document.getElementById('player-modal').classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
-    } catch(e) {
-        console.error("Error crítico abriendo el modal:", e);
-    }
-};
+    }; // <-- Una sola llave y punto y coma para cerrar la función limpia.
+
+    // Evento para el botón de cerrar el modal (Esto va justo debajo)
+    document.getElementById('close-modal').onclick = () => {
+        document.getElementById('player-modal').classList.add('hidden');
+    };
         
       
     </script>
