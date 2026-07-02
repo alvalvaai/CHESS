@@ -617,7 +617,7 @@ allMatches = [];
 const todayStr = new Date(); // Fecha actual para comparar
 
 resRows.forEach((r, idx) => {
-  if (idx === 0 || !r.c || !r.c[2]) return;
+  if (!r.c || !r.c[2]) return;
   
   let roundNum = parseInt(r.c[0]?.v?.toString().replace(/\D/g,'') || '1');
   let division = r.c[1]?.v || '';
