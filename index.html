@@ -48,12 +48,14 @@
             </div>
         </div>
         
-        <div class="grid grid-cols-2 gap-2 w-full max-w-md mx-auto bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 w-full max-w-2xl mx-auto bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
             <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🏆 Competición</button>
             
             <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">✍️ El Ojo del Alfil</button>
             
             <button id="tab-mundo" onclick="switchTab('mundo')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🌍 Mundo Chess</button>
+
+            <button id="tab-peones" onclick="switchTab('peones')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">📇 Peones</button>
 
             <button id="tab-reglamento" onclick="switchTab('reglamento')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">📜 Reglamento</button>
         </div>
@@ -180,6 +182,28 @@
         </div>
     </div>
 </div>
+
+    <!-- TAB: PEONES (FICHAS DE LOS PARTICIPANTES) -->
+    <div id="content-peones" class="hidden max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+        <div class="bg-lichess-card rounded-2xl shadow-xl p-6 border border-stone-400">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-300 pb-3 mb-4">
+                <h2 class="text-xl font-black text-stone-900 flex items-center gap-2">
+                    📇 Peones — Conoce a los Participantes
+                </h2>
+                <input id="peones-search" type="text" placeholder="🔍 Buscar por nombre o nick..." class="w-full sm:w-72 px-4 py-2 rounded-xl border border-stone-300 bg-white text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-700">
+            </div>
+            <p class="text-xs text-stone-500 mb-5">Así se han presentado los jugadores en el cuestionario de bienvenida de la liga.</p>
+
+            <a href="https://forms.gle/1goUwgvh4XNZM4Mm9" target="_blank" class="flex items-center justify-between gap-3 bg-amber-800 hover:bg-amber-900 text-white rounded-xl px-4 py-3 mb-5 transition shadow-sm">
+                <span class="text-sm font-bold">📝 ¿Aún no tienes tu ficha? Rellena el cuestionario aquí</span>
+                <span class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-lg whitespace-nowrap">Abrir formulario ↗</span>
+            </a>
+
+            <div id="peones-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                <p class="text-stone-500 italic text-center py-8 col-span-full">Cargando fichas de los participantes...</p>
+            </div>
+        </div>
+    </div>
     
     <!-- PESTAÑA PRINCIPAL: LIGA -->
     <div id="content-liga" class="max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -373,6 +397,12 @@
                 </a>
             </div>
 
+            <!-- 🚦 SEMÁFORO DE FORMA: ÚLTIMOS 5 ENCUENTROS -->
+            <div class="mb-5">
+                <p class="text-[10px] text-stone-600 font-bold uppercase tracking-wider mb-2 text-center">🚦 Últimos 5 Encuentros</p>
+                <div id="modal-semaforo" class="flex items-center justify-center gap-2"></div>
+            </div>
+
             <h4 class="text-xs font-bold uppercase text-stone-500 tracking-wider mb-2.5">Historial Reciente</h4>
             <div id="modal-history" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
         </div>
@@ -387,6 +417,8 @@
         let datesMap = {};
         let resumenIAData = "";
         let chesspionsRows = [], chesscondRows = [];
+        let peonesData = []; // 📇 Fichas de participantes (respuestas del Google Form)
+        let peonesSearchListenerAttached = false;
 
         window.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
@@ -415,6 +447,10 @@
     const contentMundo = document.getElementById('content-mundo-chess');
     if (contentMundo) contentMundo.classList.add('hidden');
 
+    // 📇 Ocultamos el contenedor de Peones
+    const contentPeones = document.getElementById('content-peones');
+    if (contentPeones) contentPeones.classList.add('hidden');
+
     // 3. Activamos solo la pestaña y el contenido correspondiente
     if (tab === 'liga') {
         document.getElementById('tab-liga').classList.add('active');
@@ -430,6 +466,10 @@
         // 🆕 Condición para activar la nueva pestaña de Mundo Chess
         document.getElementById('tab-mundo').classList.add('active');
         if (contentMundo) contentMundo.classList.remove('hidden');
+    } else if (tab === 'peones') {
+        // 📇 Condición para activar la nueva pestaña de Peones
+        document.getElementById('tab-peones').classList.add('active');
+        if (contentPeones) contentPeones.classList.remove('hidden');
     }
 }
 
@@ -586,6 +626,113 @@
                 }
                 // ==========================================================
 
+                // ==========================================================
+                // 📇 LÓGICA: OBTENER FICHAS DE PARTICIPANTES DESDE LA PESTAÑA "Peones"
+                // (Respuestas del Google Form de bienvenida)
+                // ==========================================================
+                try {
+                    const peonesRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Peones`);
+                    const peonesText = await peonesRes.text();
+                    const peonesJson = JSON.parse(peonesText.substring(47).slice(0, -2));
+                    const peonesCols = peonesJson.table.cols || [];
+                    const peonesRows = peonesJson.table.rows || [];
+
+                    // Normaliza texto (minúsculas y sin acentos) para poder comparar cabeceras con seguridad
+                    const normaliza = (s) => (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+                    // Busca el índice de la columna cuya cabecera contenga alguna de las palabras clave
+                    const buscaCol = (keywords) => {
+                        for (let i = 0; i < peonesCols.length; i++) {
+                            const label = normaliza(peonesCols[i]?.label);
+                            if (label && keywords.some(k => label.includes(k))) return i;
+                        }
+                        return -1;
+                    };
+
+                    const idx = {
+                        nombre: buscaCol(['nombre y apellidos', 'nombre']),
+                        nickGrupo: buscaCol(['nick del grupo']),
+                        nickLichess: buscaCol(['nick de lichess', 'lichess']),
+                        telefono: buscaCol(['telefono', 'whatsapp']),
+                        ciudad: buscaCol(['ciudad', 'localidad']),
+                        desdeCuando: buscaCol(['desde cuando', 'como empezaste']),
+                        modalidad: buscaCol(['modalidad de juego']),
+                        colorPref: buscaCol(['blancas o negras', 'prefieres piezas']),
+                        apertura: buscaCol(['apertura o defensa']),
+                        estilo: buscaCol(['estilo de juego']),
+                        dias: buscaCol(['dias de la semana']),
+                        horarios: buscaCol(['horarios habituales']),
+                        hobbies: buscaCol(['hobbies o aficiones']),
+                        presentacion: buscaCol(['haz una presentacion', 'presentacion'])
+                    };
+
+                    const getVal = (r, i) => {
+                        if (i < 0 || !r.c[i] || r.c[i].v === null || r.c[i].v === undefined) return '';
+                        // Usamos el valor "formateado" (.f) si existe, igual que se hace con los resultados de partidas.
+                        // Esto evita que Google Sheets se coma los ceros iniciales de números de teléfono
+                        // que ha interpretado como cifras (ej. "0033612345678" -> 33612345678).
+                        const cell = r.c[i];
+                        return (cell.f !== undefined && cell.f !== null ? cell.f : cell.v.toString()).trim();
+                    };
+
+                    peonesData = peonesRows
+                        .map(r => {
+                            if (!r.c) return null;
+                            return {
+                                nombre: getVal(r, idx.nombre),
+                                nickGrupo: getVal(r, idx.nickGrupo),
+                                nickLichess: getVal(r, idx.nickLichess),
+                                telefono: getVal(r, idx.telefono),
+                                ciudad: getVal(r, idx.ciudad),
+                                desdeCuando: getVal(r, idx.desdeCuando),
+                                modalidad: getVal(r, idx.modalidad),
+                                colorPref: getVal(r, idx.colorPref),
+                                apertura: getVal(r, idx.apertura),
+                                estilo: getVal(r, idx.estilo),
+                                dias: getVal(r, idx.dias),
+                                horarios: getVal(r, idx.horarios),
+                                hobbies: getVal(r, idx.hobbies),
+                                presentacion: getVal(r, idx.presentacion)
+                            };
+                        })
+                        .filter(p => p && (p.nombre || p.nickGrupo));
+
+                    // 🔤 Ordenamos alfabéticamente por Nick del Grupo (o por nombre si no tiene nick)
+                    peonesData.sort((a, b) => {
+                        const claveA = (a.nickGrupo || a.nombre || '').toLowerCase();
+                        const claveB = (b.nickGrupo || b.nombre || '').toLowerCase();
+                        return claveA.localeCompare(claveB, 'es', { sensitivity: 'base' });
+                    });
+
+                    renderPeones(peonesData);
+
+                    if (!peonesSearchListenerAttached) {
+                        const inputBusqueda = document.getElementById('peones-search');
+                        if (inputBusqueda) {
+                            inputBusqueda.addEventListener('input', (e) => {
+                                const q = normaliza(e.target.value);
+                                const filtrado = peonesData.filter(p =>
+                                    normaliza(p.nombre).includes(q) ||
+                                    normaliza(p.nickGrupo).includes(q) ||
+                                    normaliza(p.nickLichess).includes(q) ||
+                                    normaliza(p.ciudad).includes(q)
+                                );
+                                renderPeones(filtrado);
+                            });
+                            peonesSearchListenerAttached = true;
+                        }
+                    }
+
+                    console.log(`✅ Peones cargado con éxito (${peonesData.length} fichas)`);
+                } catch (errPeones) {
+                    console.error("❌ Error al cargar la pestaña Peones:", errPeones);
+                    const gridPeones = document.getElementById('peones-grid');
+                    if (gridPeones) {
+                        gridPeones.innerHTML = `<p class="text-stone-500 italic text-center py-8 col-span-full">No se han podido cargar las fichas de los participantes.</p>`;
+                    }
+                }
+                // ==========================================================
+
                 // 1. OBTENER INFORMACIÓN DE JUGADORES
                 const infoRes = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=INFO`);
                 const infoText = await infoRes.text();
@@ -626,6 +773,11 @@ resRows.forEach((r, idx) => {
   let score1 = r.c[4] !== null ? (r.c[4].f || r.c[4].v.toString()) : '';
   let score2 = r.c[5] !== null ? (r.c[5].f || r.c[5].v.toString()) : '';
   
+  // Leemos la columna G (índice 6): número de partidas individuales que acabaron en tablas
+  let numTablasCol = r.c[6] !== null && r.c[6] !== undefined && r.c[6].v !== null && r.c[6].v !== undefined
+    ? parseInt(r.c[6].v.toString().replace(',', '.')) || 0
+    : 0;
+
   // Leemos la columna H del Excel (índice 7)
   let notasExcel = r.c[7]?.v?.toString().toLowerCase() || ''; 
   
@@ -646,7 +798,7 @@ resRows.forEach((r, idx) => {
 
   allMatches.push({
     round: roundNum, div: division, p1: player1, p2: player2,
-    s1: score1, s2: score2, status: matchStatus, draws: individualDraws
+    s1: score1, s2: score2, status: matchStatus, draws: individualDraws, tablas: numTablasCol
   });
 }); // <--- AQUÍ CERRABA TU BUCLE FOREACH DE RESULTADOS
 
@@ -861,6 +1013,128 @@ renderRoundUI(currentRound);
             } catch (e) {
                 console.error("Fallo crítico: ", e);
             }
+        }
+
+        // ==========================================================
+        // 📇 RENDERIZADO DE LAS FICHAS DE PEONES (PARTICIPANTES)
+        // ==========================================================
+        function renderPeones(lista) {
+            const grid = document.getElementById('peones-grid');
+            if (!grid) return;
+
+            if (!lista || lista.length === 0) {
+                grid.innerHTML = `<p class="text-stone-500 italic text-center py-8 col-span-full">No se ha encontrado ninguna ficha todavía. ¡Anima a la gente a rellenar el formulario! 📝</p>`;
+                return;
+            }
+
+            const iconoColor = (colorTxt) => {
+                const c = normalizaTexto(colorTxt);
+                if (c.includes('blanc')) return '⚪';
+                if (c.includes('negr')) return '⚫';
+                if (c.includes('igual')) return '🔄';
+                return '♟️';
+            };
+
+            const chips = (txt, colorClasses) => {
+                if (!txt) return '';
+                return txt.split(',').map(v => v.trim()).filter(Boolean)
+                    .map(v => `<span class="text-[10px] font-bold px-2 py-1 rounded-full border ${colorClasses}">${v}</span>`)
+                    .join('');
+            };
+
+            grid.innerHTML = lista.map(p => {
+                const nombreMostrado = p.nombre || p.nickGrupo || 'Peón Anónimo';
+                const inicial = nombreMostrado.trim().charAt(0).toUpperCase() || '♟️';
+
+                const lichessBtn = p.nickLichess
+                    ? `<a href="https://lichess.org/@/${encodeURIComponent(p.nickLichess)}" target="_blank" class="flex-1 text-center bg-amber-800 hover:bg-amber-900 text-white rounded-lg py-1.5 text-[11px] font-bold transition">♞ ${p.nickLichess}</a>`
+                    : '';
+
+                const whatsappBtn = p.telefono
+                    ? (() => {
+                        const numLimpio = formatWhatsappNumber(p.telefono);
+                        return `<a href="https://wa.me/${numLimpio}?text=Hola%20${encodeURIComponent(nombreMostrado)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez." target="_blank" class="flex-1 text-center bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg py-1.5 text-[11px] font-bold transition">💬 WhatsApp</a>`;
+                    })()
+                    : '';
+
+                return `
+                <div class="bg-white rounded-2xl border border-stone-300 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition">
+                    <div class="flex items-center gap-3 border-b border-stone-200 pb-3">
+                        <div class="w-11 h-11 shrink-0 bg-stone-800 text-[#eddcc4] rounded-full flex items-center justify-center text-lg font-black">${inicial}</div>
+                        <div class="min-w-0">
+                            <h3 class="text-base font-black text-stone-900 truncate">${nombreMostrado}</h3>
+                            <div class="flex items-center flex-wrap gap-1.5 mt-0.5">
+                                ${p.nickGrupo ? `<span class="text-[10px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded">🏷️ ${p.nickGrupo}</span>` : ''}
+                                ${p.ciudad ? `<span class="text-[10px] font-bold text-stone-600">📍 ${p.ciudad}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${(lichessBtn || whatsappBtn) ? `<div class="flex gap-2">${lichessBtn}${whatsappBtn}</div>` : ''}
+
+                    ${p.estilo ? `<p class="text-xs italic text-stone-800 bg-stone-50 border-l-4 border-amber-600 px-3 py-2 rounded-r-lg">"${p.estilo}"</p>` : ''}
+
+                    <div class="flex flex-wrap gap-1.5">
+                        ${p.modalidad ? `<span class="text-[10px] font-bold px-2 py-1 rounded-full bg-sky-100 text-sky-900 border border-sky-300">⏱️ ${p.modalidad}</span>` : ''}
+                        ${p.colorPref ? `<span class="text-[10px] font-bold px-2 py-1 rounded-full bg-stone-100 text-stone-800 border border-stone-300">${iconoColor(p.colorPref)} ${p.colorPref}</span>` : ''}
+                    </div>
+
+                    ${p.apertura ? `<p class="text-xs text-stone-700"><span class="font-bold text-stone-900">♟️ Apertura/Defensa favorita:</span> ${p.apertura}</p>` : ''}
+
+                    ${p.desdeCuando ? `<p class="text-xs text-stone-700"><span class="font-bold text-stone-900">📅 ¿Desde cuándo juega?:</span> ${p.desdeCuando}</p>` : ''}
+
+                    ${(p.dias || p.horarios) ? `
+                    <div class="pt-2 border-t border-stone-100 space-y-1.5">
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-stone-500">🗓️ Disponibilidad</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${chips(p.dias, 'bg-emerald-100 text-emerald-900 border-emerald-300')}
+                            ${chips(p.horarios, 'bg-indigo-100 text-indigo-900 border-indigo-300')}
+                        </div>
+                    </div>` : ''}
+
+                    ${p.hobbies ? `<p class="text-xs text-stone-700"><span class="font-bold text-stone-900">🎨 Aficiones:</span> ${p.hobbies}</p>` : ''}
+
+                    ${p.presentacion ? `
+                    <details class="text-xs text-stone-700 bg-stone-50 rounded-lg border border-stone-200 px-3 py-2">
+                        <summary class="font-bold text-stone-900 cursor-pointer select-none">🗣️ Presentación personal</summary>
+                        <p class="mt-2 whitespace-pre-line">${p.presentacion}</p>
+                    </details>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        // Normaliza texto (minúsculas, sin acentos) — usada por renderPeones
+        function normalizaTexto(s) {
+            return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+        }
+
+        // ==========================================================
+        // 📞 FUNCIÓN COMPARTIDA: prepara un número de teléfono para usarlo en un enlace wa.me
+        // Entiende prefijos escritos como "0034", "0033", "+34", "+33", o números sin prefijo (asume España)
+        // Se usa tanto en las fichas de Peones como en el modal del jugador
+        // ==========================================================
+        function formatWhatsappNumber(raw) {
+            if (!raw) return '';
+            let num = raw.toString().trim();
+
+            // Quitamos espacios, guiones, puntos y paréntesis
+            num = num.replace(/[\s\-\.\(\)]/g, '');
+
+            if (num.startsWith('+')) {
+                // Formato "+34612345678" o "+33612345678" -> quitamos el "+"
+                num = num.substring(1);
+            } else if (num.startsWith('00')) {
+                // Formato "0034612345678" o "0033612345678" -> quitamos el "00" (prefijo de marcación internacional)
+                num = num.substring(2);
+            } else if (num.replace(/[^0-9]/g, '').length <= 9) {
+                // Número corto sin ningún prefijo (ej. "612345678") -> asumimos España
+                num = '34' + num;
+            }
+            // Si no entra en ninguno de los casos anteriores, asumimos que ya viene con el código
+            // de país pegado sin separador (ej. "34612345678" o "33612345678") y lo dejamos tal cual.
+
+            // Nos quedamos solo con dígitos, por si se cuela alguna letra suelta
+            return num.replace(/[^0-9]/g, '');
         }
 
         function initCalendarUI() {
@@ -1140,10 +1414,9 @@ renderRoundUI(currentRound);
     // --- LÓGICA BOTÓN DE WHATSAPP ---
     const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
     if (playerInfo && playerInfo.telefono) {
-        const numLimpio = playerInfo.telefono.toString().replace(/\s+/g, '');
+        const numLimpio = formatWhatsappNumber(playerInfo.telefono);
         if (numLimpio !== "") {
-            const prefijo = numLimpio.startsWith('34') || numLimpio.length > 9 ? '' : '34';
-            btnWhatsapp.href = `https://wa.me/${prefijo}${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
+            btnWhatsapp.href = `https://wa.me/${numLimpio}?text=Hola%20${encodeURIComponent(playerInfo.name)},%20te%20escribo%20desde%20la%20app%20de%20ajedrez.`;
             btnWhatsapp.style.display = 'flex';
         } else if (btnWhatsapp) {
             btnWhatsapp.style.display = 'none';
@@ -1160,6 +1433,7 @@ renderRoundUI(currentRound);
         playerMatches.sort((a,b) => a.round - b.round);
 
         let streak = [];
+        let formHistory = []; // 🚦 Guarda {round, result} de cada partida finalizada, para el semáforo
         if(playerMatches.length === 0) {
             historyContainer.innerHTML = `<p class="text-xs text-stone-500 text-center py-4">Sin partidas asignadas en esta edición.</p>`;
         } else {
@@ -1186,6 +1460,7 @@ renderRoundUI(currentRound);
                             badgeClass = 'bg-emerald-100 text-emerald-950 border-emerald-300';
                         }
                         streak.push('V'); 
+                        formHistory.push({ round: m.round, result: 'V' });
                     }
                     else if(myScore < oppScore) { 
                         if (myScore === 0 && oppScore === 4) {
@@ -1196,9 +1471,11 @@ renderRoundUI(currentRound);
                             badgeClass = 'bg-red-100 text-red-950 border-red-300';
                         }
                         streak.push('D'); 
+                        formHistory.push({ round: m.round, result: 'D' });
                     }
                     else { 
                         streak.push('T'); 
+                        formHistory.push({ round: m.round, result: 'T' });
                     }
 
                     badgeHTML = `<span class="px-2 py-0.5 rounded font-black border ${badgeClass}">${outcome} (${myScore}-${oppScore})</span>`;
@@ -1235,6 +1512,23 @@ renderRoundUI(currentRound);
                 streakElem.innerText = `${continuousStreak} ${last === 'V' ? 'Victorias Seguidas' : last === 'D' ? 'Derrotas Seguidas' : 'Tablas Continuas'}`;
             } else {
                 streakElem.innerText = 'Sin racha registrada';
+            }
+        }
+
+        // 🚦 SEMÁFORO: pintamos las bolitas de los últimos 5 encuentros disputados
+        const semaforoElem = document.getElementById('modal-semaforo');
+        if (semaforoElem) {
+            const ultimos5 = formHistory.slice(-5);
+            if (ultimos5.length === 0) {
+                semaforoElem.innerHTML = `<p class="text-xs text-stone-400 italic">Sin encuentros finalizados todavía</p>`;
+            } else {
+                semaforoElem.innerHTML = ultimos5.map(f => {
+                    let colorClass, letra, titulo;
+                    if (f.result === 'V') { colorClass = 'bg-emerald-500 border-emerald-700'; letra = 'V'; titulo = 'Victoria'; }
+                    else if (f.result === 'D') { colorClass = 'bg-red-500 border-red-700'; letra = 'D'; titulo = 'Derrota'; }
+                    else { colorClass = 'bg-amber-400 border-amber-600'; letra = 'E'; titulo = 'Empate'; }
+                    return `<div title="Jornada ${f.round} · ${titulo}" class="w-7 h-7 rounded-full ${colorClass} border-2 flex items-center justify-center text-white text-[10px] font-black shadow-sm cursor-default">${letra}</div>`;
+                }).join('');
             }
         }
         
