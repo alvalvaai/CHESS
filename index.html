@@ -470,7 +470,7 @@
 
         // 📤 URL de tu Apps Script publicado como "Aplicación Web" (ver instrucciones aparte).
         // Sustituye el texto de abajo por la URL real que te dé Google al desplegarlo (termina en /exec).
-        const RESULTADOS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxyZkC1nb0MLA38H5IDBzRilhFcbZeBaR-BDgk6G22ZS6Qub7KfYJiWZrWUPxbLZX8C/exec';
+        const RESULTADOS_WEBAPP_URL = 'PON_AQUI_TU_URL_DE_APPS_SCRIPT';
 
         let currentRound = 9;
         let allMatches = [];
@@ -910,6 +910,13 @@ clasRows.forEach((r) => {
         chesscondRows.push(playerData);
     }
 });
+
+// ⚖️ APLICAMOS LOS CRITERIOS DE DESEMPATE DEL REGLAMENTO (ver pestaña Reglamento)
+// La Sheet ya trae el orden por puntos totales; aquí solo reordenamos los grupos
+// de jugadores EMPATADOS A PUNTOS, según enfrentamiento directo / mini-liga / etc.
+chesspionsRows = aplicarCriteriosDesempate(chesspionsRows, allMatches);
+chesscondRows = aplicarCriteriosDesempate(chesscondRows, allMatches);
+
 if (typeof currentRound !== 'undefined') {
     renderRoundUI(currentRound); 
 }
@@ -1206,6 +1213,135 @@ renderRoundUI(currentRound);
 
             // Nos quedamos solo con dígitos, por si se cuela alguna letra suelta
             return num.replace(/[^0-9]/g, '');
+        }
+
+        // ==========================================================
+        // ⚖️ CRITERIOS DE DESEMPATE DE LA CLASIFICACIÓN (ver pestaña Reglamento)
+        // ==========================================================
+
+        // 🔧 Puntos que otorga GANAR/EMPATAR un enfrentamiento (encuentro de 4 partidas), solo se
+        // usan para comparar DENTRO de una mini-liga entre jugadores empatados. Si tu sistema de
+        // puntuación general no es "victoria=3, empate 2-2=1, derrota=0", cambia estos dos números.
+        const PUNTOS_ENCUENTRO_GANADO = 2;
+        const PUNTOS_ENCUENTRO_EMPATADO = 1;
+
+        function _puntosIndividuales(cadena) {
+            return parseFloat((cadena || '0').toString().replace(',', '.')) || 0;
+        }
+
+        // Devuelve el resultado agregado (sumando todos los encuentros que se hayan jugado entre
+        // ellos, por si hubiera más de uno) del enfrentamiento directo entre dos jugadores.
+        function resultadoEnfrentamientoDirecto(nombreA, nombreB, matches) {
+            let ptsA = 0, ptsB = 0, encontrado = false;
+            const a = (nombreA || '').toLowerCase().trim();
+            const b = (nombreB || '').toLowerCase().trim();
+
+            matches.forEach(m => {
+                if (m.status !== 'Terminado') return;
+                const p1 = (m.p1 || '').toLowerCase().trim();
+                const p2 = (m.p2 || '').toLowerCase().trim();
+                if (!((p1 === a && p2 === b) || (p1 === b && p2 === a))) return;
+
+                const s1 = _puntosIndividuales(m.s1);
+                const s2 = _puntosIndividuales(m.s2);
+                encontrado = true;
+                if (p1 === a) { ptsA += s1; ptsB += s2; }
+                else { ptsA += s2; ptsB += s1; }
+            });
+
+            return { ptsA, ptsB, encontrado };
+        }
+
+        // Puntos de "mini-liga": solo se cuentan los encuentros jugados ENTRE los jugadores
+        // empatados (se ignoran los resultados contra el resto de la liga).
+        function puntosMiniLiga(nombreJugador, nombresImplicados, matches) {
+            const jl = (nombreJugador || '').toLowerCase().trim();
+            let pts = 0;
+
+            matches.forEach(m => {
+                if (m.status !== 'Terminado') return;
+                const p1 = (m.p1 || '').toLowerCase().trim();
+                const p2 = (m.p2 || '').toLowerCase().trim();
+                if (p1 !== jl && p2 !== jl) return;
+
+                const rival = p1 === jl ? p2 : p1;
+                if (!nombresImplicados.includes(rival)) return; // Solo entre los implicados en el empate
+
+                const propio = p1 === jl ? _puntosIndividuales(m.s1) : _puntosIndividuales(m.s2);
+                const delRival = p1 === jl ? _puntosIndividuales(m.s2) : _puntosIndividuales(m.s1);
+
+                if (propio > delRival) pts += PUNTOS_ENCUENTRO_GANADO;
+                else if (propio === delRival) pts += PUNTOS_ENCUENTRO_EMPATADO;
+            });
+
+            return pts;
+        }
+
+        // Desempate para EXACTAMENTE 2 jugadores empatados a puntos.
+        function ordenarEmpateDoble(grupo, matches) {
+            const [x, y] = grupo;
+
+            // 1. Enfrentamiento directo
+            const { ptsA, ptsB, encontrado } = resultadoEnfrentamientoDirecto(x.name, y.name, matches);
+            if (encontrado && ptsA !== ptsB) {
+                return ptsA > ptsB ? [x, y] : [y, x];
+            }
+
+            // 2. Más jornadas (encuentros) ganadas en todo el torneo -> columna EV
+            if (x.ev !== y.ev) return x.ev > y.ev ? [x, y] : [y, x];
+
+            // 3. Más partidas individuales ganadas en todo el torneo -> columna G
+            if (x.w !== y.w) return x.w > y.w ? [x, y] : [y, x];
+
+            // Empate total en todos los criterios: dejamos el orden que ya traían
+            return grupo;
+        }
+
+        // Desempate para 3 o más jugadores empatados a puntos (triple empate o más).
+        function ordenarEmpateTriple(grupo, matches) {
+            const nombresImplicados = grupo.map(g => (g.name || '').toLowerCase().trim());
+
+            return [...grupo].sort((a, b) => {
+                // 1. Puntos en mini-liga particular (solo partidos entre los implicados)
+                const pa = puntosMiniLiga(a.name, nombresImplicados, matches);
+                const pb = puntosMiniLiga(b.name, nombresImplicados, matches);
+                if (pa !== pb) return pb - pa;
+
+                // 2. Más jornadas (encuentros) ganadas en todo el torneo -> columna EV
+                if (a.ev !== b.ev) return b.ev - a.ev;
+
+                // 3. Más partidas individuales ganadas en todo el torneo -> columna G
+                if (a.w !== b.w) return b.w - a.w;
+
+                // Empate total: mantenemos el orden relativo que ya traían
+                return 0;
+            });
+        }
+
+        // Agrupa la clasificación por bloques de puntos idénticos y aplica el desempate
+        // correspondiente a cada bloque (2 jugadores o triple empate+), luego renumera la posición.
+        function aplicarCriteriosDesempate(rows, matches) {
+            if (!rows || rows.length === 0) return rows;
+
+            const grupos = [];
+            rows.forEach(r => {
+                const ultimoGrupo = grupos[grupos.length - 1];
+                if (ultimoGrupo && ultimoGrupo[0].pts === r.pts) {
+                    ultimoGrupo.push(r);
+                } else {
+                    grupos.push([r]);
+                }
+            });
+
+            const gruposOrdenados = grupos.map(grupo => {
+                if (grupo.length === 1) return grupo;
+                if (grupo.length === 2) return ordenarEmpateDoble(grupo, matches);
+                return ordenarEmpateTriple(grupo, matches);
+            });
+
+            const resultado = gruposOrdenados.flat();
+            resultado.forEach((r, i) => { r.pos = i + 1; });
+            return resultado;
         }
 
         // ==========================================================
