@@ -48,7 +48,7 @@
             </div>
         </div>
         
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full max-w-3xl mx-auto bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 w-full max-w-4xl mx-auto bg-stone-900/40 p-1.5 rounded-2xl border border-stone-700/50">
             <button id="tab-liga" onclick="switchTab('liga')" class="tab-btn active text-white px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">🏆 Competición</button>
             
             <button id="tab-resumen" onclick="switchTab('resumen')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">✍️ El Ojo del Alfil</button>
@@ -58,6 +58,8 @@
             <button id="tab-peones" onclick="switchTab('peones')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">📇 Peones</button>
 
             <button id="tab-reportar" onclick="switchTab('reportar')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">📤 Resultados</button>
+
+            <button id="tab-palmares" onclick="switchTab('palmares')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">👑 Palmarés</button>
 
             <button id="tab-reglamento" onclick="switchTab('reglamento')" class="tab-btn text-stone-400 hover:text-stone-200 px-3 py-2 rounded-xl font-bold text-xs transition uppercase tracking-wider text-center block">📜 Reglamento</button>
         </div>
@@ -205,6 +207,50 @@
                 <p class="text-stone-500 italic text-center py-8 col-span-full">Cargando fichas de los participantes...</p>
             </div>
         </div>
+    </div>
+
+    <!-- TAB: PALMARÉS HISTÓRICO -->
+    <div id="content-palmares" class="hidden max-w-6xl mx-auto p-4 md:p-6 space-y-8">
+
+        <!-- CABECERA -->
+        <div class="text-center space-y-2">
+            <h2 class="text-2xl md:text-3xl font-black text-stone-900 flex items-center justify-center gap-2">
+                👑 Salón de la Fama del Torneo
+            </h2>
+            <p class="text-sm text-stone-600 font-medium">Todos los campeones, subcampeones y terceros clasificados a lo largo de la historia.</p>
+        </div>
+
+        <!-- RANKING HISTÓRICO (PALMARÉS POR JUGADOR) -->
+        <section class="bg-lichess-card rounded-2xl shadow-sm border border-stone-300 overflow-hidden">
+            <div class="p-5 bg-gradient-to-r from-amber-100 via-amber-50 to-stone-100 border-b border-stone-300">
+                <h3 class="text-lg font-black text-amber-900 flex items-center gap-2">🏅 Ranking Histórico de Podios</h3>
+                <p class="text-xs text-stone-600 font-medium mt-0.5">Ordenado por número de títulos conseguidos.</p>
+            </div>
+            <div id="palmares-ranking-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 p-5">
+                <p class="text-stone-500 italic text-center py-8 col-span-full">Cargando palmarés histórico...</p>
+            </div>
+        </section>
+
+        <!-- TABLA DE EDICIONES -->
+        <section class="bg-lichess-card rounded-2xl shadow-sm border border-stone-300 overflow-hidden">
+            <div class="p-5 bg-gradient-to-r from-stone-200 to-stone-100 border-b border-stone-300">
+                <h3 class="text-lg font-black text-stone-900 flex items-center gap-2">📜 Historial de Ediciones</h3>
+                <p class="text-xs text-stone-600 font-medium mt-0.5">Podio completo de cada una de las ediciones jugadas.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm" id="table-palmares">
+                    <thead>
+                        <tr class="border-b border-stone-400 bg-stone-200/60 text-stone-700 font-bold">
+                            <th class="py-3 px-3 text-center w-20">Edición</th>
+                            <th class="py-3 px-4 bg-amber-100 text-amber-950 font-black">🥇 Campeón</th>
+                            <th class="py-3 px-4 bg-stone-200 text-stone-800 font-black">🥈 Segundo</th>
+                            <th class="py-3 px-4 bg-orange-100 text-orange-950 font-black">🥉 Tercero</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stone-300" id="table-palmares-body"></tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <!-- TAB: REPORTAR RESULTADO -->
@@ -481,6 +527,7 @@
         let chesspionsRows = [], chesscondRows = [];
         let peonesData = []; // 📇 Fichas de participantes (respuestas del Google Form)
         let peonesSearchListenerAttached = false;
+        let palmaresCargado = false; // 👑 Evita recargar la pestaña Palmarés cada vez que se abre
 
         window.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
@@ -517,6 +564,10 @@
     const contentReportar = document.getElementById('content-reportar');
     if (contentReportar) contentReportar.classList.add('hidden');
 
+    // 👑 Ocultamos el contenedor de Palmarés
+    const contentPalmares = document.getElementById('content-palmares');
+    if (contentPalmares) contentPalmares.classList.add('hidden');
+
     // 3. Activamos solo la pestaña y el contenido correspondiente
     if (tab === 'liga') {
         document.getElementById('tab-liga').classList.add('active');
@@ -541,6 +592,11 @@
         document.getElementById('tab-reportar').classList.add('active');
         if (contentReportar) contentReportar.classList.remove('hidden');
         initReportarUI();
+    } else if (tab === 'palmares') {
+        // 👑 Condición para activar la nueva pestaña de Palmarés
+        document.getElementById('tab-palmares').classList.add('active');
+        if (contentPalmares) contentPalmares.classList.remove('hidden');
+        if (!palmaresCargado) cargarPalmares();
     }
 }
 
@@ -1184,6 +1240,112 @@ renderRoundUI(currentRound);
         // Normaliza texto (minúsculas, sin acentos) — usada por renderPeones
         function normalizaTexto(s) {
             return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+        }
+
+        // ==========================================================
+        // 👑 LÓGICA: PALMARÉS HISTÓRICO (pestaña "PALMARES" de la Sheet)
+        // Columnas esperadas: A=EDICION, B=CAMPEON, C=SEGUNDO, D=TERCERO
+        // ==========================================================
+        async function cargarPalmares() {
+            const gridRanking = document.getElementById('palmares-ranking-grid');
+            const tbody = document.getElementById('table-palmares-body');
+
+            try {
+                const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=PALMARES`);
+                const text = await res.text();
+                const rows = JSON.parse(text.substring(47).slice(0, -2)).table.rows || [];
+
+                const getTxt = (r, i) => {
+                    if (!r.c || !r.c[i] || r.c[i].v === null || r.c[i].v === undefined) return '';
+                    return r.c[i].v.toString().trim();
+                };
+
+                // Filtramos filas de cabecera y filas vacías (ediciones aún no jugadas, como la XIX en curso)
+                const ediciones = rows
+                    .map(r => ({
+                        edicion: getTxt(r, 0),
+                        campeon: getTxt(r, 1),
+                        segundo: getTxt(r, 2),
+                        tercero: getTxt(r, 3)
+                    }))
+                    .filter(e => e.edicion && normalizaTexto(e.edicion) !== 'edicion' && normalizaTexto(e.campeon) !== 'campeon' && e.campeon);
+
+                palmaresCargado = true;
+
+                if (ediciones.length === 0) {
+                    if (gridRanking) gridRanking.innerHTML = `<p class="text-stone-500 italic text-center py-8 col-span-full">Todavía no hay ediciones registradas en el palmarés.</p>`;
+                    if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center text-stone-500 italic py-8">Todavía no hay ediciones registradas.</td></tr>`;
+                    return;
+                }
+
+                // --- 1) CONSTRUIMOS EL CONTEO DE PODIOS POR JUGADOR ---
+                const stats = {}; // { nombre: { titulos, sub, tercero } }
+                const sumar = (nombre, campo) => {
+                    if (!nombre) return;
+                    if (!stats[nombre]) stats[nombre] = { titulos: 0, sub: 0, tercero: 0 };
+                    stats[nombre][campo]++;
+                };
+                ediciones.forEach(e => {
+                    sumar(e.campeon, 'titulos');
+                    sumar(e.segundo, 'sub');
+                    sumar(e.tercero, 'tercero');
+                });
+
+                const ranking = Object.keys(stats).map(nombre => ({ nombre, ...stats[nombre] }));
+                ranking.sort((a, b) => {
+                    if (b.titulos !== a.titulos) return b.titulos - a.titulos;
+                    if (b.sub !== a.sub) return b.sub - a.sub;
+                    if (b.tercero !== a.tercero) return b.tercero - a.tercero;
+                    return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
+                });
+
+                // --- 2) RENDERIZAMOS LAS TARJETAS DEL RANKING ---
+                if (gridRanking) {
+                    gridRanking.innerHTML = ranking.map((p, idx) => {
+                        let cardStyle = 'bg-white border-stone-300';
+                        let rankBadge = '';
+                        if (idx === 0 && p.titulos > 0) {
+                            cardStyle = 'bg-gradient-to-br from-amber-100 to-amber-50 border-amber-400 shadow-md scale-[1.02]';
+                            rankBadge = `<span class="text-[10px] font-black uppercase tracking-wider bg-amber-500 text-white px-2 py-0.5 rounded-full">Máximo Campeón</span>`;
+                        } else if (idx === 1 && p.titulos > 0) {
+                            cardStyle = 'bg-gradient-to-br from-stone-100 to-stone-50 border-stone-400';
+                        } else if (idx === 2 && p.titulos > 0) {
+                            cardStyle = 'bg-gradient-to-br from-orange-50 to-white border-orange-300';
+                        }
+
+                        return `
+                        <div class="p-4 rounded-xl border ${cardStyle} transition flex flex-col gap-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <h4 class="font-black text-stone-900 text-sm truncate">${p.nombre}</h4>
+                                ${rankBadge}
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">🥇 ${p.titulos}</span>
+                                <span class="flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full bg-stone-200 text-stone-800 border border-stone-400">🥈 ${p.sub}</span>
+                                <span class="flex items-center gap-1 text-xs font-black px-2.5 py-1 rounded-full bg-orange-100 text-orange-900 border border-orange-300">🥉 ${p.tercero}</span>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+
+                // --- 3) RENDERIZAMOS LA TABLA DE EDICIONES (de la más reciente a la más antigua) ---
+                if (tbody) {
+                    const edicionesOrdenadas = [...ediciones].reverse();
+                    tbody.innerHTML = edicionesOrdenadas.map(e => `
+                        <tr class="transition">
+                            <td class="py-3 px-3 text-center font-black text-stone-600">${e.edicion}</td>
+                            <td class="py-3 px-4 font-black text-amber-900 bg-amber-50/70">🥇 ${e.campeon}</td>
+                            <td class="py-3 px-4 font-bold text-stone-700 bg-stone-100/70">${e.segundo ? `🥈 ${e.segundo}` : '—'}</td>
+                            <td class="py-3 px-4 font-bold text-orange-900 bg-orange-50/70">${e.tercero ? `🥉 ${e.tercero}` : '—'}</td>
+                        </tr>
+                    `).join('');
+                }
+
+            } catch (errPalmares) {
+                console.error('❌ Error al cargar la pestaña Palmarés:', errPalmares);
+                if (gridRanking) gridRanking.innerHTML = `<p class="text-stone-500 italic text-center py-8 col-span-full">No se ha podido cargar el palmarés histórico.</p>`;
+                if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="text-center text-stone-500 italic py-8">No se ha podido cargar el palmarés.</td></tr>`;
+            }
         }
 
         // ==========================================================
